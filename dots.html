@@ -1,0 +1,191 @@
+<html>
+    <head><title>dots</title>
+<style>
+    form { display: table; }
+    form p { display: table-row; }
+    form label { display: table-cell; text-align: right; }
+    form input { display: table-cell; width: 500;}
+    form span { display: table-cell; }
+</style>
+<script>
+var width = 800;
+var height = 600;
+var marg = 10;
+var canvas, ctx;
+function getvalue(s) {
+    r = +document.getElementById(s).value;
+    document.getElementById("show"+s).innerText = r;
+    return r;
+}
+function drawcirc(ctx, x, y, r) {
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, 2*Math.PI, false);
+    ctx.stroke();
+}
+var ar, br, an, bn, sep, ax, ay, bx, by, sc;
+function doanim() {
+    ar = getvalue("arad");
+    br = getvalue("brad");
+    an = getvalue("an");
+    bn = getvalue("bn");
+    sep = getvalue("dist");
+    var h = Math.max(ar, br) * 2;
+    var w = ar + br + sep;
+    sc = Math.min((height-2*marg)/h, (width-2*marg)/w);
+    ay = height / 2;
+    ax = width / 2 - 0.5 * (sep + br - ar) * sc;
+    ax = Math.floor(ax) + 0.5;
+    ay = Math.floor(ay) + 0.5;
+    by = ay;
+    bx = ax + sep * sc;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawcirc(ctx, ax, ay, ar * sc);
+    drawcirc(ctx, bx, by, br * sc);
+    requestAnimationFrame(dorandpt);
+    return false; // suppress submit
+}
+var pallete = {};
+function dodots(e) {
+    var r = canvas.getBoundingClientRect();
+    var x = e.clientX - r.left;
+    var y = e.clientY - r.top;
+    x = Math.floor(x) + 0.5;
+    y = Math.floor(y) + 0.5;
+    x = (x - ax) / sc;
+    y = (y - ay) / sc;
+    renderpt(x,y);
+}
+function renderpt(x,y) {
+    if (0) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawcirc(ctx, ax, ay, ar * sc);
+        drawcirc(ctx, bx, by, br * sc);
+    }
+    var san = Math.sin(Math.PI * 2 / an);
+    var can = Math.cos(Math.PI * 2 / an);
+    var sbn = -Math.sin(Math.PI * 2 / bn);
+    var cbn = Math.cos(Math.PI * 2 / bn);
+    var pts = [];
+    var ox = x;
+    var oy = y;
+    var eps = 1e-9;
+    var ord = 0;
+    var p = [];
+    var drawit = false;
+    var delta = 1;
+    var mindist = 1000;
+    var incirc = false;
+    for (var i=0; i<3000; i++) {
+        var t = Math.hypot(x, y) - ar;
+        mindist = Math.min(Math.abs(t), mindist);
+        if (t <= 0) {
+            incirc = true;
+            var nx = x * can + y * san;
+            y = y * can - x * san;
+            x = nx;
+            /*
+            p.push(x * sc + ax, y * sc + ay);
+            ord++;
+            if (Math.hypot(x-ox, y-oy) < eps) {
+                delta = Math.hypot(x-ox, y-oy);
+                drawit = true;
+                break;
+            }
+            */
+        }
+        x -= sep;
+        var t = Math.hypot(x, y) - br;
+        mindist = Math.min(Math.abs(t), mindist);
+        if (t <= 0) {
+            incirc = true;
+            var nx = x * cbn + y * sbn;
+            y = y * cbn - x * sbn;
+            x = nx;
+        }
+        p.push((x + sep) * sc + ax, y * sc + ay);
+        ord++;
+        if (Math.hypot(x+sep-ox, y-oy) < eps) {
+            delta = Math.hypot(x+sep-ox, y-oy);
+            drawit = true;
+            break;
+        }
+        x += sep;
+        /*
+        if (Math.hypot(x, y) <= ar) {
+            var nx = x * can - y * san;
+            y = y * can + x * san;
+            x = nx;
+            ctx.fillRect(x * sc + ax, y * sc + ay, 1, 1);
+        }
+        x -= sep;
+        if (Math.hypot(x, y) <= br) {
+            var nx = x * cbn - y * sbn;
+            y = y * cbn + x * sbn;
+            x = nx;
+            ctx.fillRect((x + sep) * sc + ax, y * sc + ay, 1, 1);
+        }
+        x += sep;
+        */
+    }
+    mindist *= sc;
+    if (incirc && drawit) {
+        if (!pallete[ord]) {
+            var cr = ord * 154 % 251;
+            var cg = ord * 230 % 241;
+            var cb = ord * 214 % 239;
+            pallete[ord] = "rgb(" + cr + "," + cg + "," + cb + ")";
+        }
+        ctx.fillStyle = pallete[ord];
+        if (mindist < 2) {
+            for (var i=0; i<p.length; i += 2) {
+                ctx.fillRect(p[i], p[i+1], 1, 1);
+            }
+        } else {
+            for (var i=0; i<p.length; i += 2) {
+                ctx.beginPath();
+                ctx.arc(p[i], p[i+1], mindist-0.5, 0, 2*Math.PI, false);
+                ctx.fill();
+            }
+        }
+    }
+ //   document.getElementById("order").innerText = "" + ord + " " + delta + " " + mindist;
+}
+function dorandpt() {
+    while (1) {
+        x = (2 * Math.random() - 1);
+        y = (2 * Math.random() - 1);
+        if (Math.hypot(x, y) < 1) {
+            if (Math.random() < 0.5) {
+                renderpt(ar*x, ar*y);
+            } else {
+                renderpt(br*x+sep, br*y);
+            }
+            requestAnimationFrame(dorandpt);
+            return;
+        }
+    }
+}
+function start() {
+    canvas = document.getElementById("canvas");
+    ctx = canvas.getContext("2d");
+    document.getElementById("arad").oninput = doanim;
+    document.getElementById("brad").oninput = doanim;
+    document.getElementById("an").oninput = doanim;
+    document.getElementById("bn").oninput = doanim;
+    document.getElementById("dist").oninput = doanim;
+    canvas.onclick = dodots;
+    canvas.onmousemove = dodots;
+    doanim();
+}
+</script>
+    </head>
+    <body onload="start();"><canvas id="canvas" width="800" height="600"></canvas></body>
+    <form>
+        <p><label for="arad">Radius A&nbsp;</label><input id="arad" type="range" step="0.001" min="1" max="10" value="2.41"><span id="showarad"></span></p>
+        <p><label for="an">Spin A&nbsp;</label><input id="an" type="range" step="1" min="2" max="20" value="3"><span id="showan"></span></p>
+        <p><label for="brad">Radius B&nbsp;</label><input id="brad" type="range" step="0.001" min="1" max="10" value="2.42"><span id="showbrad"></span></p>
+        <p><label for="bn">Spin B&nbsp;</label><input id="bn" type="range" step="1" min="2" max="20" value="5"><span id="showbn"></span></p>
+        <p><label for="dist">Separation&nbsp;</label><input id="dist" min="0" step="0.001" max="10" type="range" value="2"><span id="showdist"></span></p>
+    </form>
+    <div id="order"></div>
+</html>
