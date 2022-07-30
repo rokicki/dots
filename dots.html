@@ -1,11 +1,31 @@
 <html>
+    <!--
+        Todo:
+            Responsiveness
+            Resizable canvas
+            Grid-based layout
+            Zoom
+            Stop/continue functionality
+            Report longest cycle
+            Add different generators
+            Allow entry of numerical parameters
+            Parameters on URL
+    -->
     <head><title>dots</title>
 <style>
-    form { display: table; }
+    .stack { display: grid;
+             grid-template-rows: 3fr 1fr;
+             grid-template-columns: 1fr;
+             width: 100vw;
+             height: 100vh; }
+    .row1 { }
+    .row2 { }
+    form { display: table; width: 100%; }
     form p { display: table-row; }
     form label { display: table-cell; text-align: right; }
-    form input { display: table-cell; width: 500;}
+    form input { display: table-cell; width: 90%;}
     form span { display: table-cell; }
+    canvas { width: 100%; height: 100%; }
 </style>
 <script>
 var width = 800;
@@ -23,7 +43,13 @@ function drawcirc(ctx, x, y, r) {
     ctx.stroke();
 }
 var ar, br, an, bn, sep, ax, ay, bx, by, sc;
+var deepest = 0;
+var renderlim = 300;
 function doanim() {
+    width = canvas.clientWidth;
+    height = canvas.clientHeight;
+    canvas.width = width;
+    canvas.height = height;
     ar = getvalue("arad");
     br = getvalue("brad");
     an = getvalue("an");
@@ -41,6 +67,8 @@ function doanim() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawcirc(ctx, ax, ay, ar * sc);
     drawcirc(ctx, bx, by, br * sc);
+    deepest = 0;
+    renderlim = 300;
     requestAnimationFrame(dorandpt);
     return false; // suppress submit
 }
@@ -75,7 +103,7 @@ function renderpt(x,y) {
     var delta = 1;
     var mindist = 1000;
     var incirc = false;
-    for (var i=0; i<3000; i++) {
+    for (var i=0; i<renderlim; i++) {
         var t = Math.hypot(x, y) - ar;
         mindist = Math.min(Math.abs(t), mindist);
         if (t <= 0) {
@@ -128,7 +156,16 @@ function renderpt(x,y) {
         */
     }
     mindist *= sc;
+    if (!drawit && renderlim < 30000) {
+        deepest = renderlim;
+        document.getElementById("order").innerText = ">" + deepest;
+        renderlim = Math.floor(renderlim * 1.05);
+    }
     if (incirc && drawit) {
+        if (ord > deepest) {
+            deepest = ord;
+            document.getElementById("order").innerText = deepest;
+        }
         if (!pallete[ord]) {
             var cr = ord * 154 % 251;
             var cg = ord * 230 % 241;
@@ -174,18 +211,20 @@ function start() {
     document.getElementById("bn").oninput = doanim;
     document.getElementById("dist").oninput = doanim;
     canvas.onclick = dodots;
-    canvas.onmousemove = dodots;
+    window.onresize = doanim;
     doanim();
 }
 </script>
     </head>
-    <body onload="start();"><canvas id="canvas" width="800" height="600"></canvas></body>
-    <form>
+    <body onload="start();"><div class="stack"><div class="row1"><canvas id="canvas" width="80" height="80"></canvas></div>
+    <div class="row2"><form>
         <p><label for="arad">Radius A&nbsp;</label><input id="arad" type="range" step="0.001" min="1" max="10" value="2.41"><span id="showarad"></span></p>
         <p><label for="an">Spin A&nbsp;</label><input id="an" type="range" step="1" min="2" max="20" value="3"><span id="showan"></span></p>
         <p><label for="brad">Radius B&nbsp;</label><input id="brad" type="range" step="0.001" min="1" max="10" value="2.42"><span id="showbrad"></span></p>
         <p><label for="bn">Spin B&nbsp;</label><input id="bn" type="range" step="1" min="2" max="20" value="5"><span id="showbn"></span></p>
         <p><label for="dist">Separation&nbsp;</label><input id="dist" min="0" step="0.001" max="10" type="range" value="2"><span id="showdist"></span></p>
     </form>
-    <div id="order"></div>
+    Maximum order found: <span id="order"></span>
+    </div></div>
+    </body>
 </html>
