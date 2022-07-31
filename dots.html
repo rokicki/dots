@@ -159,7 +159,7 @@ function dowork() {
             if (!drawit && renderlim < 1000000) {
                 deepest = renderlim;
                 document.getElementById("order").innerText = ">" + deepest;
-                renderlim = Math.floor(renderlim * 1.07);
+                renderlim = Math.floor(renderlim * 1.03);
             }
             if (!incirc || !drawit) {
                 state = 0;
