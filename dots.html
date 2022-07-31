@@ -221,9 +221,10 @@ function start() {
     window.onresize = doanim;
     doanim();
 }
+window.onload = start;
 </script>
     </head>
-    <body onload="start();"><div class="stack"><div class="row1"><canvas id="canvas" width="80" height="80"></canvas></div>
+    <body><div class="stack"><div class="row1"><canvas id="canvas" width="80" height="80"></canvas></div>
     <div class="row2"><form>
         <p><label for="arad">Radius A&nbsp;</label><input id="arad" type="range" step="0.001" min="1" max="10" value="2"><span id="showarad"></span></p>
         <p><label for="an">Spin A&nbsp;</label><input id="an" type="range" step="1" min="2" max="20" value="7"><span id="showan"></span></p>
