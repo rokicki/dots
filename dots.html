@@ -1,7 +1,6 @@
 <html>
     <!--
         Todo:
-            Responsiveness
             Stop/continue functionality
             Zoom
             Add different generators
@@ -46,6 +45,7 @@ var pallete = [];
 var eps = 1e-9;
 var san, can, sbn, cbn, pts, ox, oy, ord, p, drawit, delta, mindist, incirc, x, y, ii, state=0;
 var stopped = true;
+var stoptime;
 function doanim() {
     width = canvas.clientWidth;
     height = canvas.clientHeight;
@@ -71,6 +71,7 @@ function doanim() {
     deepest = 0;
     renderlim = 300;
     state = 0;
+    stoptime = performance.now() + 1000 * 60; // stop after 10s
     if (stopped) {
         stopped = false;
         requestAnimationFrame(dowork);
@@ -85,8 +86,12 @@ var h1=0;
 var h2=0;
 var h3=0;
 function dowork() {
-    requestAnimationFrame(dowork);
     var start = performance.now();
+    if (start > stoptime) {
+        stopped = true;
+    } else {
+        requestAnimationFrame(dowork);
+    }
     while (1) {
         if (state == 0) {
             while (1) {
