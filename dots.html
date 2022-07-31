@@ -42,6 +42,10 @@ function drawcirc(ctx, x, y, r) {
 var ar, br, an, bn, sep, ax, ay, bx, by, sc;
 var deepest = 0;
 var renderlim = 300;
+var pallete = [];
+var eps = 1e-9;
+var san, can, sbn, cbn, pts, ox, oy, ord, p, drawit, delta, mindist, incirc, x, y, ii, state=0;
+var stopped = true;
 function doanim() {
     width = canvas.clientWidth;
     height = canvas.clientHeight;
@@ -66,136 +70,129 @@ function doanim() {
     drawcirc(ctx, bx, by, br * sc);
     deepest = 0;
     renderlim = 300;
-    requestAnimationFrame(dorandpt);
+    state = 0;
+    if (stopped) {
+        stopped = false;
+        requestAnimationFrame(dowork);
+    }
     return false; // suppress submit
 }
-var pallete = {};
-function dodots(e) {
-    var r = canvas.getBoundingClientRect();
-    var x = e.clientX - r.left;
-    var y = e.clientY - r.top;
-    x = Math.floor(x) + 0.5;
-    y = Math.floor(y) + 0.5;
-    x = (x - ax) / sc;
-    y = (y - ay) / sc;
-    renderpt(x,y);
-}
-function renderpt(x,y) {
-    if (0) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawcirc(ctx, ax, ay, ar * sc);
-        drawcirc(ctx, bx, by, br * sc);
-    }
-    var san = Math.sin(Math.PI * 2 / an);
-    var can = Math.cos(Math.PI * 2 / an);
-    var sbn = -Math.sin(Math.PI * 2 / bn);
-    var cbn = Math.cos(Math.PI * 2 / bn);
-    var pts = [];
-    var ox = x;
-    var oy = y;
-    var eps = 1e-9;
-    var ord = 0;
-    var p = [];
-    var drawit = false;
-    var delta = 1;
-    var mindist = 1000;
-    var incirc = false;
-    for (var i=0; i<renderlim; i++) {
-        var t = Math.hypot(x, y) - ar;
-        mindist = Math.min(Math.abs(t), mindist);
-        if (t <= 0) {
-            incirc = true;
-            var nx = x * can + y * san;
-            y = y * can - x * san;
-            x = nx;
-            /*
-            p.push(x * sc + ax, y * sc + ay);
-            ord++;
-            if (Math.hypot(x-ox, y-oy) < eps) {
-                delta = Math.hypot(x-ox, y-oy);
-                drawit = true;
-                break;
-            }
-            */
-        }
-        x -= sep;
-        var t = Math.hypot(x, y) - br;
-        mindist = Math.min(Math.abs(t), mindist);
-        if (t <= 0) {
-            incirc = true;
-            var nx = x * cbn + y * sbn;
-            y = y * cbn - x * sbn;
-            x = nx;
-        }
-        p.push((x + sep) * sc + ax, y * sc + ay);
-        ord++;
-        if (Math.hypot(x+sep-ox, y-oy) < eps) {
-            delta = Math.hypot(x+sep-ox, y-oy);
-            drawit = true;
-            break;
-        }
-        x += sep;
-        /*
-        if (Math.hypot(x, y) <= ar) {
-            var nx = x * can - y * san;
-            y = y * can + x * san;
-            x = nx;
-            ctx.fillRect(x * sc + ax, y * sc + ay, 1, 1);
-        }
-        x -= sep;
-        if (Math.hypot(x, y) <= br) {
-            var nx = x * cbn - y * sbn;
-            y = y * cbn + x * sbn;
-            x = nx;
-            ctx.fillRect((x + sep) * sc + ax, y * sc + ay, 1, 1);
-        }
-        x += sep;
-        */
-    }
-    mindist *= sc;
-    if (!drawit && renderlim < 30000) {
-        deepest = renderlim;
-        document.getElementById("order").innerText = ">" + deepest;
-        renderlim = Math.floor(renderlim * 1.05);
-    }
-    if (incirc && drawit) {
-        if (ord > deepest) {
-            deepest = ord;
-            document.getElementById("order").innerText = deepest;
-        }
-        if (!pallete[ord]) {
-            var cr = ord * 154 % 251;
-            var cg = ord * 230 % 241;
-            var cb = ord * 214 % 239;
-            pallete[ord] = "rgb(" + cr + "," + cg + "," + cb + ")";
-        }
-        ctx.fillStyle = pallete[ord];
-        if (mindist < 2) {
-            for (var i=0; i<p.length; i += 2) {
-                ctx.fillRect(p[i], p[i+1], 1, 1);
-            }
-        } else {
-            for (var i=0; i<p.length; i += 2) {
-                ctx.beginPath();
-                ctx.arc(p[i], p[i+1], mindist-0.5, 0, 2*Math.PI, false);
-                ctx.fill();
-            }
-        }
-    }
- //   document.getElementById("order").innerText = "" + ord + " " + delta + " " + mindist;
-}
-function dorandpt() {
+// state 0: pick a new point and initialize
+// state 1: chase through points, and accumulate
+// state 2: render
+var timelim = 13; // max work milliseconds per anim call
+var h1=0;
+var h2=0;
+var h3=0;
+function dowork() {
+    requestAnimationFrame(dowork);
+    var start = performance.now();
     while (1) {
-        x = (2 * Math.random() - 1);
-        y = (2 * Math.random() - 1);
-        if (Math.hypot(x, y) < 1) {
-            if (Math.random() < 0.5) {
-                renderpt(ar*x, ar*y);
-            } else {
-                renderpt(br*x+sep, br*y);
+        if (state == 0) {
+            while (1) {
+                x = (2 * Math.random() - 1);
+                y = (2 * Math.random() - 1);
+                if (Math.hypot(x, y) < 1) {
+                    if (Math.random() < 0.5) {
+                        x = ar*x;
+                        y = ar*y;
+                    } else {
+                        x = br*x+sep;
+                        y = br*y;
+                    }
+                    break;
+                }
             }
-            requestAnimationFrame(dorandpt);
-            return;
+            san = Math.sin(Math.PI * 2 / an);
+            can = Math.cos(Math.PI * 2 / an);
+            sbn = -Math.sin(Math.PI * 2 / bn);
+            cbn = Math.cos(Math.PI * 2 / bn);
+            pts = [];
+            ox = x;
+            oy = y;
+            ord = 0;
+            p = [];
+            drawit = false;
+            delta = 1;
+            mindist = 1000;
+            incirc = false;
+            state = 1;
+            ii = 0;
+        }
+        if (state == 1) {
+            for (; ii<renderlim; ii++) {
+                if ((ii & 8191) == 0 && performance.now() - start > timelim) {
+                    return;
+                }
+                var t = Math.hypot(x, y) - ar;
+                mindist = Math.min(Math.abs(t), mindist);
+                if (t <= 0) {
+                    incirc = true;
+                    var nx = x * can + y * san;
+                    y = y * can - x * san;
+                    x = nx;
+                }
+                x -= sep;
+                var t = Math.hypot(x, y) - br;
+                mindist = Math.min(Math.abs(t), mindist);
+                if (t <= 0) {
+                    incirc = true;
+                    var nx = x * cbn + y * sbn;
+                    y = y * cbn - x * sbn;
+                    x = nx;
+                }
+                p.push((x + sep) * sc + ax, y * sc + ay);
+                ord++;
+                if (Math.hypot(x+sep-ox, y-oy) < eps) {
+                    delta = Math.hypot(x+sep-ox, y-oy);
+                    drawit = true;
+                    break;
+                }
+                x += sep;
+            }
+            mindist *= sc;
+            if (!drawit && renderlim < 1000000) {
+                deepest = renderlim;
+                document.getElementById("order").innerText = ">" + deepest;
+                renderlim = Math.floor(renderlim * 1.1);
+            }
+            if (!incirc || !drawit) {
+                state = 0;
+            } else {
+                state = 2;
+                ii = 0;
+            }
+        }
+        if (state == 2) {
+            if (ord > deepest) {
+                deepest = ord;
+                document.getElementById("order").innerText = deepest;
+            }
+            if (!pallete[ord]) {
+                var cr = ord * 154 % 251;
+                var cg = ord * 230 % 241;
+                var cb = ord * 214 % 239;
+                pallete[ord] = "rgb(" + cr + "," + cg + "," + cb + ")";
+            }
+            ctx.fillStyle = pallete[ord];
+            if (mindist < 2) {
+                for (; ii<p.length; ii += 2) {
+                    if ((ii & 8191) == 0 && performance.now() - start > timelim) {
+                        return;
+                    }
+                    ctx.fillRect(p[ii], p[ii+1], 1, 1);
+                }
+            } else {
+                for (; ii<p.length; ii += 2) {
+                    if ((ii & 8191) == 0 && performance.now() - start > timelim) {
+                        return;
+                    }
+                    ctx.beginPath();
+                    ctx.arc(p[ii], p[ii+1], mindist-0.5, 0, 2*Math.PI, false);
+                    ctx.fill();
+                }
+            }
+            state = 0;
         }
     }
 }
@@ -207,7 +204,6 @@ function start() {
     document.getElementById("an").oninput = doanim;
     document.getElementById("bn").oninput = doanim;
     document.getElementById("dist").oninput = doanim;
-    canvas.onclick = dodots;
     window.onresize = doanim;
     doanim();
 }
