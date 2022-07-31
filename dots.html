@@ -46,6 +46,7 @@ var eps = 1e-9;
 var san, can, sbn, cbn, pts, ox, oy, ord, p, drawit, delta, mindist, incirc, x, y, ii, state=0;
 var stopped = true;
 var stoptime;
+var zoom = 10;
 function doanim() {
     width = canvas.clientWidth;
     height = canvas.clientHeight;
@@ -56,9 +57,10 @@ function doanim() {
     an = getvalue("an");
     bn = getvalue("bn");
     sep = getvalue("dist");
+    zoom = getvalue("zoom");
     var h = Math.max(ar, br) * 2;
     var w = ar + br + sep;
-    sc = Math.min((height-2*marg)/h, (width-2*marg)/w);
+    sc = Math.min((height*zoom-2*marg)/h, (width*zoom-2*marg)/w);
     ay = height / 2;
     ax = width / 2 - 0.5 * (sep + br - ar) * sc;
     ax = Math.floor(ax) + 0.5;
@@ -146,7 +148,13 @@ function dowork() {
                     y = y * cbn - x * sbn;
                     x = nx;
                 }
-                p.push((x + sep) * sc + ax, y * sc + ay);
+                var xx = (x + sep) * sc + ax;
+                if (xx + mindist >= 0 && xx - mindist <= width) {
+                    var yy = y * sc + ay;
+                    if (yy + mindist >= 0 && yy - mindist <= height) {
+                        p.push((x + sep) * sc + ax, y * sc + ay);
+                    }
+                }
                 ord++;
                 if (Math.hypot(x+sep-ox, y-oy) < eps) {
                     delta = Math.hypot(x+sep-ox, y-oy);
@@ -180,7 +188,7 @@ function dowork() {
                 pallete[ord] = "rgb(" + cr + "," + cg + "," + cb + ")";
             }
             ctx.fillStyle = pallete[ord];
-            if (mindist < 2) {
+            if (mindist < 1.5) {
                 for (; ii<p.length; ii += 2) {
                     if ((ii & 8191) == 0 && performance.now() - start > timelim) {
                         return;
@@ -209,6 +217,7 @@ function start() {
     document.getElementById("an").oninput = doanim;
     document.getElementById("bn").oninput = doanim;
     document.getElementById("dist").oninput = doanim;
+    document.getElementById("zoom").oninput = doanim;
     window.onresize = doanim;
     doanim();
 }
@@ -221,6 +230,7 @@ function start() {
         <p><label for="brad">Radius B&nbsp;</label><input id="brad" type="range" step="0.001" min="1" max="10" value="2"><span id="showbrad"></span></p>
         <p><label for="bn">Spin B&nbsp;</label><input id="bn" type="range" step="1" min="2" max="20" value="7"><span id="showbn"></span></p>
         <p><label for="dist">Separation&nbsp;</label><input id="dist" min="0" step="0.001" max="10" type="range" value="2.4"><span id="showdist"></span></p>
+        <p><label for="dist">Zoom&nbsp;</label><input id="zoom" min="1" step="1" max="20" type="range" value="1"><span id="showzoom"></span></p>
     </form>
     Maximum order found: <span id="order"></span>
     </div></div>
