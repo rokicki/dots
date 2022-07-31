@@ -159,7 +159,7 @@ function dowork() {
             if (!drawit && renderlim < 1000000) {
                 deepest = renderlim;
                 document.getElementById("order").innerText = ">" + deepest;
-                renderlim = Math.floor(renderlim * 1.1);
+                renderlim = Math.floor(renderlim * 1.07);
             }
             if (!incirc || !drawit) {
                 state = 0;
@@ -216,11 +216,11 @@ function start() {
     </head>
     <body onload="start();"><div class="stack"><div class="row1"><canvas id="canvas" width="80" height="80"></canvas></div>
     <div class="row2"><form>
-        <p><label for="arad">Radius A&nbsp;</label><input id="arad" type="range" step="0.001" min="1" max="10" value="2.41"><span id="showarad"></span></p>
-        <p><label for="an">Spin A&nbsp;</label><input id="an" type="range" step="1" min="2" max="20" value="3"><span id="showan"></span></p>
-        <p><label for="brad">Radius B&nbsp;</label><input id="brad" type="range" step="0.001" min="1" max="10" value="2.42"><span id="showbrad"></span></p>
-        <p><label for="bn">Spin B&nbsp;</label><input id="bn" type="range" step="1" min="2" max="20" value="5"><span id="showbn"></span></p>
-        <p><label for="dist">Separation&nbsp;</label><input id="dist" min="0" step="0.001" max="10" type="range" value="2"><span id="showdist"></span></p>
+        <p><label for="arad">Radius A&nbsp;</label><input id="arad" type="range" step="0.001" min="1" max="10" value="2"><span id="showarad"></span></p>
+        <p><label for="an">Spin A&nbsp;</label><input id="an" type="range" step="1" min="2" max="20" value="7"><span id="showan"></span></p>
+        <p><label for="brad">Radius B&nbsp;</label><input id="brad" type="range" step="0.001" min="1" max="10" value="2"><span id="showbrad"></span></p>
+        <p><label for="bn">Spin B&nbsp;</label><input id="bn" type="range" step="1" min="2" max="20" value="7"><span id="showbn"></span></p>
+        <p><label for="dist">Separation&nbsp;</label><input id="dist" min="0" step="0.001" max="10" type="range" value="2.4"><span id="showdist"></span></p>
     </form>
     Maximum order found: <span id="order"></span>
     </div></div>
