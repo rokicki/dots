@@ -44,7 +44,8 @@ var deepest = 0;
 var renderlim = 300;
 var pallete = [];
 var eps = 1e-9;
-var san, can, sbn, cbn, pts, ox, oy, ord, p, drawit, delta, mindist, incirc, x, y, ii, state=0;
+var epseps = eps * eps;
+var san, can, sbn, cbn, pts, ox, oy, ord, p, drawit, mindist, incirc, x, y, ii, state=0;
 var stopped = true;
 var stoptime;
 var zoom = 10;
@@ -74,7 +75,7 @@ function doanim() {
     deepest = 0;
     renderlim = 300;
     state = 0;
-    stoptime = performance.now() + 1000 * 60; // stop after 10s
+    stoptime = performance.now() + 1000 * 60 * 3600; // stop after 60s
     if (stopped) {
         stopped = false;
         requestAnimationFrame(dowork);
@@ -121,33 +122,39 @@ function dowork() {
             ord = 0;
             p = [];
             drawit = false;
-            delta = 1;
             mindist = 1000;
             incirc = false;
             state = 1;
             ii = 0;
         }
         if (state == 1) {
+            var sqrt = Math.sqrt;
             for (; ii<renderlim; ii++) {
                 if ((ii & 8191) == 0 && performance.now() - start > timelim) {
                     return;
                 }
-                var t = Math.hypot(x, y) - ar;
-                mindist = Math.min(Math.abs(t), mindist);
+                var t = sqrt(x * x + y * y) - ar;
                 if (t <= 0) {
+                    t = - t;
                     incirc = true;
                     var nx = x * can + y * san;
                     y = y * can - x * san;
                     x = nx;
                 }
+                if (t < mindist) {
+                    mindist = t;
+                }
                 x -= sep;
-                var t = Math.hypot(x, y) - br;
-                mindist = Math.min(Math.abs(t), mindist);
+                var t = sqrt(x * x + y * y) - br;
                 if (t <= 0) {
+                    t = - t;
                     incirc = true;
                     var nx = x * cbn + y * sbn;
                     y = y * cbn - x * sbn;
                     x = nx;
+                }
+                if (t < mindist) {
+                    mindist = t;
                 }
                 var xx = (x + sep) * sc + ax;
                 if (xx + mindist >= 0 && xx - mindist <= width) {
@@ -157,10 +164,13 @@ function dowork() {
                     }
                 }
                 ord++;
-                if (Math.hypot(x+sep-ox, y-oy) < eps) {
-                    delta = Math.hypot(x+sep-ox, y-oy);
-                    drawit = true;
-                    break;
+                var dx = x + sep - ox;
+                if (dx * dx < epseps) {
+                    var dy = y - oy;
+                    if (dx * dx + dy * dy < epseps) {
+                        drawit = true;
+                        break;
+                    }
                 }
                 x += sep;
             }
