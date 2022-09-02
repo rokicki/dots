@@ -9,20 +9,15 @@
     -->
     <head><title>dots</title>
 <style>
-    .stack { display: grid;
-             grid-template-rows: 1fr minmax(100px, auto);
-             grid-template-columns: 1fr;
-             width: 100vw;
-             height: 100vh; }
-    .row1 {  overflow: hidden; }
-    .row2 { padding: 10px; }
+    .row1 { margin: 10px; display: none; }
     form { display: table; width: 90%; }
     form p { display: table-row; }
-    form label { display: table-cell; text-align: right; width: 1%; }
-    form input { display: table-cell; width: 95%;}
-    form span { display: table-cell; width: 1%;}
-    canvas { width: 100%; height: 100%; }
+    form label { display: table-cell; text-align: right; width: 5%;}
+    form input { display: table-cell; width: 100%; }
+    form span { display: table-cell; width: 5%;}
     body { margin: 0; }
+    .normalpage { margin: 5px; }
+    #canvas { position:fixed; left:0;top:0; width:100%; height:100%; z-index: -1; }
 </style>
 <script>
 var width = 800;
@@ -220,31 +215,60 @@ function dowork() {
         }
     }
 }
+function togglevis() {
+    var s = document.getElementById("row1").style;
+    if (s.display === "none") {
+        s.display = "block";
+    } else {
+        s.display = "none";
+    }
+}
+var sliders = ["arad", "brad", "an", "bn", "dist", "zoom"];
 function start() {
     canvas = document.getElementById("canvas");
     ctx = canvas.getContext("2d");
-    document.getElementById("arad").oninput = doanim;
-    document.getElementById("brad").oninput = doanim;
-    document.getElementById("an").oninput = doanim;
-    document.getElementById("bn").oninput = doanim;
-    document.getElementById("dist").oninput = doanim;
-    document.getElementById("zoom").oninput = doanim;
+    for (var s of sliders) {
+        document.getElementById(s).oninput = doanim;
+    }
+    document.getElementById("toggleui").onclick = togglevis;
     window.onresize = doanim;
     doanim();
 }
 window.onload = start;
 </script>
     </head>
-    <body><div class="stack"><div class="row1"><canvas id="canvas" width="80" height="80"></canvas></div>
-    <div class="row2"><form>
-        <p><label for="arad">Radius A&nbsp;</label><input id="arad" type="range" step="0.001" min="1" max="10" value="2"><span id="showarad"></span></p>
-        <p><label for="an">Spin A&nbsp;</label><input id="an" type="range" step="1" min="2" max="20" value="7"><span id="showan"></span></p>
-        <p><label for="brad">Radius B&nbsp;</label><input id="brad" type="range" step="0.001" min="1" max="10" value="2"><span id="showbrad"></span></p>
-        <p><label for="bn">Spin B&nbsp;</label><input id="bn" type="range" step="1" min="2" max="20" value="7"><span id="showbn"></span></p>
-        <p><label for="dist">Separation&nbsp;</label><input id="dist" min="0" step="0.001" max="10" type="range" value="2.4"><span id="showdist"></span></p>
-        <p><label for="zoom">Zoom&nbsp;</label><input id="zoom" min="1" step="0.01" max="20" type="range" value="1"><span id="showzoom"></span></p>
+    <body>
+        <canvas id="canvas" width="80" height="80"></canvas> <!-- in background -->
+    <div class="normalpage">
+    <div class="row1" id="row1"><form>
+        <p><label for="arad">Radius A:&nbsp;</label>
+            <span id="showarad"></span>
+            <input id="arad" type="range" step="0.001" min="1" max="10" value="2">
+        </p>
+        <p><label for="an">Spin A:&nbsp;</label>
+            <span id="showan"></span>
+            <input id="an" type="range" step="1" min="2" max="20" value="7">
+        </p>
+        <p><label for="brad">Radius B:&nbsp;</label>
+            <span id="showbrad"></span>
+            <input id="brad" type="range" step="0.001" min="1" max="10" value="2">
+        </p>
+        <p><label for="bn">Spin B:&nbsp;</label>
+            <span id="showbn"></span>
+            <input id="bn" type="range" step="1" min="2" max="20" value="7">
+        </p>
+        <p><label for="dist">Separation:&nbsp;</label>
+            <span id="showdist"></span>
+            <input id="dist" min="0" step="0.001" max="10" type="range" value="2.4">
+        </p>
+        <p><label for="zoom">Zoom:&nbsp;</label>
+            <span id="showzoom"></span>
+            <input id="zoom" min="1" step="0.01" max="20" type="range" value="1">
+        </p>
     </form>
-    Maximum order found: <span id="order"></span>
+    <span id="order"></span> order
+    </div>
+    <div><button type="button" id="toggleui">Options</button></div>
     </div></div>
     </body>
 </html>
