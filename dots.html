@@ -217,12 +217,13 @@ function dowork() {
 }
 function togglevis() {
     var s = document.getElementById("row1").style;
-    if (s.display !== "block") {
-        s.display = "block";
-        document.getElementById("toggleui").innerText = "Hide Sliders"
-    } else {
+    console.log(s.display);
+    if (!s.display || s.display === "block") {
         s.display = "none";
         document.getElementById("toggleui").innerText = "Show Sliders"
+    } else {
+        s.display = "block";
+        document.getElementById("toggleui").innerText = "Hide Sliders"
     }
 }
 var sliders = ["arad", "brad", "an", "bn", "dist", "zoom"];
