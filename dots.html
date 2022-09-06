@@ -9,7 +9,7 @@
     -->
     <head><title>dots</title>
 <style>
-    .row1 { margin: 10px; display: none; }
+    .row1 { margin: 10px; display: block; }
     form { display: table; width: 90%; }
     form p { display: table-row; }
     form label { display: table-cell; text-align: right; width: 5%;}
@@ -217,13 +217,32 @@ function dowork() {
 }
 function togglevis() {
     var s = document.getElementById("row1").style;
-    if (s.display === "none") {
+    if (s.display !== "block") {
         s.display = "block";
+        document.getElementById("toggleui").innerText = "Hide Sliders"
     } else {
         s.display = "none";
+        document.getElementById("toggleui").innerText = "Show Sliders"
     }
 }
 var sliders = ["arad", "brad", "an", "bn", "dist", "zoom"];
+function dorandom() {
+    while (1) {
+       var arad = (1000 + Math.floor(9001 * Math.random())) / 1000;
+       var brad = (1000 + Math.floor(9001 * Math.random())) / 1000;
+       var dist = (1 + Math.floor(10000 * Math.random())) / 1000;
+       if (arad + brad > dist) {
+          document.getElementById("arad").value = arad;
+          document.getElementById("brad").value = brad;
+          document.getElementById("dist").value = dist;
+          break;
+       }
+    }
+    document.getElementById("an").value = 2 + Math.floor(19 * Math.random());
+    document.getElementById("bn").value = 2 + Math.floor(19 * Math.random());
+    document.getElementById("zoom").value = (100 + 401 * Math.random() * Math.random()) / 100;
+    doanim();
+}
 function start() {
     canvas = document.getElementById("canvas");
     ctx = canvas.getContext("2d");
@@ -232,7 +251,7 @@ function start() {
     }
     document.getElementById("toggleui").onclick = togglevis;
     window.onresize = doanim;
-    doanim();
+    dorandom();
 }
 window.onload = start;
 </script>
@@ -268,7 +287,7 @@ window.onload = start;
     </form>
     <span id="order"></span> order
     </div>
-    <div><button type="button" id="toggleui">Options</button></div>
+    <div><button type="button" id="toggleui">Hide Sliders</button></div>
     </div></div>
     </body>
 </html>
