@@ -198,10 +198,14 @@ function dowork() {
                 x += sep;
             }
             mindist *= sc;
-            if (!drawit && renderlim < 1000000) {
-                deepest = renderlim;
-                document.getElementById("order").innerText = ">" + deepest;
-                renderlim = Math.floor(renderlim * 1.03);
+            if (!drawit) {
+               if (renderlim < 1000000) {
+                   deepest = renderlim;
+                   document.getElementById("order").innerText = ">" + deepest;
+                   renderlim = Math.floor(renderlim * 1.03);
+               } else {
+                  drawit = true;
+               }
             }
             if (!incirc || !drawit) {
                 state = 0;
