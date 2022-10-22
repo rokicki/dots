@@ -24,8 +24,12 @@ var width = 800;
 var height = 600;
 var marg = 10;
 var canvas, ctx;
+var overridezoom = 0 ;
 function getvalue(s) {
-    r = +document.getElementById(s).value;
+    if (s === "zoom" && overridezoom != 0)
+       r = overridezoom ;
+    else
+       r = +document.getElementById(s).value;
     document.getElementById("show"+s).innerText = r;
     return r;
 }
@@ -44,6 +48,8 @@ var san, can, sbn, cbn, pts, ox, oy, ord, p, drawit, mindist, incirc, x, y, ii, 
 var stopped = true;
 var stoptime;
 var zoom = 10;
+var xoff = 0 ;
+var yoff = 0 ;
 function doanim() {
     width = canvas.clientWidth;
     height = canvas.clientHeight;
@@ -58,12 +64,16 @@ function doanim() {
     var h = Math.max(ar, br) * 2;
     var w = ar + br + sep;
     sc = Math.min((height*zoom-2*marg)/h, (width*zoom-2*marg)/w);
-    ay = height / 2;
-    ax = width / 2 - 0.5 * (sep + br - ar) * sc;
+    ay = yoff * zoom + height / 2;
+    ax = xoff * zoom + width / 2 - 0.5 * (sep + br - ar) * sc;
     ax = Math.floor(ax) + 0.5;
     ay = Math.floor(ay) + 0.5;
     by = ay;
     bx = ax + sep * sc;
+    san = Math.sin(Math.PI * 2 / an);
+    can = Math.cos(Math.PI * 2 / an);
+    sbn = -Math.sin(Math.PI * 2 / bn);
+    cbn = Math.cos(Math.PI * 2 / bn);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawcirc(ctx, ax, ay, ar * sc);
     drawcirc(ctx, bx, by, br * sc);
@@ -76,6 +86,24 @@ function doanim() {
         requestAnimationFrame(dowork);
     }
     return false; // suppress submit
+}
+function changeOrigin(dir) {
+   // 37: left 38: up 39: right 40: down
+   var delta = 0 ;
+   if (dir == 37 || dir == 39) {
+      delta = 100 ;
+      if (dir == 39)
+         delta = - delta ;
+      delta /= zoom ;
+      xoff += delta ;
+   } else {
+      delta = 100 ;
+      if (dir == 40)
+         delta = - delta ;
+      delta /= zoom ;
+      yoff += delta ;
+   }
+   console.log("After delta xoff " + xoff + " yoff " + yoff);
 }
 // state 0: pick a new point and initialize
 // state 1: chase through points, and accumulate
@@ -93,24 +121,24 @@ function dowork() {
     }
     while (1) {
         if (state == 0) {
-            while (1) {
-                x = (2 * Math.random() - 1);
-                y = (2 * Math.random() - 1);
-                if (Math.hypot(x, y) < 1) {
-                    if (Math.random() < 0.5) {
-                        x = ar*x;
-                        y = ar*y;
-                    } else {
-                        x = br*x+sep;
-                        y = br*y;
-                    }
-                    break;
+            for (var lop=1; ; lop++) {
+                if ((lop & 8191) == 0 && performance.now() - start > timelim) {
+                    return;
+                }
+// var p = c.getImageData(x, y, 1, 1).data; 
+// p.push((x + sep) * sc + ax, y * sc + ay);
+// <><>
+// ctx.fillRect(p[ii], p[ii+1], 1, 1);
+                var x0 = (width * Math.random()) ;
+                var y0 = (height * Math.random()) ;
+                x = (x0 - ax) / sc ;
+                y = (y0 - ay) / sc ;
+                if (Math.hypot(x, y) < ar || Math.hypot(x-sep, y) < br) {
+//                 var id = ctx.getImageData(x0, y0, 1, 1).data ;
+//                 if (id[0] == 0 && id[1] == 0 && id[2] == 0)
+                   break ;
                 }
             }
-            san = Math.sin(Math.PI * 2 / an);
-            can = Math.cos(Math.PI * 2 / an);
-            sbn = -Math.sin(Math.PI * 2 / bn);
-            cbn = Math.cos(Math.PI * 2 / bn);
             pts = [];
             ox = x;
             oy = y;
@@ -244,6 +272,55 @@ function dorandom() {
     document.getElementById("zoom").value = (100 + 401 * Math.random() * Math.random()) / 100;
     doanim();
 }
+function addEvent(element, eventName, callback) {
+   if (element.addEventListener) {
+      element.addEventListener(eventName, callback, false);
+   } else if (element.attachEvent) {
+      element.attachEvent("on" + eventName, callback);
+   } else {
+      element["on" + eventName] = callback;
+   }
+}
+function keypress(e) {
+   e = e || window.event;
+   if (e.keyCode == "[".codePointAt(0)) {
+      var zoom = getvalue("zoom") ;
+      zoom = zoom / 1.5 ;
+      zoom = Math.floor(zoom * 1000) / 1000 ;
+      if (zoom < 1 || zoom > 20) {
+         overridezoom = zoom ;
+      } else {
+         overridezoom = 0 ;
+         document.getElementById("zoom").value = zoom ;
+      }
+      doanim() ;
+   } else if (e.keyCode == "]".codePointAt(0)) {
+      var zoom = getvalue("zoom") ;
+      zoom = zoom * 1.5 ;
+      zoom = Math.floor(zoom * 1000) / 1000 ;
+      if (zoom < 1 || zoom > 20) {
+         overridezoom = zoom ;
+      } else {
+         overridezoom = 0 ;
+         document.getElementById("zoom").value = zoom ;
+      }
+      doanim() ;
+   } else if (e.keyCode == "0".codePointAt(0)) {
+      zoom = 1 ;
+      overridezoom = 0 ;
+      document.getElementById("zoom").value = zoom ;
+      xoff = 0 ;
+      yoff = 0 ;
+      doanim() ;
+   } else if (e.keyCode >= 37 && e.keyCode <= 40) {
+      changeOrigin(e.keyCode) ;
+      doanim() ;
+   }
+} ;
+function ignore(e) {
+   e = e || window.event;
+   e.stopPropagation();
+}
 function start() {
     canvas = document.getElementById("canvas");
     ctx = canvas.getContext("2d");
@@ -252,14 +329,19 @@ function start() {
     }
     document.getElementById("toggleui").onclick = togglevis;
     window.onresize = doanim;
+    addEvent(window, "keydown", keypress);
+    addEvent(window, "keypress", keypress);
+    var np = document.getElementById("normalpage") ;
+    addEvent(np, "keydown", ignore);
+    addEvent(np, "keypress", ignore);
     dorandom();
 }
 window.onload = start;
 </script>
     </head>
     <body>
-        <canvas id="canvas" width="80" height="80"></canvas> <!-- in background -->
-    <div class="normalpage">
+    <canvas id="canvas" width="80" height="80"></canvas>
+    <div id="normalpage" class="normalpage">
     <div class="row1" id="row1"><form>
         <p><label for="arad">Radius A:&nbsp;</label>
             <span id="showarad"></span>
