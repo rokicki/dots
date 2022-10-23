@@ -22,6 +22,7 @@
 <script>
 var width = 800;
 var height = 600;
+var curthink = 1000 * 60 ;
 var marg = 10;
 var canvas, ctx;
 var overridezoom = 0 ;
@@ -47,9 +48,11 @@ var epseps = eps * eps;
 var san, can, sbn, cbn, pts, ox, oy, ord, p, drawit, mindist, incirc, x, y, ii, state=0;
 var stopped = true;
 var stoptime;
+var setmax;
 var zoom = 10;
 var xoff = 0 ;
 var yoff = 0 ;
+var pttype = 1 ;
 function doanim() {
     width = canvas.clientWidth;
     height = canvas.clientHeight;
@@ -79,8 +82,10 @@ function doanim() {
     drawcirc(ctx, bx, by, br * sc);
     deepest = 0;
     renderlim = 300;
+    curthink = 1000 * 60 ;
     state = 0;
-    stoptime = performance.now() + 1000 * 60 ; // stop after 60s
+    setmax = false;
+    stoptime = performance.now() + curthink ; // stop after 60s
     if (stopped) {
         stopped = false;
         requestAnimationFrame(dowork);
@@ -125,17 +130,27 @@ function dowork() {
                 if ((lop & 8191) == 0 && performance.now() - start > timelim) {
                     return;
                 }
-// var p = c.getImageData(x, y, 1, 1).data; 
-// p.push((x + sep) * sc + ax, y * sc + ay);
-// <><>
-// ctx.fillRect(p[ii], p[ii+1], 1, 1);
-                var x0 = (width * Math.random()) ;
-                var y0 = (height * Math.random()) ;
-                x = (x0 - ax) / sc ;
-                y = (y0 - ay) / sc ;
-                if (Math.hypot(x, y) < ar || Math.hypot(x-sep, y) < br) {
-//                 var id = ctx.getImageData(x0, y0, 1, 1).data ;
-//                 if (id[0] == 0 && id[1] == 0 && id[2] == 0)
+                if (pttype == 1) {
+                   var x0 = (width * Math.random()) ;
+                   var y0 = (height * Math.random()) ;
+                   x = (x0 - ax) / sc ;
+                   y = (y0 - ay) / sc ;
+                   if (Math.hypot(x, y) < ar || Math.hypot(x-sep, y) < br) {
+                      break ;
+                   }
+                } else if (pttype == 2) {
+                   x = Math.random() * 2 * 3.14159265358979 ;
+                   if (Math.random() < 0.5) {
+                      y = (ar - 2 * eps) * Math.sin(x) ;
+                      x = (ar - 2 * eps) * Math.cos(x) ;
+                   } else {
+                      y = (br - 2 * eps) * Math.sin(x) ;
+                      x = sep + (br - 2 * eps) * Math.cos(x) ;
+                   }
+                   break ;
+                } else {
+                   x = sep / 2 ;
+                   y = 0 ;
                    break ;
                 }
             }
@@ -202,8 +217,13 @@ function dowork() {
                if (renderlim < 1000000) {
                    deepest = renderlim;
                    document.getElementById("order").innerText = ">" + deepest;
-                   renderlim = Math.floor(renderlim * 1.03);
+                   renderlim = Math.floor(renderlim * 1.2);
                } else {
+                  if (! setmax) {
+                     deepest = renderlim;
+                     document.getElementById("order").innerText = ">" + deepest;
+                     setmax = true;
+                  }
                   drawit = true;
                }
             }
@@ -271,6 +291,7 @@ function dorandom() {
           break;
        }
     }
+    overridezoom = 0 ;
     document.getElementById("an").value = 2 + Math.floor(19 * Math.random());
     document.getElementById("bn").value = 2 + Math.floor(19 * Math.random());
     document.getElementById("zoom").value = (100 + 401 * Math.random() * Math.random()) / 100;
@@ -319,6 +340,18 @@ function keypress(e) {
    } else if (e.keyCode >= 37 && e.keyCode <= 40) {
       changeOrigin(e.keyCode) ;
       doanim() ;
+   } else if (e.keyCode == ".".codePointAt(0)) {
+      pttype = (pttype % 3) + 1 ;
+      doanim() ;
+   } else if (e.keyCode == "c".codePointAt(0)) {
+      curthink = 1000 * 7200 ;
+      stoptime = performance.now() + curthink ; // stop after 60s
+      if (stopped) {
+         stopped = false ;
+         dowork() ;
+      }
+   } else if (e.keyCode == "r".codePointAt(0)) {
+      dorandom() ;
    }
 } ;
 function ignore(e) {
@@ -371,8 +404,9 @@ window.onload = start;
             <span id="showzoom"></span>
             <input id="zoom" min="1" step="0.01" max="20" type="range" value="1">
         </p>
-    </form>
     <span id="order"></span> order
+    </form>
+    <div> [ zoom<br> ] unzoom<br> r random<br> . point type<br> c work harder<br></div>
     </div>
     <div><button type="button" id="toggleui">Hide Sliders</button></div>
     </div></div>
