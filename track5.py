@@ -25,10 +25,10 @@ F = 1 - pr[1] + pr[2] - pr[3]
 G = 2 * F - E
 while True:
    (bestr, besti, bestp) = (1000, -1, complex(0, 0))
-   region = -1
-   if p.real < -F.real: region = 1
-   elif p.real < -G.real: region = 2
-   else: region = 3
+   region = "?"
+   if p.real < -F.real: region = "E'F'"
+   elif p.real < -G.real: region = "F'G'"
+   else: region = "G'E"
    for i in range(len(seqs)):
       (p2, testr) = doseqcheck(p, seqs[i].split())
       if testr < bestr:
