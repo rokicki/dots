@@ -6,9 +6,6 @@ def b(v, k): return (v-1)*pr[k]+1
 movemap = {"a" :lambda v:a(v,1), "a'":lambda v:a(v,n-1),
            "b" :lambda v:b(v,1), "b'":lambda v:b(v,n-1)}
 def domove(v, m): return movemap[m](v)
-def doseq(v, seq):
-   for x in seq: v = domove(v, x)
-   return v
 def minr(v): return max(abs(v+1),abs(v-1))
 def doseqcheck(v, seq):
    m = minr(v)
