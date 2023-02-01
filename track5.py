@@ -37,5 +37,5 @@ while True:
       curr = bestr
       print("Required radius is now", curr)
    t = abs(bestp - p) * sign((bestp - p).real)
-   print("At",p,"region",region,"choose",seqs[besti],"trans",t)
+   print("At",abs(p+E),"region",region,"choose",seqs[besti],"trans",t)
    p = bestp
