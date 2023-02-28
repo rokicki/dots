@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html><head><title>disks</title><script>
+"use strict";
+/*
+ *   Display parameters.
+ */
+var width = 800;
+var height = 600;
+var marg = 10;
+var zoom = 1;
+var sc ;
+var xoff = 0 ;
+var yoff = 0 ;
+/*
+ *   User interface parameters.
+ */
+var curthink = 1000 * 60 ;
+var overridezoom = 0 ;
+var pttype = 1 ;
+var sliders = ["arad", "brad", "an", "bn", "dist", "zoom"];
+/*
+ *   Internal rendering parameters.
+ */
+var canvas, ctx;
+var deepest = 0;
+var renderlim = 300;
+var useinfcolor = false;
+var pallete = [];
+const eps = 1e-9;
+const epseps = eps * eps;
+var san, can, sbn, cbn, ox, oy, ord, p, drawit, mindist, incirc, plen ;
+var ii, wi, state=0, useinfcolor = false ;
+var stopped = true;
+var dofull = true;
+var stoptime;
+var setmax;
+var timelim = 13; // max work milliseconds per anim call
+var largeayes, largebyes, smallano, smallbno, wps, ws, wns, wne ;
+/*
+ *   Model parameters.
+ */
+var ar, br, an, bn, sep, ax, ay, bx, by, arar, brbr, sepd2 ;
+/*
+ *   Rendering engine.
+ */
+function drawcirc(ctx, x, y, r) {
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, 2*Math.PI, false);
+    ctx.stroke();
+}
+function doanim() {
+    getUIParams();
+    var h = Math.max(ar, br) * 2;
+    var w = ar + br + sep;
+    sc = Math.min((height*zoom-2*marg)/h, (width*zoom-2*marg)/w);
+    ay = yoff * zoom + height / 2;
+    ax = xoff * zoom + width / 2 - 0.5 * (sep + br - ar) * sc;
+    ax = Math.floor(ax) + 0.5;
+    ay = Math.floor(ay) + 0.5;
+    arar = ar * ar ;
+    brbr = br * br ;
+    sepd2 = sep * 0.5 ;
+    by = ay;
+    bx = ax + sep * sc;
+    san = Math.sin(Math.PI * 2 / an);
+    can = Math.cos(Math.PI * 2 / an);
+    sbn = -Math.sin(Math.PI * 2 / bn);
+    cbn = Math.cos(Math.PI * 2 / bn);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawcirc(ctx, ax, ay, ar * sc);
+    drawcirc(ctx, bx, by, br * sc);
+    deepest = 0;
+    renderlim = 300;
+    curthink = 1000 * 60 ;
+    state = 0;
+    setmax = false;
+    stoptime = performance.now() + curthink ; // stop after 60s
+    if (stopped) {
+        stopped = false;
+        requestAnimationFrame(dowork);
+    }
+    return false; // suppress submit
+}
+//   Radix sort on pairs of doubles using typed arrays.
+//   Accepts a work array that has to be as large as the
+//   input array; we ping-pong between the two.
+//   This version also sorts an auxilliary array in the same way.
+function coordinateSort(p, st, e, aux) {
+   var n = e - st ;
+   var cnts = new Array(8 * 256) ;
+   cnts.fill(0) ;
+   var bytes = new Uint8Array(p.buffer, st * 8, n * 8) ;
+   var wbytes = new Uint8Array(p.buffer, e * 8, n * 8) ;
+   for (var i=0; i<bytes.length; i += 16) {
+      for (var j=0; j<8; j++) {
+         cnts[j*256+bytes[i+j]] += 2 ;
+      }
+   }
+   for (var i=0; i<8; i++) {
+      var xor = 0 ;
+      if (i == 7) {
+         xor = 128 ;
+      }
+      var s = 0 ;
+      for (var j=0; j<256; j++) {
+         var ind = i*256 + (j ^ xor) ;
+         var s2 = s + cnts[ind] ;
+         cnts[ind] = s ;
+         s = s2 ;
+      }
+   }
+   var s2 = e ;
+   var e2 = s2 + n ;
+   var negcnt = cnts[7*256] - 2 ;
+   for (var i = 0; i < 8; i++) {
+      for (var j = 0; j < n; j += 2) {
+         var off = i*256 + bytes[i+j*8] ;
+         var dest = cnts[off] ;
+         cnts[off] = dest + 2 ;
+         p[s2 + dest] = p[st + j] ;
+         p[s2 + dest + 1] = p[st + j + 1] ;
+         aux[(s2 + dest) >> 1] = aux[(st + j) >> 1] ;
+      }
+      var t = e ;
+      e = e2 ;
+      e2 = t ;
+      t = st ;
+      st = s2 ;
+      s2 = t ;
+      var t3 = bytes ;
+      bytes = wbytes ;
+      wbytes = t3 ;
+   }
+   for (var i = 0; i + i < negcnt; i += 2) {
+      var t2 = p[st + i];
+      p[st + i] = p[st + negcnt - i] ;
+      p[st + negcnt - i] = t2 ;
+      t2 = p[st + i + 1];
+      p[st + i + 1] = p[st + negcnt - i + 1] ;
+      p[st + negcnt - i + 1] = t2 ;
+      var t4 = aux[(st + i) >> 1] ;
+      aux[(st + i) >> 1] = aux[(st + negcnt - i) >> 1] ;
+      aux[(st + negcnt - i) >> 1] = t4 ;
+   }
+}
+function dd(pp, i, j) {
+   var dy = pp[i] - pp[j] ;
+   var dx = pp[i + 1] - pp[j + 1] ;
+   return dx * dx + dy * dy ;
+}
+//
+//  Frontier-based BFS.
+//
+const MAXCOORDS = 4800000 ;
+var p = new Float64Array(MAXCOORDS*2) ;
+var hint = new Uint8Array(MAXCOORDS) ;
+// state 0: pick a new point and initialize
+// state 1: chase through points, and accumulate
+// state 2: render
+function doworkfull() {
+    var x, y;
+    var start = performance.now();
+    if (start > stoptime) {
+        stopped = true;
+    } else {
+        requestAnimationFrame(dowork);
+    }
+    while (1) {
+        if (state == 0) {
+            for (var lop=1; ; lop++) {
+                if ((lop & 8191) == 0 && performance.now() - start > timelim) {
+                    return;
+                }
+                if (pttype == 1) {
+                   var x0 = (width * Math.random()) ;
+                   var y0 = (height * Math.random()) ;
+                   x = (x0 - ax) / sc ;
+                   y = (y0 - ay) / sc ;
+                   if (Math.hypot(x, y) < ar || Math.hypot(x-sep, y) < br) {
+                      break ;
+                   }
+                } else if (pttype == 2) {
+                   x = Math.random() * 2 * 3.14159265358979 ;
+                   if (Math.random() < 0.5) {
+                      y = (ar - 2 * eps) * Math.sin(x) ;
+                      x = (ar - 2 * eps) * Math.cos(x) ;
+                   } else {
+                      y = (br - 2 * eps) * Math.sin(x) ;
+                      x = sep + (br - 2 * eps) * Math.cos(x) ;
+                   }
+                   break ;
+                } else {
+                   x = sep / 2 ;
+                   y = 0 ;
+                   break ;
+                }
+            }
+            x -= sep / 2 ;
+            ord = 0;
+            drawit = false;
+            incirc = false;
+            state = 1;
+            ii = 0;
+            p[0] = y ;
+            p[1] = x ;
+            hint[0] = 0 ;
+            wps = 0 ;
+            ws = 0 ;
+            wns = 2 ;
+            wne = wns ;
+            largeayes = 0 ;
+            largebyes = 0 ;
+            smallano = 1e10 ;
+            smallbno = 1e10 ;
+        }
+        if (state == 1) {
+            var sqrt = Math.sqrt;
+            for (ii=1; ; ii++) {
+               if (wns == ws) {
+                  drawit = true;
+                  break ;
+               }
+               if (performance.now() - start > timelim) {
+                  return;
+               }
+               if (wns > 2 * renderlim) {
+                  break ;
+               }
+               for (var i=ws; i<wns; i += 2) {
+                  y = p[i] ;
+                  x = p[i + 1] ;
+                  var h = hint[i>>1] ;
+                  var xm = x - sepd2 ;
+                  var xp = x + sepd2 ;
+                  var pp = xp * xp + y * y ;
+                  if (wne + 16 > MAXCOORDS) {
+  // if a particular level gets this large, we also blow past renderlim
+                     break;
+                  }
+                  if (pp < arar) {
+                     incirc = true ;
+                     if (h !== 2) {
+                        var nx = xp * can + y * san;
+                        var ny = y * can - xp * san;
+                        hint[wne>>1] = 1 ;
+                        p[wne++] = ny ;
+                        p[wne++] = nx - sepd2 ;
+                     }
+                     if (h !== 1) {
+                        var nx = xp * can - y * san;
+                        var ny = y * can + xp * san;
+                        hint[wne>>1] = 2 ;
+                        p[wne++] = ny ;
+                        p[wne++] = nx - sepd2 ;
+                     }
+                     largeayes = Math.max(largeayes, pp) ;
+                  } else {
+                     smallano = Math.min(smallano, pp) ;
+                  }
+                  pp = xm * xm + y * y ;
+                  if (pp < brbr) {
+                     incirc = true ;
+                     if (h !== 4) {
+                        var nx = xm * cbn + y * sbn;
+                        var ny = y * cbn - xm * sbn;
+                        hint[wne>>1] = 3 ;
+                        p[wne++] = ny ;
+                        p[wne++] = nx + sepd2 ;
+                     }
+                     if (h !== 3) {
+                        var nx = xm * cbn - y * sbn;
+                        var ny = y * cbn + xm * sbn;
+                        hint[wne>>1] = 4 ;
+                        p[wne++] = ny ;
+                        p[wne++] = nx + sepd2 ;
+                     }
+                     largebyes = Math.max(largebyes, pp) ;
+                  } else {
+                     smallbno = Math.min(smallbno, pp) ;
+                  }
+               }
+               coordinateSort(p, wns, wne, hint) ;
+               var wpi = wps ;
+               var wci = ws ;
+               wi = wns ;
+               for (var i=wns; i<wne; i += 2) {
+                  var skipit = 0 ;
+                  for (var j=i+2; skipit === 0 && j<wne && p[i] + eps > p[j]; j += 2) {
+                     if (dd(p, i, j) < epseps) {
+                        skipit = 1 ;
+                     }
+                  }
+                  while (wpi < ws && p[i] > p[wpi] + eps) {
+                     wpi += 2 ;
+                  }
+                  for (var j=wpi; skipit === 0 && j<ws && p[i] + eps > p[j]; j += 2) {
+                     if (dd(p, i, j) < epseps) {
+                        skipit = 1 ;
+                     }
+                  }
+                  while (wci < wns && p[i] > p[wci] + eps) {
+                     wci += 2 ;
+                  }
+                  for (var j=wci; skipit === 0 && j<wns && p[i] + eps > p[j]; j += 2) {
+                     if (dd(p, i, j) < epseps) {
+                        skipit = 1 ;
+                     }
+                  }
+                  if (skipit === 0) {
+                     hint[wi>>1] = hint[i>>1] ;
+                     p[wi++] = p[i] ;
+                     p[wi++] = p[i + 1] ;
+                  }
+               }
+            //   console.log("At d " + d + " count " + (wi-wns)/2) ;
+               wps = ws ;
+               ws = wns ;
+               wns = wi ;
+               wne = wi ;
+               ord = wi / 2 ;
+            }
+            if (!drawit) {
+               if (renderlim < 1000000) {
+                   deepest = renderlim-1; 
+                   noticeOrder(">" + deepest);
+                   renderlim = Math.floor(renderlim * 1.2);
+                   if (renderlim > 1000000) {
+                      renderlim = 1000000 ;
+                   }
+               } else { 
+                  if (! setmax) {
+                     deepest = renderlim-1;
+                     noticeOrder(">" + deepest);
+                     setmax = true;
+                  } 
+                  useinfcolor = true;
+                  drawit = true;
+               }
+            } else {
+               useinfcolor = false;
+            }
+            if (!incirc || !drawit) {
+                state = 0;
+            } else {
+                state = 2;
+                ii = 0;
+            }
+        }
+        if (state == 2) {
+            mindist = sc * Math.min(
+                 Math.min(ar-Math.sqrt(largeayes), Math.sqrt(smallano) - ar),
+                 Math.min(br-Math.sqrt(largebyes), Math.sqrt(smallbno) - br)) ;
+            if (!useinfcolor && ord > deepest) {
+                deepest = ord;
+                noticeOrder("" + deepest);
+            }
+            if (!pallete[ord]) {
+                var cr = ord * 154 % 251;
+                var cg = ord * 230 % 241;
+                var cb = ord * 214 % 239;
+                pallete[ord] = "rgb(" + cr + "," + cg + "," + cb + ")";
+            }
+            if (useinfcolor) {
+               ctx.fillStyle = "rgb(128,128,128)";
+            } else {
+               ctx.fillStyle = pallete[ord];
+            }
+            var abx = 0.5 * (ax + bx);
+            if (mindist < 1.5) {
+                for (; ii<wi; ii += 2) {
+                    if ((ii & 8191) == 0 && performance.now() - start > timelim) {
+                        return;
+                    }
+                    y = p[ii] * sc + ay ;
+                    x = p[ii+1] * sc + abx ;
+                    ctx.fillRect(x, y, 1, 1);
+                }
+            } else {
+                for (; ii<wi; ii += 2) {
+                    if ((ii & 8191) == 0 && performance.now() - start > timelim) {
+                        return;
+                    }
+                    y = p[ii] * sc + ay ;
+                    x = p[ii+1] * sc + abx ;
+                    ctx.beginPath();
+                    ctx.arc(x, y, mindist-0.5, 0, 2*Math.PI, false);
+                    ctx.fill();
+                }
+            }
+            state = 0;
+        }
+    }
+}
+function doworkgen() {
+    var x, y;
+    var start = performance.now();
+    if (start > stoptime) {
+        stopped = true;
+    } else {
+        requestAnimationFrame(dowork);
+    }
+    while (1) {
+        if (state == 0) {
+            for (var lop=1; ; lop++) {
+                if ((lop & 8191) == 0 && performance.now() - start > timelim) {
+                    return;
+                }
+                if (pttype == 1) {
+                   var x0 = (width * Math.random()) ;
+                   var y0 = (height * Math.random()) ;
+                   x = (x0 - ax) / sc ;
+                   y = (y0 - ay) / sc ;
+                   if (Math.hypot(x, y) < ar || Math.hypot(x-sep, y) < br) {
+                      break ;
+                   }
+                } else if (pttype == 2) {
+                   x = Math.random() * 2 * 3.14159265358979 ;
+                   if (Math.random() < 0.5) {
+                      y = (ar - 2 * eps) * Math.sin(x) ;
+                      x = (ar - 2 * eps) * Math.cos(x) ;
+                   } else {
+                      y = (br - 2 * eps) * Math.sin(x) ;
+                      x = sep + (br - 2 * eps) * Math.cos(x) ;
+                   }
+                   break ;
+                } else {
+                   x = sep / 2 ;
+                   y = 0 ;
+                   break ;
+                }
+            }
+            ox = x;
+            oy = y;
+            ord = 0;
+            plen = 0;
+            drawit = false;
+            mindist = 1000;
+            incirc = false;
+            state = 1;
+            ii = 0;
+        }
+        if (state == 1) {
+            var sqrt = Math.sqrt;
+            for (; ii<renderlim; ii++) {
+                if ((ii & 8191) == 0 && performance.now() - start > timelim) {
+                    return;
+                }
+                var t = sqrt(x * x + y * y) - ar;
+                if (t <= 0) {
+                    t = - t;
+                    incirc = true;
+                    var nx = x * can + y * san;
+                    y = y * can - x * san;
+                    x = nx;
+                }
+                if (t < mindist) {
+                    mindist = t;
+                }
+                x -= sep;
+                var t = sqrt(x * x + y * y) - br;
+                if (t <= 0) {
+                    t = - t;
+                    incirc = true;
+                    var nx = x * cbn + y * sbn;
+                    y = y * cbn - x * sbn;
+                    x = nx;
+                }
+                if (t < mindist) {
+                    mindist = t;
+                }
+                var xx = (x + sep) * sc + ax;
+                if (xx + mindist >= 0 && xx - mindist <= width) {
+                    var yy = y * sc + ay;
+                    if (yy + mindist >= 0 && yy - mindist <= height) {
+                        p[plen++] = (x + sep) * sc + ax;
+                        p[plen++] = y * sc + ay;
+                    }
+                }
+                ord++;
+                var dx = x + sep - ox;
+                if (dx * dx < epseps) {
+                    var dy = y - oy;
+                    if (dx * dx + dy * dy < epseps) {
+                        drawit = true;
+                        break;
+                    }
+                }
+                x += sep;
+            }
+            mindist *= sc;
+            if (!drawit) {
+               if (renderlim < 1000000) {
+                   deepest = renderlim;
+                   noticeOrder(">" + deepest);
+                   renderlim = Math.floor(renderlim * 1.2);
+               } else {
+                  if (! setmax) {
+                     deepest = renderlim;
+                     noticeOrder(">" + deepest);
+                     setmax = true;
+                  }
+               }
+            }
+            if (!incirc || !drawit) {
+                state = 0;
+            } else {
+                state = 2;
+                ii = 0;
+            }
+        }
+        if (state == 2) {
+            if (ord > deepest) {
+                deepest = ord;
+                noticeOrder("" + deepest);
+            }
+            if (!pallete[ord]) {
+                var cr = ord * 154 % 251;
+                var cg = ord * 230 % 241;
+                var cb = ord * 214 % 239;
+                pallete[ord] = "rgb(" + cr + "," + cg + "," + cb + ")";
+            }
+            ctx.fillStyle = pallete[ord];
+            if (mindist < 1.5) {
+                for (; ii<plen; ii += 2) {
+                    if ((ii & 8191) == 0 && performance.now() - start > timelim) {
+                        return;
+                    }
+                    ctx.fillRect(p[ii], p[ii+1], 1, 1);
+                }
+            } else {
+                for (; ii<plen; ii += 2) {
+                    if ((ii & 8191) == 0 && performance.now() - start > timelim) {
+                        return;
+                    }
+                    ctx.beginPath();
+                    ctx.arc(p[ii], p[ii+1], mindist-0.5, 0, 2*Math.PI, false);
+                    ctx.fill();
+                }
+            }
+            state = 0;
+        }
+    }
+}
+function dowork() {
+   if (dofull) {
+      doworkfull() ;
+   } else {
+      doworkgen() ;
+   }
+}
+function getvalue(s) {
+    var r;
+    if (s === "zoom" && overridezoom != 0)
+       r = overridezoom ;
+    else
+       r = +document.getElementById(s).value;
+//  document.getElementById("show"+s).innerText = r;
+    return r;
+}
+function getUIParams() {
+    width = canvas.clientWidth;
+    height = canvas.clientHeight;
+    canvas.width = width;
+    canvas.height = height;
+    ar = getvalue("range1") / 450;
+    br = getvalue("range3") / 450;
+    an = getvalue("range2");
+    bn = getvalue("range4");
+    sep = 2;
+    zoom = 1;
+    console.log("ar",ar,"br",br,"an",an,"bn",bn,"sep",sep,"zoom",zoom);
+}
+function noticeOrder(s) {
+    // document.getElementById("order").innerText = s;
+}
+      var timer;
+      function activate_button_container() {
+        var box = document.getElementById("button_container1");
+        box.style.display = "block";
+
+        if (timer) {
+          clearTimeout(timer);
+        }
+
+        timer = setTimeout(function () {
+          box.style.opacity = "0";
+
+          setTimeout(function () {
+            box.style.opacity = "1";
+            box.style.display = "none";
+            close_slider("slide_box1");
+            close_slider("slide_box2");
+            close_slider("slide_box3");
+            close_slider("slide_box4");
+          }, 700); // wait for the fade animation to finish
+        }, 2000);
+      }
+
+      document.addEventListener("touchstart", function () {
+        activate_button_container();
+      });
+
+      document.addEventListener("click", function () {
+        activate_button_container();
+      });
+
+      function toggleSlider(id) {
+        var slider = document.getElementById(id);
+        if (slider.style.display == "none") {
+          slider.style.display = "block";
+        } else {
+          slider.style.display = "none";
+        }
+      }
+
+      function close_slider(id) {
+        var slider = document.getElementById(id);
+        slider.style.display = "none";
+      }
+
+      function onlySlider(n) {
+        for (var i = 1; i <= 4; i++) {
+          if (i == n) {
+            toggleSlider("slide_box" + i);
+          } else {
+            close_slider("slide_box" + i);
+          }
+        }
+      }
+
+      function changeCircleSize(disc_in, range_in) {
+        var disc = document.getElementById(disc_in);
+        var range = document.getElementById(range_in);
+        disc.style.width = range.value + "px";
+        disc.style.height = range.value + "px";
+      }
+
+      function updateValue(label, val) {
+        document.getElementById(label).innerHTML = val;
+        doanim();
+      }
+
+      function dorandom() {
+        var r1 = 150 + Math.floor(600 * Math.random());
+        var r2 = 150 + Math.floor(600 * Math.random());
+        var n1 = 2 + Math.floor(18 * Math.random());
+        var n2 = 2 + Math.floor(18 * Math.random());
+        document.getElementById("range1").value = r1;
+        document.getElementById("range2").value = n1;
+        document.getElementById("range3").value = r2;
+        document.getElementById("range4").value = n2;
+        changeCircleSize("disc1", "range1");
+        changeCircleSize("disc2", "range3");
+        updateValue("dl1", n1);
+        updateValue("dl2", n2);
+        close_slider("slide_box1");
+        close_slider("slide_box2");
+        close_slider("slide_box3");
+        close_slider("slide_box4");
+      }
+       /* Disc placement --TO BE REMOVED-- */
+      function start() {
+        document.getElementById("disc1").style.left = "35%";
+        document.getElementById("disc2").style.left = "65%";
+        document.getElementById("dl1").style.left = "35%";
+        document.getElementById("dl2").style.left = "65%";
+        canvas = document.getElementById("canvas");
+        ctx = canvas.getContext("2d");
+        var hamburgerMenu = document.getElementById("hamburger-menu");
+        var menu = document.getElementById("menu");
+
+        /* Bug with first touch on iPad --Switch to button?-- */
+        hamburgerMenu.addEventListener("click", function () {
+          if (menu.style.display === "block") {
+            menu.style.display = "none";
+          } else {
+            menu.style.display = "block";
+          }
+        });
+        doanim();
+      }
+      window.onload = start;
+</script>
+    <style>
+      /* Hamburger menu button*/
+      #hamburger-menu {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        background-color: #333;
+        border-radius: 12%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+      #hamburger-menu span {
+        display: block;
+        width: 35px;
+        height: 3px;
+        background-color: #fff;
+        margin: 5px;
+        border-radius: 3px;
+      }
+      #menu {
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        width: 150px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        display: none;
+        z-index: 999;
+      }
+      #menu ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      #menu li {
+        padding: 10px;
+        cursor: pointer;
+      }
+      #menu li:hover {
+        background-color: #f4f4f4;
+      }
+
+      /* Disc controls */
+      .button {
+        width: 60px;
+        height: 60px;
+        background-color: #333;
+        border: none;
+        display: inline-block;
+        margin: 10px 10px;
+        border-radius: 10px;
+        font-size: 20px;
+        color: white;
+      }
+      .button-container {
+        width: 420px;
+        height: 80px;
+        background-color: #000000;
+        position: fixed;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 20px;
+        opacity: 1;
+        transition: opacity 0.8s;
+        display: none;
+      }
+      .slide_box {
+        width: 600px;
+        height: 60px;
+        background-color: #000000;
+        position: absolute;
+        top: -70px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 30px;
+        opacity: 1;
+        transition: opacity 0.8s;
+        display: none;
+      }
+      .slider {
+        position: relative;
+        top: 35%;
+        left: 50%;
+        width: 93%;
+        border-radius: 5;
+        height: 10px;
+        outline: none;
+        transform: translateX(-50%);
+      }
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        background-color: #aeaeae;
+        height: 30px;
+        width: 30px;
+        border-radius: 15px;
+      }
+
+      /* Discs --TO BE REMOVED-- */
+      .disc {
+        width: 400px;
+        height: 400px;
+        border: 2px solid rgb(0, 0, 0);
+        border-radius: 50%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+      .disc_label {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: rgb(0, 0, 0);
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 60px;
+      }
+      #canvas { position:fixed; left:0;top:0; width:100%; height:100%; z-index: -1; }
+    </style>
+  </head>
+
+  <body>
+    <canvas id="canvas" width="80" height="80"></canvas>
+    <div id="hamburger-menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <div id="menu">
+      <ul>
+        <li>Color Options</li>
+        <li>Email image</li>
+        <li>. . .</li>
+      </ul>
+    </div>
+
+    <div class="disc" id="disc1"></div>
+    <div class="disc" id="disc2"></div>
+    <div class="disc_label" id="dl1">5</div>
+    <div class="disc_label" id="dl2">5</div>
+  
+    <datalist id="steplist">
+      <option>2</option>
+      <option>3</option>
+      <option>4</option>
+      <option>5</option>
+      <option>6</option>
+      <option>7</option>
+      <option>8</option>
+      <option>9</option>
+      <option>10</option>
+      <option>11</option>
+      <option>12</option>
+      <option>13</option>
+      <option>14</option>
+      <option>15</option>
+      <option>16</option>
+      <option>17</option>
+      <option>18</option>
+      <option>19</option>
+      <option>20</option>
+    </datalist>
+
+    <div class="button-container" id="button_container1">
+      <button class="button" onclick="onlySlider(1)">R1</button>
+      <div class="slide_box" id="slide_box1">
+        <input
+          type="range"
+          class="slider"
+          id="range1"
+          min="150"
+          max="750"
+          value="400"
+          onchange="changeCircleSize('disc1', 'range1'), activate_button_container()"
+        />
+      </div>
+
+      <button class="button" onclick="onlySlider(2)">N1</button>
+      <div class="slide_box" id="slide_box2">
+        <input
+          type="range"
+          min="2"
+          max="20"
+          value="5"
+          step="1"
+          id="range2"
+          class="slider"
+          onchange="updateValue('dl1', this.value), activate_button_container()"
+          list="steplist"
+        />
+      </div>
+
+      <button class="button" id="b1" onclick="onlySlider(3)">R2</button>
+      <div class="slide_box" id="slide_box3">
+        <input
+          type="range"
+          class="slider"
+          id="range3"
+          min="150"
+          max="750"
+          value="400"
+          onchange="changeCircleSize('disc2', 'range3'), activate_button_container()"
+        />
+      </div>
+
+      <button class="button" onclick="onlySlider(4)">N2</button>
+      <div class="slide_box" id="slide_box4">
+        <input
+          type="range"
+          min="2"
+          max="20"
+          value="5"
+          step="1"
+          id="range4"
+          class="slider"
+          onchange="updateValue('dl2', this.value), activate_button_container()"
+          list="steplist"
+        />
+      </div>
+      <button
+        class="button"
+        onclick="dorandom()"
+        style="color: #f4f4f4; background-color: #f4f4f4"
+      >
+        rand
+      </button>
+    </div>
+  </body>
+</html>
