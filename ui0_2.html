@@ -216,6 +216,25 @@
         close_slider("slide_box3");
         close_slider("slide_box4");
       }
+       /* Disc placement --TO BE REMOVED-- */
+      function start() {
+        document.getElementById("disc1").style.left = "35%";
+        document.getElementById("disc2").style.left = "65%";
+        document.getElementById("dl1").style.left = "35%";
+        document.getElementById("dl2").style.left = "65%";
+        var hamburgerMenu = document.getElementById("hamburger-menu");
+        var menu = document.getElementById("menu");
+
+        /* Bug with first touch on iPad --Switch to button?-- */
+        hamburgerMenu.addEventListener("click", function () {
+          if (menu.style.display === "block") {
+            menu.style.display = "none";
+          } else {
+            menu.style.display = "block";
+          }
+        });
+      }
+      window.onload = start;
     </script>
   </head>
 
@@ -238,26 +257,7 @@
     <div class="disc" id="disc2"></div>
     <div class="disc_label" id="dl1">5</div>
     <div class="disc_label" id="dl2">5</div>
-
-    <script>
-      /* Disc placement --TO BE REMOVED-- */
-      document.getElementById("disc1").style.left = "35%";
-      document.getElementById("disc2").style.left = "65%";
-      document.getElementById("dl1").style.left = "35%";
-      document.getElementById("dl2").style.left = "65%";
-      var hamburgerMenu = document.getElementById("hamburger-menu");
-      var menu = document.getElementById("menu");
-
-      /* Bug with first touch on iPad --Switch to button?-- */
-      hamburgerMenu.addEventListener("click", function () {
-        if (menu.style.display === "block") {
-          menu.style.display = "none";
-        } else {
-          menu.style.display = "block";
-        }
-      });
-    </script>
-
+  
     <datalist id="steplist">
       <option>2</option>
       <option>3</option>

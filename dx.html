@@ -864,7 +864,7 @@ function noticeOrder(s) {
           min="150"
           max="750"
           value="400"
-          onchange="changeCircleSize('disc1', 'range1'), activate_button_container()"
+          oninput="changeCircleSize('disc1', 'range1'), activate_button_container()"
         />
       </div>
 
@@ -878,7 +878,7 @@ function noticeOrder(s) {
           step="1"
           id="range2"
           class="slider"
-          onchange="updateValue('dl1', this.value), activate_button_container()"
+          oninput="updateValue('dl1', this.value), activate_button_container()"
           list="steplist"
         />
       </div>
@@ -892,7 +892,7 @@ function noticeOrder(s) {
           min="150"
           max="750"
           value="400"
-          onchange="changeCircleSize('disc2', 'range3'), activate_button_container()"
+          oninput="changeCircleSize('disc2', 'range3'), activate_button_container()"
         />
       </div>
 
@@ -906,7 +906,7 @@ function noticeOrder(s) {
           step="1"
           id="range4"
           class="slider"
-          onchange="updateValue('dl2', this.value), activate_button_container()"
+          oninput="updateValue('dl2', this.value), activate_button_container()"
           list="steplist"
         />
       </div>
