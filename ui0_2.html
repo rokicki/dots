@@ -177,6 +177,16 @@
         slider.style.display = "none";
       }
 
+      function onlySlider(n) {
+        for (var i = 1; i <= 4; i++) {
+          if (i == n) {
+            toggleSlider("slide_box" + i);
+          } else {
+            close_slider("slide_box" + i);
+          }
+        }
+      }
+
       function changeCircleSize(disc_in, range_in) {
         var disc = document.getElementById(disc_in);
         var range = document.getElementById(range_in);
@@ -271,13 +281,7 @@
     </datalist>
 
     <div class="button-container" id="button_container1">
-      <button
-        class="button"
-        onclick="toggleSlider('slide_box1'), close_slider('slide_box2'), close_slider('slide_box3'), 
-                 close_slider('slide_box4')"
-      >
-        R1
-      </button>
+      <button class="button" onclick="onlySlider(1)">R1</button>
       <div class="slide_box" id="slide_box1">
         <input
           type="range"
@@ -290,13 +294,7 @@
         />
       </div>
 
-      <button
-        class="button"
-        onclick="toggleSlider('slide_box2'), close_slider('slide_box1'), close_slider('slide_box3'),
-                 close_slider('slide_box4')"
-      >
-        N1
-      </button>
+      <button class="button" onclick="onlySlider(2)">N1</button>
       <div class="slide_box" id="slide_box2">
         <input
           type="range"
@@ -311,14 +309,7 @@
         />
       </div>
 
-      <button
-        class="button"
-        id="b1"
-        onclick="toggleSlider('slide_box3'), close_slider('slide_box1'), close_slider('slide_box2'),
-                 close_slider('slide_box4')"
-      >
-        R2
-      </button>
+      <button class="button" id="b1" onclick="onlySlider(3)">R2</button>
       <div class="slide_box" id="slide_box3">
         <input
           type="range"
@@ -331,13 +322,7 @@
         />
       </div>
 
-      <button
-        class="button"
-        onclick="toggleSlider('slide_box4'), close_slider('slide_box1'), close_slider('slide_box2'),
-                 close_slider('slide_box3')"
-      >
-        N2
-      </button>
+      <button class="button" onclick="onlySlider(4)">N2</button>
       <div class="slide_box" id="slide_box4">
         <input
           type="range"
