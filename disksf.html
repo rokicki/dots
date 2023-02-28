@@ -23,11 +23,12 @@ var sliders = ["arad", "brad", "an", "bn", "dist", "zoom"];
 var canvas, ctx;
 var deepest = 0;
 var renderlim = 300;
+var useinfcolor = false;
 var pallete = [];
 const eps = 1e-9;
 const epseps = eps * eps;
 var san, can, sbn, cbn, pts, ox, oy, ord, p, drawit, mindist, incirc ;
-var ii, state=0 ;
+var ii, wi, state=0 ;
 var stopped = true;
 var stoptime;
 var setmax;
@@ -278,7 +279,7 @@ function dowork() {
                coordinateSort(p, wns, wne, hint) ;
                var wpi = wps ;
                var wci = ws ;
-               var wi = wns ;
+               wi = wns ;
                for (var i=wns; i<wne; i += 2) {
                   var skipit = 0 ;
                   for (var j=i+2; skipit === 0 && j<wne && p[i] + eps > p[j]; j += 2) {
@@ -329,8 +330,11 @@ function dowork() {
                      noticeOrder(">" + deepest);
                      setmax = true;
                   } 
- //               drawit = true;
+                  useinfcolor = true;
+                  drawit = true;
                }
+            } else {
+               useinfcolor = false;
             }
             if (!incirc || !drawit) {
                 state = 0;
@@ -343,7 +347,7 @@ function dowork() {
             mindist = sc * Math.min(
                  Math.min(ar-Math.sqrt(largeayes), Math.sqrt(smallano) - ar),
                  Math.min(br-Math.sqrt(largebyes), Math.sqrt(smallbno) - br)) ;
-            if (ord > deepest) {
+            if (!useinfcolor && ord > deepest) {
                 deepest = ord;
                 noticeOrder("" + deepest);
             }
@@ -353,7 +357,11 @@ function dowork() {
                 var cb = ord * 214 % 239;
                 pallete[ord] = "rgb(" + cr + "," + cg + "," + cb + ")";
             }
-            ctx.fillStyle = pallete[ord];
+            if (useinfcolor) {
+               ctx.fillStyle = "rgb(128,128,128)";
+            } else {
+               ctx.fillStyle = pallete[ord];
+            }
             var abx = 0.5 * (ax + bx);
             if (mindist < 1.5) {
                 for (; ii<wi; ii += 2) {
