@@ -1,0 +1,826 @@
+<html><head><title>disks</title><script>
+"use strict";
+/*
+ *   Display parameters.
+ */
+var width = 800;
+var height = 600;
+var marg = 10;
+var zoom = 1;
+var sc ;
+var xoff = 0 ;
+var yoff = 0 ;
+/*
+ *   User interface parameters.
+ */
+var curthink = 1000 * 60 ;
+var overridezoom = 0 ;
+var pttype = 1 ;
+var sliders = ["arad", "brad", "an", "bn", "dist", "zoom"];
+/*
+ *   Internal rendering parameters.
+ */
+var canvas, ctx;
+var deepest = 0;
+var renderlim = 300;
+var useinfcolor = false;
+var pallete = [];
+const eps = 1e-9;
+const epseps = eps * eps;
+var san, can, sbn, cbn, ox, oy, ord, p, drawit, mindist, incirc, plen ;
+var ii, wi, state=0, useinfcolor = false ;
+var stopped = true;
+var dofull = true;
+var stoptime;
+var setmax;
+var timelim = 13; // max work milliseconds per anim call
+var largeayes, largebyes, smallano, smallbno, wps, ws, wns, wne ;
+/*
+ *   Model parameters.
+ */
+var ar, br, an, bn, sep, ax, ay, bx, by, arar, brbr, sepd2 ;
+/*
+ *   Rendering engine.
+ */
+function drawcirc(ctx, x, y, r) {
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, 2*Math.PI, false);
+    ctx.stroke();
+}
+function doanim() {
+    getUIParams();
+    var h = Math.max(ar, br) * 2;
+    var w = ar + br + sep;
+    sc = Math.min((height*zoom-2*marg)/h, (width*zoom-2*marg)/w);
+    ay = yoff * zoom + height / 2;
+    ax = xoff * zoom + width / 2 - 0.5 * (sep + br - ar) * sc;
+    ax = Math.floor(ax) + 0.5;
+    ay = Math.floor(ay) + 0.5;
+    arar = ar * ar ;
+    brbr = br * br ;
+    sepd2 = sep * 0.5 ;
+    by = ay;
+    bx = ax + sep * sc;
+    san = Math.sin(Math.PI * 2 / an);
+    can = Math.cos(Math.PI * 2 / an);
+    sbn = -Math.sin(Math.PI * 2 / bn);
+    cbn = Math.cos(Math.PI * 2 / bn);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawcirc(ctx, ax, ay, ar * sc);
+    drawcirc(ctx, bx, by, br * sc);
+    deepest = 0;
+    renderlim = 300;
+    curthink = 1000 * 60 ;
+    state = 0;
+    setmax = false;
+    stoptime = performance.now() + curthink ; // stop after 60s
+    if (stopped) {
+        stopped = false;
+        requestAnimationFrame(dowork);
+    }
+    return false; // suppress submit
+}
+//   Radix sort on pairs of doubles using typed arrays.
+//   Accepts a work array that has to be as large as the
+//   input array; we ping-pong between the two.
+//   This version also sorts an auxilliary array in the same way.
+function coordinateSort(p, st, e, aux) {
+   var n = e - st ;
+   var cnts = new Array(8 * 256) ;
+   cnts.fill(0) ;
+   var bytes = new Uint8Array(p.buffer, st * 8, n * 8) ;
+   var wbytes = new Uint8Array(p.buffer, e * 8, n * 8) ;
+   for (var i=0; i<bytes.length; i += 16) {
+      for (var j=0; j<8; j++) {
+         cnts[j*256+bytes[i+j]] += 2 ;
+      }
+   }
+   for (var i=0; i<8; i++) {
+      var xor = 0 ;
+      if (i == 7) {
+         xor = 128 ;
+      }
+      var s = 0 ;
+      for (var j=0; j<256; j++) {
+         var ind = i*256 + (j ^ xor) ;
+         var s2 = s + cnts[ind] ;
+         cnts[ind] = s ;
+         s = s2 ;
+      }
+   }
+   var s2 = e ;
+   var e2 = s2 + n ;
+   var negcnt = cnts[7*256] - 2 ;
+   for (var i = 0; i < 8; i++) {
+      for (var j = 0; j < n; j += 2) {
+         var off = i*256 + bytes[i+j*8] ;
+         var dest = cnts[off] ;
+         cnts[off] = dest + 2 ;
+         p[s2 + dest] = p[st + j] ;
+         p[s2 + dest + 1] = p[st + j + 1] ;
+         aux[(s2 + dest) >> 1] = aux[(st + j) >> 1] ;
+      }
+      var t = e ;
+      e = e2 ;
+      e2 = t ;
+      t = st ;
+      st = s2 ;
+      s2 = t ;
+      var t3 = bytes ;
+      bytes = wbytes ;
+      wbytes = t3 ;
+   }
+   for (var i = 0; i + i < negcnt; i += 2) {
+      var t2 = p[st + i];
+      p[st + i] = p[st + negcnt - i] ;
+      p[st + negcnt - i] = t2 ;
+      t2 = p[st + i + 1];
+      p[st + i + 1] = p[st + negcnt - i + 1] ;
+      p[st + negcnt - i + 1] = t2 ;
+      var t4 = aux[(st + i) >> 1] ;
+      aux[(st + i) >> 1] = aux[(st + negcnt - i) >> 1] ;
+      aux[(st + negcnt - i) >> 1] = t4 ;
+   }
+}
+function dd(pp, i, j) {
+   var dy = pp[i] - pp[j] ;
+   var dx = pp[i + 1] - pp[j + 1] ;
+   return dx * dx + dy * dy ;
+}
+//
+//  Frontier-based BFS.
+//
+const MAXCOORDS = 4800000 ;
+var p = new Float64Array(MAXCOORDS*2) ;
+var hint = new Uint8Array(MAXCOORDS) ;
+// state 0: pick a new point and initialize
+// state 1: chase through points, and accumulate
+// state 2: render
+function doworkfull() {
+    var x, y;
+    var start = performance.now();
+    if (start > stoptime) {
+        stopped = true;
+    } else {
+        requestAnimationFrame(dowork);
+    }
+    while (1) {
+        if (state == 0) {
+            for (var lop=1; ; lop++) {
+                if ((lop & 8191) == 0 && performance.now() - start > timelim) {
+                    return;
+                }
+                if (pttype == 1) {
+                   var x0 = (width * Math.random()) ;
+                   var y0 = (height * Math.random()) ;
+                   x = (x0 - ax) / sc ;
+                   y = (y0 - ay) / sc ;
+                   if (Math.hypot(x, y) < ar || Math.hypot(x-sep, y) < br) {
+                      break ;
+                   }
+                } else if (pttype == 2) {
+                   x = Math.random() * 2 * 3.14159265358979 ;
+                   if (Math.random() < 0.5) {
+                      y = (ar - 2 * eps) * Math.sin(x) ;
+                      x = (ar - 2 * eps) * Math.cos(x) ;
+                   } else {
+                      y = (br - 2 * eps) * Math.sin(x) ;
+                      x = sep + (br - 2 * eps) * Math.cos(x) ;
+                   }
+                   break ;
+                } else {
+                   x = sep / 2 ;
+                   y = 0 ;
+                   break ;
+                }
+            }
+            x -= sep / 2 ;
+            ord = 0;
+            drawit = false;
+            incirc = false;
+            state = 1;
+            ii = 0;
+            p[0] = y ;
+            p[1] = x ;
+            hint[0] = 0 ;
+            wps = 0 ;
+            ws = 0 ;
+            wns = 2 ;
+            wne = wns ;
+            largeayes = 0 ;
+            largebyes = 0 ;
+            smallano = 1e10 ;
+            smallbno = 1e10 ;
+        }
+        if (state == 1) {
+            var sqrt = Math.sqrt;
+            for (ii=1; ; ii++) {
+               if (wns == ws) {
+                  drawit = true;
+                  break ;
+               }
+               if (performance.now() - start > timelim) {
+                  return;
+               }
+               if (wns > 2 * renderlim) {
+                  break ;
+               }
+               for (var i=ws; i<wns; i += 2) {
+                  y = p[i] ;
+                  x = p[i + 1] ;
+                  var h = hint[i>>1] ;
+                  var xm = x - sepd2 ;
+                  var xp = x + sepd2 ;
+                  var pp = xp * xp + y * y ;
+                  if (wne + 16 > MAXCOORDS) {
+  // if a particular level gets this large, we also blow past renderlim
+                     break;
+                  }
+                  if (pp < arar) {
+                     incirc = true ;
+                     if (h !== 2) {
+                        var nx = xp * can + y * san;
+                        var ny = y * can - xp * san;
+                        hint[wne>>1] = 1 ;
+                        p[wne++] = ny ;
+                        p[wne++] = nx - sepd2 ;
+                     }
+                     if (h !== 1) {
+                        var nx = xp * can - y * san;
+                        var ny = y * can + xp * san;
+                        hint[wne>>1] = 2 ;
+                        p[wne++] = ny ;
+                        p[wne++] = nx - sepd2 ;
+                     }
+                     largeayes = Math.max(largeayes, pp) ;
+                  } else {
+                     smallano = Math.min(smallano, pp) ;
+                  }
+                  pp = xm * xm + y * y ;
+                  if (pp < brbr) {
+                     incirc = true ;
+                     if (h !== 4) {
+                        var nx = xm * cbn + y * sbn;
+                        var ny = y * cbn - xm * sbn;
+                        hint[wne>>1] = 3 ;
+                        p[wne++] = ny ;
+                        p[wne++] = nx + sepd2 ;
+                     }
+                     if (h !== 3) {
+                        var nx = xm * cbn - y * sbn;
+                        var ny = y * cbn + xm * sbn;
+                        hint[wne>>1] = 4 ;
+                        p[wne++] = ny ;
+                        p[wne++] = nx + sepd2 ;
+                     }
+                     largebyes = Math.max(largebyes, pp) ;
+                  } else {
+                     smallbno = Math.min(smallbno, pp) ;
+                  }
+               }
+               coordinateSort(p, wns, wne, hint) ;
+               var wpi = wps ;
+               var wci = ws ;
+               wi = wns ;
+               for (var i=wns; i<wne; i += 2) {
+                  var skipit = 0 ;
+                  for (var j=i+2; skipit === 0 && j<wne && p[i] + eps > p[j]; j += 2) {
+                     if (dd(p, i, j) < epseps) {
+                        skipit = 1 ;
+                     }
+                  }
+                  while (wpi < ws && p[i] > p[wpi] + eps) {
+                     wpi += 2 ;
+                  }
+                  for (var j=wpi; skipit === 0 && j<ws && p[i] + eps > p[j]; j += 2) {
+                     if (dd(p, i, j) < epseps) {
+                        skipit = 1 ;
+                     }
+                  }
+                  while (wci < wns && p[i] > p[wci] + eps) {
+                     wci += 2 ;
+                  }
+                  for (var j=wci; skipit === 0 && j<wns && p[i] + eps > p[j]; j += 2) {
+                     if (dd(p, i, j) < epseps) {
+                        skipit = 1 ;
+                     }
+                  }
+                  if (skipit === 0) {
+                     hint[wi>>1] = hint[i>>1] ;
+                     p[wi++] = p[i] ;
+                     p[wi++] = p[i + 1] ;
+                  }
+               }
+            //   console.log("At d " + d + " count " + (wi-wns)/2) ;
+               wps = ws ;
+               ws = wns ;
+               wns = wi ;
+               wne = wi ;
+               ord = wi / 2 ;
+            }
+            if (!drawit) {
+               if (renderlim < 1000000) {
+                   deepest = renderlim-1; 
+                   noticeOrder(">" + deepest);
+                   renderlim = Math.floor(renderlim * 1.2);
+                   if (renderlim > 1000000) {
+                      renderlim = 1000000 ;
+                   }
+               } else { 
+                  if (! setmax) {
+                     deepest = renderlim-1;
+                     noticeOrder(">" + deepest);
+                     setmax = true;
+                  } 
+                  useinfcolor = true;
+                  drawit = true;
+               }
+            } else {
+               useinfcolor = false;
+            }
+            if (!incirc || !drawit) {
+                state = 0;
+            } else {
+                state = 2;
+                ii = 0;
+            }
+        }
+        if (state == 2) {
+            mindist = sc * Math.min(
+                 Math.min(ar-Math.sqrt(largeayes), Math.sqrt(smallano) - ar),
+                 Math.min(br-Math.sqrt(largebyes), Math.sqrt(smallbno) - br)) ;
+            if (!useinfcolor && ord > deepest) {
+                deepest = ord;
+                noticeOrder("" + deepest);
+            }
+            if (!pallete[ord]) {
+                var cr = ord * 154 % 251;
+                var cg = ord * 230 % 241;
+                var cb = ord * 214 % 239;
+                pallete[ord] = "rgb(" + cr + "," + cg + "," + cb + ")";
+            }
+            if (useinfcolor) {
+               ctx.fillStyle = "rgb(128,128,128)";
+            } else {
+               ctx.fillStyle = pallete[ord];
+            }
+            var abx = 0.5 * (ax + bx);
+            if (mindist < 1.5) {
+                for (; ii<wi; ii += 2) {
+                    if ((ii & 8191) == 0 && performance.now() - start > timelim) {
+                        return;
+                    }
+                    y = p[ii] * sc + ay ;
+                    x = p[ii+1] * sc + abx ;
+                    ctx.fillRect(x, y, 1, 1);
+                }
+            } else {
+                for (; ii<wi; ii += 2) {
+                    if ((ii & 8191) == 0 && performance.now() - start > timelim) {
+                        return;
+                    }
+                    y = p[ii] * sc + ay ;
+                    x = p[ii+1] * sc + abx ;
+                    ctx.beginPath();
+                    ctx.arc(x, y, mindist-0.5, 0, 2*Math.PI, false);
+                    ctx.fill();
+                }
+            }
+            state = 0;
+        }
+    }
+}
+function doworkgen() {
+    var x, y;
+    var start = performance.now();
+    if (start > stoptime) {
+        stopped = true;
+    } else {
+        requestAnimationFrame(dowork);
+    }
+    while (1) {
+        if (state == 0) {
+            for (var lop=1; ; lop++) {
+                if ((lop & 8191) == 0 && performance.now() - start > timelim) {
+                    return;
+                }
+                if (pttype == 1) {
+                   var x0 = (width * Math.random()) ;
+                   var y0 = (height * Math.random()) ;
+                   x = (x0 - ax) / sc ;
+                   y = (y0 - ay) / sc ;
+                   if (Math.hypot(x, y) < ar || Math.hypot(x-sep, y) < br) {
+                      break ;
+                   }
+                } else if (pttype == 2) {
+                   x = Math.random() * 2 * 3.14159265358979 ;
+                   if (Math.random() < 0.5) {
+                      y = (ar - 2 * eps) * Math.sin(x) ;
+                      x = (ar - 2 * eps) * Math.cos(x) ;
+                   } else {
+                      y = (br - 2 * eps) * Math.sin(x) ;
+                      x = sep + (br - 2 * eps) * Math.cos(x) ;
+                   }
+                   break ;
+                } else {
+                   x = sep / 2 ;
+                   y = 0 ;
+                   break ;
+                }
+            }
+            ox = x;
+            oy = y;
+            ord = 0;
+            plen = 0;
+            drawit = false;
+            mindist = 1000;
+            incirc = false;
+            state = 1;
+            ii = 0;
+        }
+        if (state == 1) {
+            var sqrt = Math.sqrt;
+            for (; ii<renderlim; ii++) {
+                if ((ii & 8191) == 0 && performance.now() - start > timelim) {
+                    return;
+                }
+                var t = sqrt(x * x + y * y) - ar;
+                if (t <= 0) {
+                    t = - t;
+                    incirc = true;
+                    var nx = x * can + y * san;
+                    y = y * can - x * san;
+                    x = nx;
+                }
+                if (t < mindist) {
+                    mindist = t;
+                }
+                x -= sep;
+                var t = sqrt(x * x + y * y) - br;
+                if (t <= 0) {
+                    t = - t;
+                    incirc = true;
+                    var nx = x * cbn + y * sbn;
+                    y = y * cbn - x * sbn;
+                    x = nx;
+                }
+                if (t < mindist) {
+                    mindist = t;
+                }
+                var xx = (x + sep) * sc + ax;
+                if (xx + mindist >= 0 && xx - mindist <= width) {
+                    var yy = y * sc + ay;
+                    if (yy + mindist >= 0 && yy - mindist <= height) {
+                        p[plen++] = (x + sep) * sc + ax;
+                        p[plen++] = y * sc + ay;
+                    }
+                }
+                ord++;
+                var dx = x + sep - ox;
+                if (dx * dx < epseps) {
+                    var dy = y - oy;
+                    if (dx * dx + dy * dy < epseps) {
+                        drawit = true;
+                        break;
+                    }
+                }
+                x += sep;
+            }
+            mindist *= sc;
+            if (!drawit) {
+               if (renderlim < 1000000) {
+                   deepest = renderlim;
+                   noticeOrder(">" + deepest);
+                   renderlim = Math.floor(renderlim * 1.2);
+               } else {
+                  if (! setmax) {
+                     deepest = renderlim;
+                     noticeOrder(">" + deepest);
+                     setmax = true;
+                  }
+               }
+            }
+            if (!incirc || !drawit) {
+                state = 0;
+            } else {
+                state = 2;
+                ii = 0;
+            }
+        }
+        if (state == 2) {
+            if (ord > deepest) {
+                deepest = ord;
+                noticeOrder("" + deepest);
+            }
+            if (!pallete[ord]) {
+                var cr = ord * 154 % 251;
+                var cg = ord * 230 % 241;
+                var cb = ord * 214 % 239;
+                pallete[ord] = "rgb(" + cr + "," + cg + "," + cb + ")";
+            }
+            ctx.fillStyle = pallete[ord];
+            if (mindist < 1.5) {
+                for (; ii<plen; ii += 2) {
+                    if ((ii & 8191) == 0 && performance.now() - start > timelim) {
+                        return;
+                    }
+                    ctx.fillRect(p[ii], p[ii+1], 1, 1);
+                }
+            } else {
+                for (; ii<plen; ii += 2) {
+                    if ((ii & 8191) == 0 && performance.now() - start > timelim) {
+                        return;
+                    }
+                    ctx.beginPath();
+                    ctx.arc(p[ii], p[ii+1], mindist-0.5, 0, 2*Math.PI, false);
+                    ctx.fill();
+                }
+            }
+            state = 0;
+        }
+    }
+}
+function dowork() {
+   if (dofull) {
+      doworkfull() ;
+   } else {
+      doworkgen() ;
+   }
+}
+/*
+ *   User interface.  Get a value by name from the UI.
+ */
+function getvalue(s) {
+    var r;
+    if (s === "zoom" && overridezoom != 0)
+       r = overridezoom ;
+    else
+       r = +document.getElementById(s).value;
+    document.getElementById("show"+s).innerText = r;
+    return r;
+}
+function getUIParams() {
+    width = canvas.clientWidth;
+    height = canvas.clientHeight;
+    canvas.width = width;
+    canvas.height = height;
+    ar = getvalue("arad");
+    br = getvalue("brad");
+    an = getvalue("an");
+    bn = getvalue("bn");
+    sep = getvalue("dist");
+    zoom = getvalue("zoom");
+}
+function noticeOrder(s) {
+    document.getElementById("order").innerText = s;
+}
+function changeOrigin(dir) {
+   // 37: left 38: up 39: right 40: down
+   var delta = 0 ;
+   if (dir == 37 || dir == 39) {
+      delta = 100 ;
+      if (dir == 39)
+         delta = - delta ;
+      delta /= zoom ;
+      xoff += delta ;
+   } else {
+      delta = 100 ;
+      if (dir == 40)
+         delta = - delta ;
+      delta /= zoom ;
+      yoff += delta ;
+   }
+}
+function togglevis() {
+    var s = document.getElementById("row1").style;
+    console.log(s.display);
+    if (!s.display || s.display === "block") {
+        s.display = "none";
+        document.getElementById("toggleui").innerText = "Show Sliders"
+    } else {
+        s.display = "block";
+        document.getElementById("toggleui").innerText = "Hide Sliders"
+    }
+}
+function dorandom() {
+    while (1) {
+       var arad = (1000 + Math.floor(9001 * Math.random())) / 1000;
+       var brad = (1000 + Math.floor(9001 * Math.random())) / 1000;
+       var dist = (1 + Math.floor(10000 * Math.random())) / 1000;
+       if (arad + brad > dist) {
+          document.getElementById("arad").value = arad;
+          document.getElementById("brad").value = brad;
+          document.getElementById("dist").value = dist;
+          break;
+       }
+    }
+    overridezoom = 0 ;
+    document.getElementById("an").value = 2 + Math.floor(19 * Math.random());
+    document.getElementById("bn").value = 2 + Math.floor(19 * Math.random());
+    document.getElementById("zoom").value = (100 + 401 * Math.random() * Math.random()) / 100;
+    doanim();
+}
+function addEvent(element, eventName, callback) {
+   if (element.addEventListener) {
+      element.addEventListener(eventName, callback, false);
+   } else if (element.attachEvent) {
+      element.attachEvent("on" + eventName, callback);
+   } else {
+      element["on" + eventName] = callback;
+   }
+}
+function keypress(e) {
+   e = e || window.event;
+   if (e.keyCode == "[".codePointAt(0)) {
+      var zoom = getvalue("zoom") ;
+      zoom = zoom / 1.5 ;
+      zoom = Math.floor(zoom * 1000) / 1000 ;
+      if (zoom < 1 || zoom > 20) {
+         overridezoom = zoom ;
+      } else {
+         overridezoom = 0 ;
+         document.getElementById("zoom").value = zoom ;
+      }
+      doanim() ;
+   } else if (e.keyCode == "]".codePointAt(0)) {
+      var zoom = getvalue("zoom") ;
+      zoom = zoom * 1.5 ;
+      zoom = Math.floor(zoom * 1000) / 1000 ;
+      if (zoom < 1 || zoom > 20) {
+         overridezoom = zoom ;
+      } else {
+         overridezoom = 0 ;
+         document.getElementById("zoom").value = zoom ;
+      }
+      doanim() ;
+   } else if (e.keyCode == "0".codePointAt(0)) {
+      zoom = 1 ;
+      overridezoom = 0 ;
+      document.getElementById("zoom").value = zoom ;
+      xoff = 0 ;
+      yoff = 0 ;
+      doanim() ;
+   } else if (e.keyCode >= 37 && e.keyCode <= 40) {
+      changeOrigin(e.keyCode) ;
+      doanim() ;
+   } else if (e.keyCode == "f".codePointAt(0)) {
+      dofull = !dofull ;
+      doanim() ;
+   } else if (e.keyCode == ".".codePointAt(0)) {
+      pttype = (pttype % 2) + 1 ;
+      doanim() ;
+   } else if (e.keyCode == "c".codePointAt(0)) {
+      curthink = 1000 * 7200 ;
+      stoptime = performance.now() + curthink ; // stop after 60s
+      if (stopped) {
+         stopped = false ;
+         dowork() ;
+      }
+   } else if (e.keyCode == "r".codePointAt(0)) {
+      dorandom() ;
+   } else if (e.keyCode == "!".codePointAt(0)) {
+      for (var i=0; i<cr.length; i += 3) {
+         if ((an==cr[i] && bn==cr[i+1]) ||
+             (an==cr[i+1] && bn==cr[i])) {
+            arad = brad = cr[i+2] ;
+            dist = 2 ;
+            document.getElementById("arad").value = arad;
+            document.getElementById("brad").value = brad;
+            document.getElementById("dist").value = dist;
+            doanim() ;
+            return ;
+         }
+      }
+   }
+} ;
+function ignore(e) {
+   e = e || window.event;
+   e.stopPropagation();
+}
+function start() {
+    canvas = document.getElementById("canvas");
+    ctx = canvas.getContext("2d");
+    for (var s of sliders) {
+        document.getElementById(s).oninput = doanim;
+    }
+    document.getElementById("toggleui").onclick = togglevis;
+    window.onresize = doanim;
+    addEvent(window, "keydown", keypress);
+    addEvent(window, "keypress", keypress);
+    var np = document.getElementById("normalpage") ;
+    addEvent(np, "keydown", ignore);
+    addEvent(np, "keypress", ignore);
+    dorandom();
+}
+window.onload = start;
+/*
+ *   Built-in critical radius knowledge.
+ */
+ const cr = [
+5,5,2.1489580405, 7,7,1.6235740492, 8,8,1.7114054143, 9,9,1.4084818963,
+10,10,1.5433573186, 11,11,1.2905815809, 12,12,1.3765466076,
+13,13,1.2135941629, 14,14,1.1965543233, 15,15,1.1632758146,
+16,16,1.1484702959, 17,17,1.1275091242, 18,18,1.1215046902,
+19,19,1.1042461415, 20,20,1.1005805723, 21,21,1.0860163719,
+22,22,1.0781615453, 23,23,1.0720108059, 24,24,1.0714043382,
+25,25,1.0613212070, 26,26,1.0569580193, 27,27,1.0526681710,
+28,28,1.0497307602, 29,29,1.0457305921, 30,30,1.0437584735,
+31,31,1.0401584247, 32,32,1.0377414483, 33,33,1.0355124711,
+34,34,1.0334979611, 35,35,1.0316471944, 36,36,1.0301267911,
+37,37,1.0283681085, 38,38,1.0269576472, 39,39,1.0255907666,
+40,40,1.0243520833, 41,41,1.0231740283, 42,42,1.0221415048,
+43,43,1.0211048445, 44,44,1.0201967152, 45,45,1.0192794100,
+46,46,1.0184593992, 47,47,1.0176920878, 48,48,1.0169678326,
+49,49,1.0162874566, 50,50,1.0156510628, 51,51,1.0150529953,
+52,52,1.0144919239, 53,53,1.0139423714, 54,54,1.0134371846,
+55,55,1.0129537497, 56,56,1.0124984982, 57,57,1.0120673746,
+58,58,1.0116565370, 59,59,1.0112669793, 60,60,1.0109079898,
+61,61,1.0105447453, 62,62,1.0102098219, 63,63,1.0098895928,
+64,64,1.0095846259, 65,65,1.0092942443, 66,66,1.0090175160,
+67,67,1.0087497626, 68,68,1.0084994777, 69,69,1.0082528739,
+70,70,1.0080201016, 71,71,1.0077968769, 72,72,1.0075823935,
+73,73,1.0073769585, 74,74,1.0071799930, 75,75,1.0069903604,
+76,76,1.0068092023, 77,77,1.0066328787, 78,78,1.0064645475,
+79,79,1.0063024921, 80,80,1.0061464536, 81,81,1.0059962619,
+82,82,1.0058513371, 83,83,1.0057116135, 84,84,1.0055776724,
+85,85,1.0054468538, 86,86,1.0053213055, 87,87,1.0052001913,
+88,88,1.0050830341, 89,89,1.0049696251, 90,90,1.0048601472,
+91,91,1.0047541838, 92,92,1.0046520681, 93,93,1.0045524321,
+94,94,1.0044563211, 95,95,1.0043632306, 96,96,1.0042730277,
+97,97,1.0041856092, 98,98,1.0041008158, 99,99,1.0040186234,
+100,100,1.0039390503,
+3,4,3.4640938607, 2,5,4.2978808110, 3,5,2.4114701028,
+4,5,2.0906599240, 4,6,1.9999988393, 5,6,1.8316984637,
+2,7,3.2471480169, 3,7,1.9676444020, 4,7,1.8454888430,
+5,7,1.7409738851, 6,7,1.6582671279, 2,8,3.4227629730,
+3,8,1.9930938321, 4,8,2.4202567960, 5,8,1.6667404934,
+6,8,1.5980405320, 7,8,1.5398974268, 2,9,2.8169636780,
+3,9,1.9425030844, 4,9,1.6967122854, 5,9,1.6084147814,
+6,9,1.5512093322, 7,9,1.4839500220, 8,9,1.4404650806,
+2,10,3.0866554390, 3,10,1.8808137943, 4,10,1.6286594171,
+5,10,1.8143210065, 6,10,1.5032085861, 7,10,1.4443135770,
+8,10,1.4009758071, 9,10,1.3624008035, 2,11,2.5811631667,
+3,11,1.8447297030, 4,11,1.5882766164, 5,11,1.5474083222,
+6,11,1.4478205570, 7,11,1.4163339802, 8,11,1.3688637630,
+9,11,1.3324652581, 10,11,1.3086643051, 2,12,2.7530842610,
+3,12,2.3842422250, 4,12,1.9467214240, 5,12,1.5240035518,
+6,12,1.6733322450, 7,12,1.4010443495, 8,12,1.4209915387,
+9,12,1.3169691469, 10,12,1.2883159597, 11,12,1.2650028329,
+2,13,2.4271883600, 3,13,1.8517176350, 4,13,1.5711923915,
+5,13,1.4874513506, 6,13,1.4103829446, 7,13,1.3671471090,
+8,13,1.3134490534, 9,13,1.2863896470, 10,13,1.2634960580,
+11,13,1.2428145711, 12,13,1.2234560190, 2,14,2.3931082000,
+3,14,1.8145511790, 4,14,1.5656579850, 5,14,1.4533080860,
+6,14,1.3977615500, 7,14,1.4170039610, 8,14,1.2940698690,
+9,14,1.2717435260, 10,14,1.2475095450, 11,14,1.2274718900,
+12,14,1.2093180860,
+] ;
+        </script>
+        <style>
+            .row1 { margin: 10px; display: block; }
+            form { display: table; width: 90%; }
+            form p { display: table-row; }
+            form label { display: table-cell; text-align: right; width: 5%;}
+            form input { display: table-cell; width: 100%; }
+            form span { display: table-cell; width: 5%;}
+            body { margin: 0; }
+            .normalpage { margin: 5px; }
+            #canvas { position:fixed; left:0;top:0; width:100%; height:100%; z-index: -1; }
+        </style>
+    </head>
+    <body>
+    <canvas id="canvas" width="80" height="80"></canvas>
+    <div id="normalpage" class="normalpage">
+    <div class="row1" id="row1"><form>
+        <p><label for="arad">Radius A:&nbsp;</label>
+            <span id="showarad"></span>
+            <input id="arad" type="range" step="0.001" min="1" max="10" value="2">
+        </p>
+        <p><label for="an">Spin A:&nbsp;</label>
+            <span id="showan"></span>
+            <input id="an" type="range" step="1" min="2" max="20" value="3">
+        </p>
+        <p><label for="brad">Radius B:&nbsp;</label>
+            <span id="showbrad"></span>
+            <input id="brad" type="range" step="0.001" min="1" max="10" value="2">
+        </p>
+        <p><label for="bn">Spin B:&nbsp;</label>
+            <span id="showbn"></span>
+            <input id="bn" type="range" step="1" min="2" max="20" value="3">
+        </p>
+        <p><label for="dist">Separation:&nbsp;</label>
+            <span id="showdist"></span>
+            <input id="dist" min="0" step="0.001" max="10" type="range" value="3.6">
+        </p>
+        <p><label for="zoom">Zoom:&nbsp;</label>
+            <span id="showzoom"></span>
+            <input id="zoom" min="1" step="0.01" max="20" type="range" value="1">
+        </p>
+    <span id="order"></span> order
+    </form>
+    <div> [ zoom<br> ] unzoom<br> r random<br> . point type<br> c work harder<br></div>
+    </div>
+    <div><button type="button" id="toggleui">Hide Sliders</button></div>
+    </div></div>
+    </body>
+</html>
