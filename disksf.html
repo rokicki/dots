@@ -232,7 +232,8 @@ function dowork() {
                   var xp = x + sepd2 ;
                   var pp = xp * xp + y * y ;
                   if (wne + 16 > MAXCOORDS) {
-                     throw "Ran out of workspace" ;
+  // if a particular level gets this large, we also blow past renderlim
+                     break;
                   }
                   if (pp < arar) {
                      incirc = true ;
