@@ -36,6 +36,7 @@ var stoptime;
 var setmax;
 var timelim = 13; // max work milliseconds per anim call
 var largeayes, largebyes, smallano, smallbno, wps, ws, wns, wne ;
+var mincirc = 1000000;
 /*
  *   Model parameters.
  */
@@ -397,7 +398,7 @@ function doworkfull() {
                ctx.fillStyle = pallete[ord];
             }
             var abx = 0.5 * (ax + bx);
-            if (mindist < 1.5) {
+            if (mindist < mincirc) {
                 for (; ii<wi; ii += 2) {
                     if ((ii & 8191) == 0 && performance.now() - start > timelim) {
                         return;
@@ -565,7 +566,7 @@ function doworkgen() {
                 pallete[ord] = "rgb(" + cr + "," + cg + "," + cb + ")";
             }
             ctx.fillStyle = pallete[ord];
-            if (mindist < 1.5) {
+            if (mindist < mincirc) {
                 for (; ii<plen; ii += 2) {
                     if ((ii & 8191) == 0 && performance.now() - start > timelim) {
                         return;
