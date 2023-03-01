@@ -1,0 +1,27 @@
+<html><head><style>
+xxxcanvas {
+  image-rendering: optimizeSpeed;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: -o-crisp-edges;
+  image-rendering: pixelated;
+  -ms-interpolation-mode: nearest-neighbor;
+}
+</style><script>
+function start() {
+   var canvas = document.getElementById("canvas");
+   var context = canvas.getContext("2d");
+/*
+   context.fillStyle = "rgb(0,255,0)";
+   context.beginPath();
+   context.arc(x+0.5, y+0.5, 2, 0, 2*Math.PI, false);
+   context.fill();
+ */
+   context.fillStyle = "rgb(255,0,0)";
+   context.fillRect(5, 5, 1, 1);
+   context.fillRect(7.5, 7.5, 1, 1);
+}
+window.onload = start;
+</script></head><body>
+<canvas id="canvas" width=10 height=10 style="width: 10; height: 10;"></canvas>
+</body>
