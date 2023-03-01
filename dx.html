@@ -754,7 +754,7 @@ function noticeOrder(s) {
       }
 
       var isDragging = false;
-      var touchStartX, touchStartY;
+      var touchStartX, touchStartY, initialx, initialy;
 
       document.addEventListener('touchstart', function(e) {
          if (check_touch_target(e.target)){
@@ -762,6 +762,8 @@ function noticeOrder(s) {
           isDragging = true;
           touchStartX = e.touches[0].clientX;
           touchStartY = e.touches[0].clientY;
+          initialx = xoff;
+          initialy = yoff;
          }
       });
 
@@ -775,8 +777,8 @@ function noticeOrder(s) {
           var touchX = e.touches[0].clientX - touchStartX;
           var touchY = e.touches[0].clientY - touchStartY;
 
-          xoff = touchX;
-          yoff = touchY;
+          xoff = touchX + initialx;
+          yoff = touchY + initialy;
           doanim();
         }
       });
