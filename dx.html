@@ -744,20 +744,25 @@ function noticeOrder(s) {
         });
         doanim();
       }
+      function check_touch_target(touch_in){
+         if (touch_in == document.getElementById('range1')){return false;}
+         if (touch_in == document.getElementById('range2')){return false;}
+         if (touch_in == document.getElementById('range3')){return false;}
+         if (touch_in == document.getElementById('range4')){return false;}
+         return true;
 
-      function shiftx(){
-        xoff +=10
-        doanim();
       }
 
       var isDragging = false;
       var touchStartX, touchStartY;
 
       document.addEventListener('touchstart', function(e) {
+         if (check_touch_target(e.target)){
           e.preventDefault();
           isDragging = true;
           touchStartX = e.touches[0].clientX;
           touchStartY = e.touches[0].clientY;
+         }
       });
 
       document.addEventListener('touchend', function(e) {
