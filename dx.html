@@ -691,12 +691,27 @@ function noticeOrder(s) {
         slider.style.display = "none";
       }
 
+      function update_button_color(buttonin, c_in){
+         var butt = document.getElementById(buttonin);
+         if (c_in){
+            butt.style.color = "black";
+            butt.style.backgroundColor = "#e3e3e3";
+         }
+         else{
+            butt.style.color = "white";
+            butt.style.backgroundColor = "#333";
+         }
+      }
+
       function onlySlider(n) {
         for (var i = 1; i <= 5; i++) {
           if (i == n) {
             show_slider("slide_box" + i);
+            update_button_color("button" + i, true);
           } else {
             close_slider("slide_box" + i);
+            update_button_color("button" + i, false);
+
           }
         }
       }
@@ -715,6 +730,7 @@ function noticeOrder(s) {
          document.getElementById("range2").value = n1;
          document.getElementById("range3").value = r2;
          document.getElementById("range4").value = n2;
+
 
          doanim()
       }
@@ -909,7 +925,7 @@ function noticeOrder(s) {
       .slide_box {
         width: 600px;
         height: 60px;
-        background-color: #000000;
+        background-color: #e3e3e3;
         position: absolute;
         top: -70px;
         left: 50%;
@@ -1006,8 +1022,8 @@ function noticeOrder(s) {
     </datalist>
 
     <div class="button-container" id="button_container1">
-      <button class="button" onclick="onlySlider(1)">R1</button>
-      <div class="slide_box" id="slide_box1">
+      <button class="button" id="button1" onclick="onlySlider(1)" style="color: #000000; background-color: #e3e3e3;">R1</button>
+      <div class="slide_box" id="slide_box1" style="display: block;">
         <input
           type="range"
           class="slider"
@@ -1019,7 +1035,7 @@ function noticeOrder(s) {
         />
       </div>
 
-      <button class="button" onclick="onlySlider(2)">N1</button>
+      <button class="button" id="button2" onclick="onlySlider(2)">N1</button>
       <div class="slide_box" id="slide_box2">
         <input
           type="range"
@@ -1034,8 +1050,8 @@ function noticeOrder(s) {
         />
       </div>
 
-      <button class="button" id="b1" onclick="onlySlider(3)">R2</button>
-      <div class="slide_box" id="slide_box3" style="display: block;">
+      <button class="button" id="button3" onclick="onlySlider(3)">R2</button>
+      <div class="slide_box" id="slide_box3">
         <input
           type="range"
           class="slider"
@@ -1047,7 +1063,7 @@ function noticeOrder(s) {
         />
       </div>
 
-      <button class="button" onclick="onlySlider(4)">N2</button>
+      <button class="button" id="button4" onclick="onlySlider(4)">N2</button>
       <div class="slide_box" id="slide_box4">
         <input
           type="range"
@@ -1061,15 +1077,9 @@ function noticeOrder(s) {
           list="steplist"
         />
       </div>
-      <button
-        class="button"
-        onclick="dorandom()"
-        style="color: #000000; background-color: #f4f4f4"
-      >
-        rand
-      </button>
+      <button class="button" id="button6" onclick="dorandom()">rnd</button>
 
-      <button class="button" onclick="onlySlider(5)">zoom</button>
+      <button class="button" id="button5" onclick="onlySlider(5)">zoom</button>
       <div class="slide_box" id="slide_box5">
         <input
           type="range"
