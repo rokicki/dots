@@ -673,14 +673,6 @@ function noticeOrder(s) {
         }, 500);
       }
 
-      document.addEventListener("touchstart", function () {
-        activate_button_container();
-      });
-
-      document.addEventListener("click", function () {
-        activate_button_container();
-      });
-
       function show_slider(id) {
          var slider = document.getElementById(id);
          slider.style.display = "block";
@@ -758,6 +750,7 @@ function noticeOrder(s) {
          if (touch_in == document.getElementById('range3')){return false;}
          if (touch_in == document.getElementById('range4')){return false;}
          if (touch_in == document.getElementById('range5')){return false;}
+         if (touch_in == document.getElementById('hamburger-menu')){return false;}
 
          return true;
 
@@ -777,12 +770,13 @@ function noticeOrder(s) {
       document.addEventListener('touchstart', function(e) {
          if (e.touches.length == 1){
             if (check_touch_target(e.target)){
-            e.preventDefault();
-            isDragging = true;
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-            initialx = xoff;
-            initialy = yoff;
+               // activate_button_container();
+               e.preventDefault();
+               isDragging = true;
+               touchStartX = e.touches[0].clientX;
+               touchStartY = e.touches[0].clientY;
+               initialx = xoff;
+               initialy = yoff;
             }
          }
          if (e.touches.length == 2){
@@ -820,7 +814,9 @@ function noticeOrder(s) {
 
       /* pan control for desktop*/
       document.addEventListener('mousedown', function(e) {
+         
          if (check_touch_target(e.target)){
+            activate_button_container();
             e.preventDefault();
             isDragging = true;
             touchStartX = e.clientX;
