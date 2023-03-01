@@ -59,6 +59,19 @@ function drawcirc(ctx, x, y, r) {
     ctx.arc(x, y, r, 0, 2*Math.PI, false);
     ctx.stroke();
 }
+var rbm, intwidth, intwidth32 ;
+function checkRendered(width, height) {
+   intwidth = (width + 31) >> 5 ;
+   intwidth32 = intwidth * 32 ;
+   var needed = intwidth * height ;
+   if (rbm === undefined || rbm.length < needed) {
+      rbm = new Uint32Array(needed) ;
+   } else {
+      for (var i=0; i<needed; i++) {
+         rbm[i] = 0 ;
+      }
+   }
+}
 function doanim() {
     getUIParams();
     var h = Math.max(ar, br) * 2;
@@ -78,6 +91,7 @@ function doanim() {
     sbn = -Math.sin(Math.PI * 2 / bn);
     cbn = Math.cos(Math.PI * 2 / bn);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    checkRendered(width, height) ;
     drawcirc(ctx, ax, ay, ar * sc);
     drawcirc(ctx, bx, by, br * sc);
     deepest = 0;
@@ -188,8 +202,8 @@ function doworkfull() {
                    var y0 = (height * Math.random()) ;
                    x = (x0 - ax) / sc ;
                    y = (y0 - ay) / sc ;
-                   if (Math.hypot(x, y) < ar || Math.hypot(x-sep, y) < br) {
-                      break ;
+                   if (Math.hypot(x, y) >= ar && Math.hypot(x-sep, y) >= br) {
+                      continue ;
                    }
                 } else if (pttype == 2) {
                    x = Math.random() * 2 * 3.14159265358979 ;
@@ -200,11 +214,17 @@ function doworkfull() {
                       y = (br - 2 * eps) * Math.sin(x) ;
                       x = sep + (br - 2 * eps) * Math.cos(x) ;
                    }
-                   break ;
                 } else {
                    x = sep / 2 ;
                    y = 0 ;
-                   break ;
+                }
+                var tx = (x * sc + ax) | 0;
+                var ty = (y * sc + ay) | 0;
+                if (tx >= 0 && tx < width && ty >= 0 && ty < width) {
+                   var off = ty * intwidth32 + tx ;
+                   if (0 == ((rbm[off>>5] >> (off & 31)) & 1)) {
+                      break ;
+                   }
                 }
             }
             x -= sep / 2 ;
@@ -383,17 +403,25 @@ function doworkfull() {
                     if ((ii & 8191) == 0 && performance.now() - start > timelim) {
                         return;
                     }
-                    y = p[ii] * sc + ay ;
-                    x = p[ii+1] * sc + abx ;
-                    ctx.fillRect(x, y, 1, 1);
+                    y = (p[ii] * sc + ay) | 0 ;
+                    x = (p[ii+1] * sc + abx) | 0 ;
+                    if (y >= 0 && y < height && x >= 0 && x < width) {
+                       var off = y * intwidth32 + x ;
+                       rbm[off>>5] |= 1<<(off&31);
+                       ctx.fillRect(x, y, 1, 1);
+                    }
                 }
             } else {
                 for (; ii<wi; ii += 2) {
                     if ((ii & 8191) == 0 && performance.now() - start > timelim) {
                         return;
                     }
-                    y = p[ii] * sc + ay ;
-                    x = p[ii+1] * sc + abx ;
+                    y = (p[ii] * sc + ay) | 0 ;
+                    x = (p[ii+1] * sc + abx) | 0 ;
+                    if (y >= 0 && y < height && x >= 0 && x < width) {
+                       var off = y * intwidth32 + x ;
+                       rbm[off>>5] |= 1<<(off&31);
+                    }
                     ctx.beginPath();
                     ctx.arc(x, y, mindist-0.5, 0, 2*Math.PI, false);
                     ctx.fill();
@@ -422,8 +450,8 @@ function doworkgen() {
                    var y0 = (height * Math.random()) ;
                    x = (x0 - ax) / sc ;
                    y = (y0 - ay) / sc ;
-                   if (Math.hypot(x, y) < ar || Math.hypot(x-sep, y) < br) {
-                      break ;
+                   if (Math.hypot(x, y) >= ar && Math.hypot(x-sep, y) >= br) {
+                      continue ;
                    }
                 } else if (pttype == 2) {
                    x = Math.random() * 2 * 3.14159265358979 ;
@@ -434,11 +462,17 @@ function doworkgen() {
                       y = (br - 2 * eps) * Math.sin(x) ;
                       x = sep + (br - 2 * eps) * Math.cos(x) ;
                    }
-                   break ;
                 } else {
                    x = sep / 2 ;
                    y = 0 ;
-                   break ;
+                }
+                var tx = (x * sc + ax) | 0;
+                var ty = (y * sc + ay) | 0;
+                if (tx >= 0 && tx < width && ty >= 0 && ty < width) {
+                   var off = ty * intwidth32 + tx ;
+                   if (0 == ((rbm[off>>5] >> (off & 31)) & 1)) {
+                      break ;
+                   }
                 }
             }
             ox = x;
@@ -537,15 +571,27 @@ function doworkgen() {
                     if ((ii & 8191) == 0 && performance.now() - start > timelim) {
                         return;
                     }
-                    ctx.fillRect(p[ii], p[ii+1], 1, 1);
+                    y = p[ii+1] | 0 ;
+                    x = p[ii] | 0 ;
+                    if (y >= 0 && y < height && x >= 0 && x < width) {
+                       var off = y * intwidth32 + x ;
+                       rbm[off>>5] |= 1<<(off&31);
+                       ctx.fillRect(x, y, 1, 1);
+                    }
                 }
             } else {
                 for (; ii<plen; ii += 2) {
                     if ((ii & 8191) == 0 && performance.now() - start > timelim) {
                         return;
                     }
+                    y = p[ii+1] | 0 ;
+                    x = p[ii] | 0 ;
+                    if (y >= 0 && y < height && x >= 0 && x < width) {
+                       var off = y * intwidth32 + x ;
+                       rbm[off>>5] |= 1<<(off&31);
+                    }
                     ctx.beginPath();
-                    ctx.arc(p[ii], p[ii+1], mindist-0.5, 0, 2*Math.PI, false);
+                    ctx.arc(x, y, mindist-0.5, 0, 2*Math.PI, false);
                     ctx.fill();
                 }
             }
@@ -699,6 +745,7 @@ function noticeOrder(s) {
         });
         doanim();
       }
+
       function shiftx(){
         xoff +=10
         doanim();
@@ -730,8 +777,6 @@ function noticeOrder(s) {
         }
       });
 
-
-      
       window.onload = start;
 </script>
     <style>
@@ -918,7 +963,7 @@ function noticeOrder(s) {
         />
       </div>
 
-      <button class="button" onclick="shiftx(), onlySlider(2)">N1</button>
+      <button class="button" onclick="onlySlider(2)">N1</button>
       <div class="slide_box" id="slide_box2">
         <input
           type="range"
