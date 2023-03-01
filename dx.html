@@ -163,6 +163,7 @@ function dd(pp, i, j) {
 //  Frontier-based BFS.
 //
 const MAXCOORDS = 4800000 ;
+const jumblelev = 100000 ;
 var p = new Float64Array(MAXCOORDS*2) ;
 var hint = new Uint8Array(MAXCOORDS) ;
 // state 0: pick a new point and initialize
@@ -331,12 +332,12 @@ function doworkfull() {
                ord = wi / 2 ;
             }
             if (!drawit) {
-               if (renderlim < 1000000) {
+               if (renderlim < jumblelev) {
                    deepest = renderlim-1; 
                    noticeOrder(">" + deepest);
                    renderlim = Math.floor(renderlim * 1.2);
-                   if (renderlim > 1000000) {
-                      renderlim = 1000000 ;
+                   if (renderlim > jumblelev) {
+                      renderlim = jumblelev ;
                    }
                } else { 
                   if (! setmax) {
@@ -500,7 +501,7 @@ function doworkgen() {
             }
             mindist *= sc;
             if (!drawit) {
-               if (renderlim < 1000000) {
+               if (renderlim < jumblelev) {
                    deepest = renderlim;
                    noticeOrder(">" + deepest);
                    renderlim = Math.floor(renderlim * 1.2);
