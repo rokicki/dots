@@ -585,6 +585,7 @@ function noticeOrder(s) {
     // document.getElementById("order").innerText = s;
 }
       var timer;
+      var ntimer;
       function activate_button_container() {
         var box = document.getElementById("button_container1");
         box.style.display = "block";
@@ -605,6 +606,24 @@ function noticeOrder(s) {
             close_slider("slide_box4");
           }, 700); // wait for the fade animation to finish
         }, 2000);
+      }
+
+      function flash_n_value() {
+        var box = document.getElementById("dl1");
+        box.style.display = "table-cell";
+
+        if (timer) {
+          clearTimeout(ntimer);
+        }
+
+        ntimer = setTimeout(function () {
+          box.style.opacity = "0";
+
+          setTimeout(function () {
+            box.style.opacity = "1";
+            box.style.display = "none";
+          }, 500); // wait for the fade animation to finish
+        }, 500);
       }
 
       document.addEventListener("touchstart", function () {
@@ -639,16 +658,14 @@ function noticeOrder(s) {
         }
       }
 
-
-
       function updateValue(label, val) {
         document.getElementById(label).innerHTML = val;
         doanim();
       }
 
       function dorandom() {
-        var r1 = 130 + Math.floor(400 * Math.random());
-        var r2 = 350 + Math.floor(400 * Math.random());
+        var r1 = 150 + Math.floor(1250 * Math.random());
+        var r2 = 150 + Math.floor(1250 * Math.random());
         var n1 = 2 + Math.floor(18 * Math.random());
         var n2 = 2 + Math.floor(18 * Math.random());
         document.getElementById("range1").value = r1;
@@ -666,8 +683,6 @@ function noticeOrder(s) {
       }
 
       function start() {
-        document.getElementById("dl1").style.left = "35%";
-        document.getElementById("dl2").style.left = "65%";
         canvas = document.getElementById("canvas");
         ctx = canvas.getContext("2d");
         var hamburgerMenu = document.getElementById("hamburger-menu");
@@ -713,7 +728,8 @@ function noticeOrder(s) {
         bottom: 80px;
         right: 20px;
         width: 190px;
-        background-color: #fff;
+        background-color: #333;
+        color: #fff;
         border-radius: 5px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         display: none;
@@ -729,7 +745,7 @@ function noticeOrder(s) {
         cursor: pointer;
       }
       #menu li:hover {
-        background-color: #f4f4f4;
+        background-color: #000000;
       }
 
       /* Disc controls */
@@ -789,18 +805,23 @@ function noticeOrder(s) {
         border-radius: 15px;
       }
 
-      /* Discs --TO BE REMOVED-- */
 
       .disc_label {
+        width: 70px;
+        height: 70px;
+        border-radius: 35px;
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        color: rgb(0, 0, 0);
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
+        color: rgb(255, 255, 255);
+        background-color: #000000;
+        display: table-cell;
         font-size: 60px;
+        opacity: 1;
+        transition: opacity 0.2s;
+        display: none;
+        text-align: center;
       }
       #canvas { position:fixed; left:0;top:0; width:100%; height:100%; z-index: -1; }
     </style>
@@ -817,8 +838,8 @@ function noticeOrder(s) {
 
     <div id="menu">
 		<ul>
-		  <li>Color Options</li>
-		  <li>Email image</li>
+		  <li>Color Options (tbd)</li>
+		  <li>Email image (tbd)</li>
 		  <li onclick="toggle_pttype(), doanim()">Toggle point style</li>
 		  <li onclick="toggle_rotype(), doanim()">Toggle rotation style</li>
 		  <li>. . .</li>
@@ -826,7 +847,6 @@ function noticeOrder(s) {
 	  </div>
 
     <div class="disc_label" id="dl1">5</div>
-    <div class="disc_label" id="dl2">5</div>
   
     <datalist id="steplist">
       <option>2</option>
@@ -858,7 +878,7 @@ function noticeOrder(s) {
           class="slider"
           id="range1"
           min="150"
-          max="750"
+          max="1400"
           value="400"
           oninput="activate_button_container(), doanim()"
         />
@@ -874,7 +894,7 @@ function noticeOrder(s) {
           step="1"
           id="range2"
           class="slider"
-          oninput="activate_button_container(), updateValue('dl1', this.value) , doanim()"
+          oninput="activate_button_container(), updateValue('dl1', this.value), flash_n_value(), doanim()"
           list="steplist"
         />
       </div>
@@ -886,7 +906,7 @@ function noticeOrder(s) {
           class="slider"
           id="range3"
           min="150"
-          max="750"
+          max="1400"
           value="400"
           oninput="activate_button_container(), doanim()"
         />
@@ -902,7 +922,7 @@ function noticeOrder(s) {
           step="1"
           id="range4"
           class="slider"
-          oninput="activate_button_container(), updateValue('dl2', this.value) , doanim()"
+          oninput="activate_button_container(), updateValue('dl1', this.value), flash_n_value(), doanim()"
           list="steplist"
         />
       </div>
