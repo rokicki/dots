@@ -710,8 +710,8 @@ function noticeOrder(s) {
       }
 
       function dorandom() {
-        var r1 = 150 + Math.floor(1250 * Math.random());
-        var r2 = 150 + Math.floor(1250 * Math.random());
+        var r1 = 450 + Math.floor(450 * Math.random());
+        var r2 = 450 + Math.floor(450 * Math.random());
         var n1 = 2 + Math.floor(18 * Math.random());
         var n2 = 2 + Math.floor(18 * Math.random());
         document.getElementById("range1").value = r1;
@@ -962,7 +962,7 @@ function noticeOrder(s) {
           type="range"
           class="slider"
           id="range1"
-          min="150"
+          min="450"
           max="1400"
           value="400"
           oninput="activate_button_container(), doanim()"
@@ -990,7 +990,7 @@ function noticeOrder(s) {
           type="range"
           class="slider"
           id="range3"
-          min="150"
+          min="450"
           max="1400"
           value="400"
           oninput="activate_button_container(), doanim()"
@@ -1014,7 +1014,7 @@ function noticeOrder(s) {
       <button
         class="button"
         onclick="dorandom()"
-        style="color: #f4f4f4; background-color: #f4f4f4"
+        style="color: #000000; background-color: #f4f4f4"
       >
         rand
       </button>
