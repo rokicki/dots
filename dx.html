@@ -219,7 +219,7 @@ function doworkfull() {
                 }
                 var tx = (x * sc + ax) | 0;
                 var ty = (y * sc + ay) | 0;
-                if (x >= 0 && x < width && y >= 0 && y < width) {
+                if (tx >= 0 && tx < width && ty >= 0 && ty < width) {
                    var off = ty * intwidth32 + tx ;
                    if (0 == ((rbm[off>>5] >> (off & 31)) & 1)) {
                       break ;
