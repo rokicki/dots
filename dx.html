@@ -759,18 +759,15 @@ function noticeOrder(s) {
       }
 
       function get_touch_dist(touch1, touch2){
-
          var dx = touch1.clientX - touch2.clientX;
          var dy = touch1.clientY - touch2.clientY;
          return Math.sqrt(dx*dx + dy*dy);
-
       }
 
+      /* touch controls for mobile*/
       var isDragging = false;
       var ispinching = false;
-
       var touchStartX, touchStartY, initialx, initialy, initialdist, initialzoom;
-
 
       document.addEventListener('touchstart', function(e) {
          if (e.touches.length == 1){
@@ -814,8 +811,35 @@ function noticeOrder(s) {
           updateValue('debug', zoom);
           doanim();
         }
+      });
 
+      /* pan control for desktop*/
+      document.addEventListener('mousedown', function(e) {
+         if (check_touch_target(e.target)){
+            e.preventDefault();
+            isDragging = true;
+            touchStartX = e.clientX;
+            touchStartY = e.clientY;
+            initialx = xoff;
+            initialy = yoff;
+         }
+      });
 
+      document.addEventListener('mouseup', function(e) {
+        isDragging = false;
+        ispinching = false;
+      });
+
+      document.addEventListener('mousemove', function(e) {
+        if (isDragging === true) {
+          e.preventDefault();
+          var touchX = e.clientX - touchStartX;
+          var touchY = e.clientY - touchStartY;
+
+          xoff = touchX/zoom + initialx;
+          yoff = touchY/zoom + initialy;
+          doanim();
+        }
       });
 
       window.onload = start;
