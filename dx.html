@@ -646,11 +646,7 @@ function noticeOrder(s) {
           setTimeout(function () {
             box.style.opacity = "1";
             box.style.display = "none";
-            close_slider("slide_box1");
-            close_slider("slide_box2");
-            close_slider("slide_box3");
-            close_slider("slide_box4");
-            close_slider("slide_box5");
+            close_slider("button_container1")
 
           }, 700); // wait for the fade animation to finish
         }, 2000);
@@ -682,13 +678,9 @@ function noticeOrder(s) {
         activate_button_container();
       });
 
-      function toggleSlider(id) {
-        var slider = document.getElementById(id);
-        if (slider.style.display == "none") {
-          slider.style.display = "block";
-        } else {
-          slider.style.display = "none";
-        }
+      function show_slider(id) {
+         var slider = document.getElementById(id);
+         slider.style.display = "block";
       }
 
       function close_slider(id) {
@@ -699,7 +691,7 @@ function noticeOrder(s) {
       function onlySlider(n) {
         for (var i = 1; i <= 5; i++) {
           if (i == n) {
-            toggleSlider("slide_box" + i);
+            show_slider("slide_box" + i);
           } else {
             close_slider("slide_box" + i);
           }
@@ -721,12 +713,6 @@ function noticeOrder(s) {
          document.getElementById("range3").value = r2;
          document.getElementById("range4").value = n2;
 
-         updateValue("dl1", n1);
-         updateValue("dl2", n2);
-         close_slider("slide_box1");
-         close_slider("slide_box2");
-         close_slider("slide_box3");
-         close_slider("slide_box4");
          doanim()
       }
 
@@ -1046,7 +1032,7 @@ function noticeOrder(s) {
       </div>
 
       <button class="button" id="b1" onclick="onlySlider(3)">R2</button>
-      <div class="slide_box" id="slide_box3">
+      <div class="slide_box" id="slide_box3" style="display: block;">
         <input
           type="range"
           class="slider"
