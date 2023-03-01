@@ -43,6 +43,17 @@ var ar, br, an, bn, sep, ax, ay, bx, by, arar, brbr, sepd2 ;
 /*
  *   Rendering engine.
  */
+function toggle_pttype() {
+if (pttype == 1) {
+	pttype = 2;
+	} else {
+	pttype = 1;
+	}
+}
+
+function toggle_rotype() {
+dofull = !dofull
+}
 function drawcirc(ctx, x, y, r) {
     ctx.beginPath();
     ctx.arc(x, y, r, 0, 2*Math.PI, false);
@@ -628,12 +639,7 @@ function noticeOrder(s) {
         }
       }
 
-      function changeCircleSize(disc_in, range_in) {
-        var disc = document.getElementById(disc_in);
-        var range = document.getElementById(range_in);
-        disc.style.width = range.value + "px";
-        disc.style.height = range.value + "px";
-      }
+
 
       function updateValue(label, val) {
         document.getElementById(label).innerHTML = val;
@@ -641,27 +647,25 @@ function noticeOrder(s) {
       }
 
       function dorandom() {
-        var r1 = 150 + Math.floor(600 * Math.random());
-        var r2 = 150 + Math.floor(600 * Math.random());
+        var r1 = 130 + Math.floor(400 * Math.random());
+        var r2 = 350 + Math.floor(400 * Math.random());
         var n1 = 2 + Math.floor(18 * Math.random());
         var n2 = 2 + Math.floor(18 * Math.random());
         document.getElementById("range1").value = r1;
         document.getElementById("range2").value = n1;
         document.getElementById("range3").value = r2;
         document.getElementById("range4").value = n2;
-        changeCircleSize("disc1", "range1");
-        changeCircleSize("disc2", "range3");
+
         updateValue("dl1", n1);
         updateValue("dl2", n2);
         close_slider("slide_box1");
         close_slider("slide_box2");
         close_slider("slide_box3");
         close_slider("slide_box4");
+		doanim()
       }
-       /* Disc placement --TO BE REMOVED-- */
+
       function start() {
-        document.getElementById("disc1").style.left = "35%";
-        document.getElementById("disc2").style.left = "65%";
         document.getElementById("dl1").style.left = "35%";
         document.getElementById("dl2").style.left = "65%";
         canvas = document.getElementById("canvas");
@@ -708,7 +712,7 @@ function noticeOrder(s) {
         position: fixed;
         bottom: 80px;
         right: 20px;
-        width: 150px;
+        width: 190px;
         background-color: #fff;
         border-radius: 5px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
@@ -786,16 +790,7 @@ function noticeOrder(s) {
       }
 
       /* Discs --TO BE REMOVED-- */
-      .disc {
-        width: 400px;
-        height: 400px;
-        border: 2px solid rgb(0, 0, 0);
-        border-radius: 50%;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-      }
+
       .disc_label {
         position: absolute;
         top: 50%;
@@ -813,6 +808,7 @@ function noticeOrder(s) {
 
   <body>
     <canvas id="canvas" width="80" height="80"></canvas>
+
     <div id="hamburger-menu">
       <span></span>
       <span></span>
@@ -820,15 +816,15 @@ function noticeOrder(s) {
     </div>
 
     <div id="menu">
-      <ul>
-        <li>Color Options</li>
-        <li>Email image</li>
-        <li>. . .</li>
-      </ul>
-    </div>
+		<ul>
+		  <li>Color Options</li>
+		  <li>Email image</li>
+		  <li onclick="toggle_pttype(), doanim()">Toggle point style</li>
+		  <li onclick="toggle_rotype(), doanim()">Toggle rotation style</li>
+		  <li>. . .</li>
+		</ul>
+	  </div>
 
-    <div class="disc" id="disc1"></div>
-    <div class="disc" id="disc2"></div>
     <div class="disc_label" id="dl1">5</div>
     <div class="disc_label" id="dl2">5</div>
   
@@ -864,7 +860,7 @@ function noticeOrder(s) {
           min="150"
           max="750"
           value="400"
-          oninput="changeCircleSize('disc1', 'range1'), activate_button_container()"
+          oninput="activate_button_container(), doanim()"
         />
       </div>
 
@@ -878,7 +874,7 @@ function noticeOrder(s) {
           step="1"
           id="range2"
           class="slider"
-          oninput="updateValue('dl1', this.value), activate_button_container()"
+          oninput="activate_button_container(), updateValue('dl1', this.value) , doanim()"
           list="steplist"
         />
       </div>
@@ -892,7 +888,7 @@ function noticeOrder(s) {
           min="150"
           max="750"
           value="400"
-          oninput="changeCircleSize('disc2', 'range3'), activate_button_container()"
+          oninput="activate_button_container(), doanim()"
         />
       </div>
 
@@ -906,7 +902,7 @@ function noticeOrder(s) {
           step="1"
           id="range4"
           class="slider"
-          oninput="updateValue('dl2', this.value), activate_button_container()"
+          oninput="activate_button_container(), updateValue('dl2', this.value) , doanim()"
           list="steplist"
         />
       </div>
