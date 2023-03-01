@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+	<style>
+		.square {
+			width: 100px;
+			height: 100px;
+			background-color: red;
+			transform-origin: center;
+			transition: transform 0.2s;
+		}
+	</style>
+	<script>
+		var initialDistance, initialSize;
+
+		function handleTouchStart(event) {
+			if (event.touches.length === 2) {
+				initialDistance = getDistance(event.touches[0], event.touches[1]);
+				initialSize = parseInt(getComputedStyle(event.target).getPropertyValue("width"));
+				event.preventDefault();
+			}
+		}
+
+		function handleTouchMove(event) {
+			if (event.touches.length === 2) {
+				var currentDistance = getDistance(event.touches[0], event.touches[1]);
+				var delta = currentDistance - initialDistance;
+				var scale = initialSize + delta;
+				event.target.style.transform = "scale(" + (scale / initialSize) + ")";
+				event.preventDefault();
+			}
+		}
+
+		function getDistance(touch1, touch2) {
+			var dx = touch1.clientX - touch2.clientX;
+			var dy = touch1.clientY - touch2.clientY;
+			return Math.sqrt(dx * dx + dy * dy);
+		}
+	</script>
+</head>
+<body>
+	<div class="square" ontouchstart="handleTouchStart(event)" ontouchmove="handleTouchMove(event)"></div>
+</body>
+</html>

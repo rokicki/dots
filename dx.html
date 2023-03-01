@@ -624,7 +624,7 @@ function getUIParams() {
     an = getvalue("range2");
     bn = getvalue("range4");
     sep = 2;
-    zoom = 1;
+    zoom = document.getElementById("range5").value;
     console.log("ar",ar,"br",br,"an",an,"bn",bn,"sep",sep,"zoom",zoom);
 }
 function noticeOrder(s) {
@@ -650,6 +650,8 @@ function noticeOrder(s) {
             close_slider("slide_box2");
             close_slider("slide_box3");
             close_slider("slide_box4");
+            close_slider("slide_box5");
+
           }, 700); // wait for the fade animation to finish
         }, 2000);
       }
@@ -695,7 +697,7 @@ function noticeOrder(s) {
       }
 
       function onlySlider(n) {
-        for (var i = 1; i <= 4; i++) {
+        for (var i = 1; i <= 5; i++) {
           if (i == n) {
             toggleSlider("slide_box" + i);
           } else {
@@ -744,6 +746,7 @@ function noticeOrder(s) {
         });
         doanim();
       }
+
       function check_touch_target(touch_in){
          if (touch_in == document.getElementById('range1')){return false;}
          if (touch_in == document.getElementById('range2')){return false;}
@@ -751,6 +754,10 @@ function noticeOrder(s) {
          if (touch_in == document.getElementById('range4')){return false;}
          return true;
 
+      }
+
+      function update_zoom(){
+         zoom = document.getElementById('range5');
       }
 
       var isDragging = false;
@@ -846,7 +853,7 @@ function noticeOrder(s) {
         color: white;
       }
       .button-container {
-        width: 420px;
+        width: 520px;
         height: 80px;
         background-color: #000000;
         position: fixed;
@@ -1018,6 +1025,21 @@ function noticeOrder(s) {
       >
         rand
       </button>
+
+      <button class="button" onclick="onlySlider(5)">zoom</button>
+      <div class="slide_box" id="slide_box5">
+        <input
+          type="range"
+          class="slider"
+          id="range5"
+          min="1"
+          max="10"
+          value="1"
+          step="0.001"
+          oninput="activate_button_container(), doanim(), zoom=this.value"
+        />
+      </div>
+
     </div>
   </body>
 </html>
