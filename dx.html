@@ -712,22 +712,22 @@ function noticeOrder(s) {
       }
 
       function dorandom() {
-        var r1 = 450 + Math.floor(450 * Math.random());
-        var r2 = 450 + Math.floor(450 * Math.random());
-        var n1 = 2 + Math.floor(18 * Math.random());
-        var n2 = 2 + Math.floor(18 * Math.random());
-        document.getElementById("range1").value = r1;
-        document.getElementById("range2").value = n1;
-        document.getElementById("range3").value = r2;
-        document.getElementById("range4").value = n2;
+         var r1 = 450 + Math.floor(450 * Math.random());
+         var r2 = 450 + Math.floor(450 * Math.random());
+         var n1 = 2 + Math.floor(18 * Math.random());
+         var n2 = 2 + Math.floor(18 * Math.random());
+         document.getElementById("range1").value = r1;
+         document.getElementById("range2").value = n1;
+         document.getElementById("range3").value = r2;
+         document.getElementById("range4").value = n2;
 
-        updateValue("dl1", n1);
-        updateValue("dl2", n2);
-        close_slider("slide_box1");
-        close_slider("slide_box2");
-        close_slider("slide_box3");
-        close_slider("slide_box4");
-	doanim()
+         updateValue("dl1", n1);
+         updateValue("dl2", n2);
+         close_slider("slide_box1");
+         close_slider("slide_box2");
+         close_slider("slide_box3");
+         close_slider("slide_box4");
+         doanim()
       }
 
       function start() {
@@ -752,30 +752,47 @@ function noticeOrder(s) {
          if (touch_in == document.getElementById('range2')){return false;}
          if (touch_in == document.getElementById('range3')){return false;}
          if (touch_in == document.getElementById('range4')){return false;}
+         if (touch_in == document.getElementById('range5')){return false;}
+
          return true;
 
       }
 
-      function update_zoom(){
-         zoom = document.getElementById('range5');
+      function get_touch_dist(touch1, touch2){
+
+         var dx = touch1.clientX - touch2.clientX;
+         var dy = touch1.clientY - touch2.clientY;
+         return Math.sqrt(dx*dx + dy*dy);
+
       }
 
       var isDragging = false;
-      var touchStartX, touchStartY, initialx, initialy;
+      var ispinching = false;
+
+      var touchStartX, touchStartY, initialx, initialy, initialdist, initialzoom;
+
 
       document.addEventListener('touchstart', function(e) {
-         if (check_touch_target(e.target)){
-          e.preventDefault();
-          isDragging = true;
-          touchStartX = e.touches[0].clientX;
-          touchStartY = e.touches[0].clientY;
-          initialx = xoff;
-          initialy = yoff;
+         if (e.touches.length == 1){
+            if (check_touch_target(e.target)){
+            e.preventDefault();
+            isDragging = true;
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            initialx = xoff;
+            initialy = yoff;
+            }
+         }
+         if (e.touches.length == 2){
+            initialzoom = zoom;
+            initialdist = get_touch_dist(e.touches[0], e.touches[1]);
+            ispinching = true;
          }
       });
 
       document.addEventListener('touchend', function(e) {
         isDragging = false;
+        ispinching = false;
       });
 
       document.addEventListener('touchmove', function(e) {
@@ -784,10 +801,21 @@ function noticeOrder(s) {
           var touchX = e.touches[0].clientX - touchStartX;
           var touchY = e.touches[0].clientY - touchStartY;
 
-          xoff = touchX + initialx;
-          yoff = touchY + initialy;
+          xoff = touchX/zoom + initialx;
+          yoff = touchY/zoom + initialy;
           doanim();
         }
+
+        if (ispinching === true) {
+          e.preventDefault();
+          var newdist = get_touch_dist(e.touches[0], e.touches[1]);
+          var scale = newdist/initialdist;
+          zoom = initialzoom*scale;
+          updateValue('debug', zoom);
+          doanim();
+        }
+
+
       });
 
       window.onload = start;
@@ -922,6 +950,8 @@ function noticeOrder(s) {
   <body>
     <canvas id="canvas" width="80" height="80"></canvas>
 
+    <div id="debug">test</div>
+
     <div id="hamburger-menu">
       <span></span>
       <span></span>
@@ -1036,7 +1066,7 @@ function noticeOrder(s) {
           max="10"
           value="1"
           step="0.001"
-          oninput="activate_button_container(), doanim(), zoom=this.value"
+          oninput="activate_button_container(), zoom=this.value, doanim() "
         />
       </div>
 
