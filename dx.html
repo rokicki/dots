@@ -44,20 +44,19 @@ var ar, br, an, bn, sep, ax, ay, bx, by, arar, brbr, sepd2 ;
  *   Rendering engine.
  */
 function toggle_pttype() {
-if (pttype == 1) {
-	pttype = 2;
-	} else {
-	pttype = 1;
-	}
+   if (pttype == 1) {
+      pttype = 2;
+   } else {
+      pttype = 1;
+   }
 }
-
 function toggle_rotype() {
-dofull = !dofull
+   dofull = !dofull
 }
 function drawcirc(ctx, x, y, r) {
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, 2*Math.PI, false);
-    ctx.stroke();
+   ctx.beginPath();
+   ctx.arc(x, y, r, 0, 2*Math.PI, false);
+   ctx.stroke();
 }
 var rbm, intwidth, intwidth32 ;
 function checkRendered(width, height) {
