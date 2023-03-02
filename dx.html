@@ -83,7 +83,6 @@ function doanim(rescale) {
     getUIParams();
     if (rescale) {
        zoom = 1;
-       document.getElementById("range5").value = zoom;
        xoff = 0;
        yoff = 0;
        calch = Math.max(ar, br) * 2;
@@ -683,7 +682,6 @@ function getUIParams() {
     an = getvalue("range2");
     bn = getvalue("range4");
     sep = 2;
-    zoom = document.getElementById("range5").value;
     console.log("ar",ar,"br",br,"an",an,"bn",bn,"sep",sep,"zoom",zoom,"scale",scale);
 }
 function noticeOrder(s) {
@@ -763,7 +761,7 @@ function noticeOrder(s) {
       }
 
       function onlySlider(n) {
-        for (var i = 1; i <= 7; i++) {
+        for (var i = 1; i <= 6; i++) {
           if (i == n) {
             show_slider("slide_box" + i);
             update_button_color("button" + i, true);
@@ -823,26 +821,19 @@ function noticeOrder(s) {
       function keypress(e) {
          e = e || window.event;
          if (e.keyCode == "]".codePointAt(0)) {
-            var zoom = document.getElementById("range5").value ;
             zoom = zoom * 1.25 ;
             if (zoom < 0.5 || zoom > 20) {
                zoom = 20 ;
-            } else {
-               document.getElementById("range5").value = zoom ;
             }
             doanim() ;
          } else if (e.keyCode == "[".codePointAt(0)) {
-            var zoom = document.getElementById("range5").value ;
             zoom = zoom / 1.25 ;
             if (zoom < 0.5 || zoom > 20) {
                zoom = 0.5 ;
-            } else {
-               document.getElementById("range5").value = zoom ;
             }
             doanim() ;
          } else if (e.keyCode == "0".codePointAt(0)) {
             zoom = 1 ;
-            document.getElementById("range5").value = zoom ;
             xoff = 0 ;
             yoff = 0 ;
             doanim() ;
@@ -871,9 +862,8 @@ function noticeOrder(s) {
          if (touch_in == document.getElementById('range2')){return false;}
          if (touch_in == document.getElementById('range3')){return false;}
          if (touch_in == document.getElementById('range4')){return false;}
-         if (touch_in == document.getElementById('range5')){return false;}
          if (touch_in == document.getElementById('range6')){return false;}
-         if (touch_in == document.getElementById('range7')){return false;}
+         if (touch_in == document.getElementById('range5')){return false;}
 
          if (touch_in == document.getElementById('hamburger-menu')){return false;}
 
@@ -881,9 +871,8 @@ function noticeOrder(s) {
          if (touch_in == document.getElementById('button2')){return false;}
          if (touch_in == document.getElementById('button3')){return false;}
          if (touch_in == document.getElementById('button4')){return false;}
-         if (touch_in == document.getElementById('button5')){return false;}
          if (touch_in == document.getElementById('button6')){return false;}
-         if (touch_in == document.getElementById('button7')){return false;}
+         if (touch_in == document.getElementById('button5')){return false;}
 
          if (touch_in == document.getElementById('button_container1')){return false;}
 
@@ -914,7 +903,7 @@ function noticeOrder(s) {
             activate_button_container();
          }
          if (e.touches.length == 2){
-            initialzoom = document.getElementById('range5').value;
+            initialzoom = zoom;
             initialdist = get_touch_dist(e.touches[0], e.touches[1]);
             ispinching = true;
          }
@@ -940,7 +929,7 @@ function noticeOrder(s) {
           e.preventDefault();
           var newdist = get_touch_dist(e.touches[0], e.touches[1]);
           var scale = newdist/initialdist;
-          document.getElementById('range5').value = initialzoom*scale;
+          zoom = initialzoom*scale;
           doanim();
         }
          activate_button_container();
@@ -1064,7 +1053,7 @@ function noticeOrder(s) {
         color: white;
       }
       .button-container {
-        width: 670px;
+        width: 587px;
         height: 80px;
         background-color: #000000;
         position: fixed;
@@ -1077,7 +1066,7 @@ function noticeOrder(s) {
         display: none;
       }
       .slide_box {
-        width: 600px;
+        width: 587px;
         height: 60px;
         background-color: #000000;
         border: 2px solid #4e4e4e;
@@ -1232,15 +1221,15 @@ function noticeOrder(s) {
         />
       </div>
 
-      <button class="button" id="button7" onclick="onlySlider(7)">N<sub> </sub></button>
-      <div class="slide_box" id="slide_box7">
+      <button class="button" id="button5" onclick="onlySlider(5)">N<sub> </sub></button>
+      <div class="slide_box" id="slide_box5">
         <input
           type="range"
           min="2"
           max="20"
           value="5"
           step="1"
-          id="range7"
+          id="range5"
           class="slider"
           oninput="activate_button_container(), updateValue('dl1', this.value), flash_n_value(), document.getElementById('range2').value = this.value,document.getElementById('range4').value = this.value, doanim()"
           list="steplist"
@@ -1264,20 +1253,6 @@ function noticeOrder(s) {
         />
       </div>
       <button class="button" id="button6" onclick="dorandom()">&#127922<sub> </sub></button>
-
-      <button class="button" id="button5" onclick="onlySlider(5)">z<sub> </sub></button>
-      <div class="slide_box" id="slide_box5">
-        <input
-          type="range"
-          class="slider"
-          id="range5"
-          min="0.5"
-          max="20"
-          value="1"
-          step="0.001"
-          oninput="activate_button_container(), zoom=this.value, doanim() "
-        />
-      </div>
 
     </div>
   </body>
