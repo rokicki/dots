@@ -2,7 +2,7 @@
 <html>
 <head>
 <!-- <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"> -->
-
+<meta charset="UTF-8">
 <title>disks</title>
 <script>
 "use strict";
@@ -923,13 +923,13 @@ function noticeOrder(s) {
 </script>
     <style>
 
-html, body {
-    position: fixed;
-     overflow: hidden;
-     overscroll-behavior: none;
-     -webkit-overflow-scrolling: touch;
-     touch-action: none;
-   }
+      html, body {
+         position: fixed;
+         overflow: hidden;
+         overscroll-behavior: none;
+         -webkit-overflow-scrolling: touch;
+         touch-action: none;
+      }
 
       /* Hamburger menu button*/
 
@@ -980,6 +980,7 @@ html, body {
         cursor: pointer;
         opacity: 1;
         transition: opacity 0.8s;
+        font: 1em sans-serif;
       }
       #menu li:hover {
         background-color: #000000;
@@ -1112,8 +1113,8 @@ html, body {
     </datalist>
 
     <div class="button-container" id="button_container1">
-      <button class="button" id="button1" onclick="onlySlider(1)" style="color: #000000; background-color: #e3e3e3;">R<sub>1</sub></button>
-      <div class="slide_box" id="slide_box1" style="display: block;">
+      <button class="button" id="button1" onclick="onlySlider(1)" >R<sub>1</sub></button>
+      <div class="slide_box" id="slide_box1">
         <input
           type="range"
           class="slider"
@@ -1126,8 +1127,8 @@ html, body {
       </div>
 
 
-      <button class="button" id="button6" onclick="onlySlider(6)">R<sub> </sub></button>
-      <div class="slide_box" id="slide_box6">
+      <button class="button" id="button6" onclick="onlySlider(6)" style="color: #000000; background-color: #e3e3e3;">R<sub> </sub></button>
+      <div class="slide_box" id="slide_box6"  style="display: block;">
         <input
           type="range"
           class="slider"
