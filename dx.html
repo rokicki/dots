@@ -696,7 +696,7 @@ function noticeOrder(s) {
       }
 
       function onlySlider(n) {
-        for (var i = 1; i <= 5; i++) {
+        for (var i = 1; i <= 7; i++) {
           if (i == n) {
             show_slider("slide_box" + i);
             update_button_color("button" + i, true);
@@ -750,6 +750,9 @@ function noticeOrder(s) {
          if (touch_in == document.getElementById('range3')){return false;}
          if (touch_in == document.getElementById('range4')){return false;}
          if (touch_in == document.getElementById('range5')){return false;}
+         if (touch_in == document.getElementById('range6')){return false;}
+         if (touch_in == document.getElementById('range7')){return false;}
+
          if (touch_in == document.getElementById('hamburger-menu')){return false;}
 
          return true;
@@ -906,11 +909,11 @@ function noticeOrder(s) {
         color: white;
       }
       .button-container {
-        width: 520px;
+        width: 670px;
         height: 80px;
         background-color: #000000;
         position: fixed;
-        bottom: 10px;
+        bottom: 8px;
         left: 50%;
         transform: translateX(-50%);
         border-radius: 20px;
@@ -1032,18 +1035,17 @@ function noticeOrder(s) {
         />
       </div>
 
-      <button class="button" id="button2" onclick="onlySlider(2)">N<sub>1</sub></button>
-      <div class="slide_box" id="slide_box2">
+
+      <button class="button" id="button6" onclick="onlySlider(6)">R<sub> </sub></button>
+      <div class="slide_box" id="slide_box6">
         <input
           type="range"
-          min="2"
-          max="20"
-          value="5"
-          step="1"
-          id="range2"
           class="slider"
-          oninput="activate_button_container(), updateValue('dl1', this.value), flash_n_value(), doanim()"
-          list="steplist"
+          id="range6"
+          min="450"
+          max="1400"
+          value="400"
+          oninput="activate_button_container(), document.getElementById('range1').value = this.value,document.getElementById('range3').value = this.value ,doanim()"
         />
       </div>
 
@@ -1060,6 +1062,38 @@ function noticeOrder(s) {
         />
       </div>
 
+      <button class="button" id="button2" onclick="onlySlider(2)">N<sub>1</sub></button>
+      <div class="slide_box" id="slide_box2">
+        <input
+          type="range"
+          min="2"
+          max="20"
+          value="5"
+          step="1"
+          id="range2"
+          class="slider"
+          oninput="activate_button_container(), updateValue('dl1', this.value), flash_n_value(), doanim()"
+          list="steplist"
+        />
+      </div>
+
+      <button class="button" id="button7" onclick="onlySlider(7)">N<sub> </sub></button>
+      <div class="slide_box" id="slide_box7">
+        <input
+          type="range"
+          min="2"
+          max="20"
+          value="5"
+          step="1"
+          id="range7"
+          class="slider"
+          oninput="activate_button_container(), updateValue('dl1', this.value), flash_n_value(), document.getElementById('range2').value = this.value,document.getElementById('range4').value = this.value, doanim()"
+          list="steplist"
+        />
+      </div>
+
+      
+
       <button class="button" id="button4" onclick="onlySlider(4)">N<sub>2</sub></button>
       <div class="slide_box" id="slide_box4">
         <input
@@ -1074,9 +1108,9 @@ function noticeOrder(s) {
           list="steplist"
         />
       </div>
-      <button class="button" id="button6" onclick="dorandom()">rnd</button>
+      <button class="button" id="button6" onclick="dorandom()">rnd<sub> </sub></button>
 
-      <button class="button" id="button5" onclick="onlySlider(5)">zoom</button>
+      <button class="button" id="button5" onclick="onlySlider(5)">z<sub> </sub></button>
       <div class="slide_box" id="slide_box5">
         <input
           type="range"
