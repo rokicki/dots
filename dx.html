@@ -795,18 +795,102 @@ function noticeOrder(s) {
       }
 
       function start() {
-        canvas = document.getElementById("canvas");
-        ctx = canvas.getContext("2d");
-        var hamburgerMenu = document.getElementById("hamburger-menu");
-        var menu = document.getElementById("menu");
+         canvas = document.getElementById("canvas");
+         ctx = canvas.getContext("2d");
+         var hamburgerMenu = document.getElementById("hamburger-menu");
+         var menu = document.getElementById("menu");
 
-        /* Bug with first touch on iPad --Switch to button?-- */
-        hamburgerMenu.addEventListener("click", function () {
-         activate_hamburger_menu();
-        });
-        window.addEventListener("resize", doanimtrue);
+         /* Bug with first touch on iPad --Switch to button?-- */
+         hamburgerMenu.addEventListener("click", function () {activate_hamburger_menu(); });
+         window.addEventListener("resize", doanimtrue);
+
+         addEvent(window, "keydown", keypress);
+         addEvent(window, "keypress", keypress);
+
         dorandom();
       }
+
+      function addEvent(element, eventName, callback) {
+         if (element.addEventListener) {
+            element.addEventListener(eventName, callback, false);
+         } else if (element.attachEvent) {
+            element.attachEvent("on" + eventName, callback);
+         } else {
+            element["on" + eventName] = callback;
+      }
+      }
+
+      function keypress(e) {
+         e = e || window.event;
+         if (e.keyCode == "[".codePointAt(0)) {
+            var zoom = getvalue("range5") ;
+            zoom = zoom / 1.5 ;
+            zoom = Math.floor(zoom * 1000) / 1000 ;
+            if (zoom < 1 || zoom > 20) {
+               overridezoom = zoom ;
+            } else {
+               overridezoom = 0 ;
+               document.getElementById("range5").value = zoom ;
+            }
+            doanim() ;
+         } else if (e.keyCode == "]".codePointAt(0)) {
+            var zoom = getvalue("range5") ;
+            zoom = zoom * 1.5 ;
+            zoom = Math.floor(zoom * 1000) / 1000 ;
+            if (zoom < 1 || zoom > 20) {
+               overridezoom = zoom ;
+            } else {
+               overridezoom = 0 ;
+               document.getElementById("range5").value = zoom ;
+            }
+            doanim() ;
+         } else if (e.keyCode == "0".codePointAt(0)) {
+            zoom = 1 ;
+            overridezoom = 0 ;
+            document.getElementById("range5").value = zoom ;
+            xoff = 0 ;
+            yoff = 0 ;
+            doanim() ;
+         } else if (e.keyCode == 37) {
+            xoff += -10;
+            doanim() ;
+         } else if (e.keyCode == 38) {
+            yoff += -10;
+            doanim() ;
+         } else if (e.keyCode == 39) {
+            xoff += 10;
+            doanim() ;
+         } else if (e.keyCode == 40) {
+            yoff += 10;
+            doanim() ;
+         } else if (e.keyCode == ".".codePointAt(0)) {
+            pttype = (pttype % 3) + 1 ;
+            doanim() ;
+         } else if (e.keyCode == "c".codePointAt(0)) {
+            curthink = 1000 * 7200 ;
+            stoptime = performance.now() + curthink ; // stop after 60s
+            if (stopped) {
+               stopped = false ;
+               dowork() ;
+            }
+         } else if (e.keyCode == "r".codePointAt(0)) {
+            dorandom() ;
+         } else if (e.keyCode == "!".codePointAt(0)) {
+            for (var i=0; i<cr.length; i += 3) {
+               if ((an==cr[i] && bn==cr[i+1]) ||
+                  (an==cr[i+1] && bn==cr[i])) {
+                  arad = brad = cr[i+2] ;
+                  dist = 2 ;
+                  document.getElementById("arad").value = arad;
+                  document.getElementById("brad").value = brad;
+                  document.getElementById("dist").value = dist;
+                  console.log("Setting radius to " + arad);
+                  doanim() ;
+                  return ;
+               }
+            }
+         }
+      } ;
 
       function check_touch_target(touch_in){
          if (touch_in == document.getElementById('range1')){return false;}
