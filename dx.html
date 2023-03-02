@@ -810,7 +810,6 @@ function noticeOrder(s) {
           var newdist = get_touch_dist(e.touches[0], e.touches[1]);
           var scale = newdist/initialdist;
           zoom = initialzoom*scale;
-          updateValue('debug', zoom);
           doanim();
         }
       });
@@ -979,8 +978,6 @@ function noticeOrder(s) {
   <body>
     <canvas id="canvas" width="80" height="80"></canvas>
 
-    <div id="debug">test</div>
-
     <div id="hamburger-menu">
       <span></span>
       <span></span>
@@ -1045,6 +1042,7 @@ function noticeOrder(s) {
           min="450"
           max="1400"
           value="400"
+          on
           oninput="activate_button_container(), document.getElementById('range1').value = this.value,document.getElementById('range3').value = this.value ,doanim()"
         />
       </div>
