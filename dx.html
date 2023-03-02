@@ -220,12 +220,16 @@ function doworkfull() {
                    x = sep / 2 ;
                    y = 0 ;
                 }
-                var tx = (x * sc + ax) | 0;
-                var ty = (y * sc + ay) | 0;
-                if (tx >= 0 && tx < width && ty >= 0 && ty < width) {
-                   var off = ty * intwidth32 + tx ;
-                   if (0 == ((rbm[off>>5] >> (off & 31)) & 1)) {
-                      break ;
+                if (pttype == 2) {
+                   break ;
+                } else {
+                   var tx = (x * sc + ax) | 0;
+                   var ty = (y * sc + ay) | 0;
+                   if (tx >= 0 && tx < width && ty >= 0 && ty < width) {
+                      var off = ty * intwidth32 + tx ;
+                      if (0 == ((rbm[off>>5] >> (off & 31)) & 1)) {
+                         break ;
+                      }
                    }
                 }
             }
