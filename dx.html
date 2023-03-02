@@ -16,6 +16,7 @@ var zoom = 1;
 var sc ;
 var xoff = 0 ;
 var yoff = 0 ;
+var obeyscale = 0 ;
 /*
  *   User interface parameters.
  */
@@ -52,11 +53,10 @@ var ar, br, an, bn, sep, ax, ay, bx, by, arar, brbr, sepd2 ;
  *   Rendering engine.
  */
 function toggle_pttype() {
-   if (pttype == 1) {
-      pttype = 2;
-   } else {
-      pttype = 1;
-   }
+   pttype = 3 - pttype;
+}
+function toggle_scale() {
+   obeyscale = 1 - obeyscale;
 }
 function toggle_rotype() {
    dofull = !dofull
@@ -629,6 +629,11 @@ function getvalue(s) {
 function getUIParams() {
     width = canvas.clientWidth;
     height = canvas.clientHeight;
+    const scale = window.devicePixelRatio;
+    if (obeyscale) {
+       width *= scale;
+       height *= scale;
+    }
     canvas.width = width;
     canvas.height = height;
     ar = getvalue("range1") / 450;
@@ -637,7 +642,7 @@ function getUIParams() {
     bn = getvalue("range4");
     sep = 2;
     zoom = document.getElementById("range5").value;
-    console.log("ar",ar,"br",br,"an",an,"bn",bn,"sep",sep,"zoom",zoom);
+    console.log("ar",ar,"br",br,"an",an,"bn",bn,"sep",sep,"zoom",zoom,"scale",scale);
 }
 function noticeOrder(s) {
     // document.getElementById("order").innerText = s;
@@ -1037,6 +1042,7 @@ html, body {
 		<ul>
 		  <li onclick="activate_hamburger_menu(), activate_button_container() ,doanim()">Color Options (tbd)</li>
 		  <li onclick="activate_hamburger_menu(), activate_button_container() ,doanim()">Email image (tbd)</li>
+		  <li onclick="toggle_scale(), activate_hamburger_menu(), activate_button_container() ,doanim()">Toggle hires scale</li>
 		  <li onclick="toggle_pttype(), activate_hamburger_menu(), activate_button_container() ,doanim()">Toggle point style</li>
 		  <li onclick="toggle_rotype(), activate_hamburger_menu(), activate_button_container() ,doanim()">Toggle rotation style</li>
 		  <li>. . .</li>
