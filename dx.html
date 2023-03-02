@@ -638,20 +638,31 @@ function noticeOrder(s) {
       function activate_button_container() {
         var box = document.getElementById("button_container1");
         box.style.display = "block";
-
         if (timer) {
           clearTimeout(timer);
         }
-
         timer = setTimeout(function () {
           box.style.opacity = "0";
-
           setTimeout(function () {
             box.style.opacity = "1";
             box.style.display = "none";
-            close_slider("button_container1")
+          }, 700); 
+        }, 2000);
+      }
 
-          }, 700); // wait for the fade animation to finish
+      var hamburger_timer;
+      function activate_hamburger_menu() {
+        var menu = document.getElementById("menu");
+        menu.style.display = "block";
+        if (hamburger_timer) {
+          clearTimeout(hamburger_timer);
+        }
+        hamburger_timer = setTimeout(function () {
+          menu.style.opacity = "0";
+          setTimeout(function () {
+            menu.style.opacity = "1";
+            menu.style.display = "none";
+          }, 700); 
         }, 2000);
       }
 
@@ -735,11 +746,7 @@ function noticeOrder(s) {
 
         /* Bug with first touch on iPad --Switch to button?-- */
         hamburgerMenu.addEventListener("click", function () {
-          if (menu.style.display === "block") {
-            menu.style.display = "none";
-          } else {
-            menu.style.display = "block";
-          }
+         activate_hamburger_menu();
         });
         doanim();
       }
@@ -765,10 +772,7 @@ function noticeOrder(s) {
 
          if (touch_in == document.getElementById('button_container1')){return false;}
 
-
-
          return true;
-
       }
 
       function get_touch_dist(touch1, touch2){
@@ -785,7 +789,6 @@ function noticeOrder(s) {
       document.addEventListener('touchstart', function(e) {
          if (e.touches.length == 1){
             if (check_touch_target(e.target)){
-               // activate_button_container();
                e.preventDefault();
                isDragging = true;
                touchStartX = e.touches[0].clientX;
@@ -893,18 +896,26 @@ function noticeOrder(s) {
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         display: none;
         z-index: 999;
+        opacity: 1;
+        transition: opacity 0.8s;
       }
       #menu ul {
         list-style: none;
         margin: 0;
         padding: 0;
+        opacity: 1;
+        transition: opacity 0.8s;
       }
       #menu li {
         padding: 10px;
         cursor: pointer;
+        opacity: 1;
+        transition: opacity 0.8s;
       }
       #menu li:hover {
         background-color: #000000;
+        opacity: 1;
+        transition: opacity 0.8s;
       }
 
       /* Disc controls */
@@ -998,10 +1009,10 @@ function noticeOrder(s) {
 
     <div id="menu">
 		<ul>
-		  <li>Color Options (tbd)</li>
-		  <li>Email image (tbd)</li>
-		  <li onclick="toggle_pttype(), doanim()">Toggle point style</li>
-		  <li onclick="toggle_rotype(), doanim()">Toggle rotation style</li>
+		  <li onclick="activate_hamburger_menu(), activate_button_container() ,doanim()">Color Options (tbd)</li>
+		  <li onclick="activate_hamburger_menu(), activate_button_container() ,doanim()">Email image (tbd)</li>
+		  <li onclick="toggle_pttype(), activate_hamburger_menu(), activate_button_container() ,doanim()">Toggle point style</li>
+		  <li onclick="toggle_rotype(), activate_hamburger_menu(), activate_button_container() ,doanim()">Toggle rotation style</li>
 		  <li>. . .</li>
 		</ul>
 	  </div>
