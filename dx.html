@@ -258,8 +258,26 @@ function doworkfull() {
                    var ty = (y * sc + ay) | 0;
                    if (tx >= 0 && tx < width && ty >= 0 && ty < width) {
                       var off = ty * intwidth32 + tx ;
-                      if (0 == ((rbm[off>>5] >> (off & 31)) & 1)) {
+                      var w = rbm[off>>5] ;
+                      if (0 == ((w >> (off & 31)) & 1)) {
                          break ;
+                      } else {  // let's try to find a point in this word
+                         if (w != 0xffffffff) {
+                            var lobit = 0;
+                            while ((w & 0x3f) == 0x3f) {
+                               lobit += 6 ;
+                               w >>= 6 ;
+                            }
+                            while (w & 1) {
+                               lobit++ ;
+                               w >>= 1 ;
+                            }
+                            tx = (tx & 31) + lobit;
+                            if (tx < width) {
+                               x = (tx - ax) / sc ;
+                               break ;
+                            }
+                         }
                       }
                    }
                 }
