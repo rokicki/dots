@@ -17,6 +17,7 @@ var sc ;
 var xoff = 0 ;
 var yoff = 0 ;
 var obeyscale = 0 ;
+var scale = 1 ; // hires
 /*
  *   User interface parameters.
  */
@@ -84,8 +85,8 @@ function doanim() {
     var h = Math.max(ar, br) * 2;
     var w = ar + br + sep;
     sc = Math.min((height*zoom-2*marg)/h, (width*zoom-2*marg)/w);
-    ay = yoff * zoom + height / 2;
-    ax = xoff * zoom + width / 2 - 0.5 * (sep + br - ar) * sc;
+    ay = scale * yoff * zoom + height / 2;
+    ax = scale * xoff * zoom + width / 2 - 0.5 * (sep + br - ar) * sc;
     ax = Math.floor(ax) + 0.5;
     ay = Math.floor(ay) + 0.5;
     arar = ar * ar ;
@@ -179,6 +180,15 @@ function dd(pp, i, j) {
    var dy = pp[i] - pp[j] ;
    var dx = pp[i + 1] - pp[j + 1] ;
    return dx * dx + dy * dy ;
+}
+function drawrbmcirc(x, y, r) {
+   if (y >= 0 && y < height && x >= 0 && x < width) {
+      var off = y * intwidth32 + x ;
+      rbm[off>>5] |= 1<<(off&31);
+   }
+   ctx.beginPath();
+   ctx.arc(x+0.5, y+0.5, mindist-circeps, 0, 2*Math.PI, false);
+   ctx.fill();
 }
 //
 //  Frontier-based BFS.
@@ -429,13 +439,7 @@ function doworkfull() {
                     }
                     y = (p[ii] * sc + ay) | 0 ;
                     x = (p[ii+1] * sc + abx) | 0 ;
-                    if (y >= 0 && y < height && x >= 0 && x < width) {
-                       var off = y * intwidth32 + x ;
-                       rbm[off>>5] |= 1<<(off&31);
-                    }
-                    ctx.beginPath();
-                    ctx.arc(x+0.5, y+0.5, mindist-circeps, 0, 2*Math.PI, false);
-                    ctx.fill();
+                    drawrbmcirc(x, y, mindist-circeps) ;
                 }
             }
             state = 0;
@@ -597,13 +601,7 @@ function doworkgen() {
                     }
                     y = p[ii+1] | 0 ;
                     x = p[ii] | 0 ;
-                    if (y >= 0 && y < height && x >= 0 && x < width) {
-                       var off = y * intwidth32 + x ;
-                       rbm[off>>5] |= 1<<(off&31);
-                    }
-                    ctx.beginPath();
-                    ctx.arc(x+0.5, y+0.5, mindist-circeps, 0, 2*Math.PI, false);
-                    ctx.fill();
+                    drawrbmcirc(x, y, mindist-circeps);
                 }
             }
             state = 0;
@@ -629,10 +627,12 @@ function getvalue(s) {
 function getUIParams() {
     width = canvas.clientWidth;
     height = canvas.clientHeight;
-    const scale = window.devicePixelRatio;
+    scale = window.devicePixelRatio;
     if (obeyscale) {
        width *= scale;
        height *= scale;
+    } else {
+       scale = 1;
     }
     canvas.width = width;
     canvas.height = height;
