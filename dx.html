@@ -23,7 +23,6 @@ var scale = 1 ; // hires
  */
 var curthink = 1000 * 60 ;
 var pttype = 1 ;
-var sliders = ["arad", "brad", "an", "bn", "dist", "zoom"];
 /*
  *   Internal rendering parameters.
  */
@@ -83,6 +82,10 @@ var xcent = 0, calch, calcw ;
 function doanim(rescale) {
     getUIParams();
     if (rescale) {
+       zoom = 1;
+       document.getElementById("range5").value = zoom;
+       xoff = 0;
+       yoff = 0;
        calch = Math.max(ar, br) * 2;
        calcw = ar + br + sep;
        xcent = 0.5 * (sep + br - ar) ;
