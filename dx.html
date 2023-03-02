@@ -1,6 +1,10 @@
 <!DOCTYPE html>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<html><head><title>disks</title><script>
+<html>
+<head>
+<!-- <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"> -->
+
+<title>disks</title>
+<script>
 "use strict";
 /*
  *   Display parameters.
@@ -836,6 +840,10 @@ function noticeOrder(s) {
          activate_button_container();
       });
 
+      document.addEventListener('touchmove', function (event) {
+   if (event.scale !== 1) { event.preventDefault(); }
+}, false);
+
       /* pan control for desktop*/
       document.addEventListener('mousedown', function(e) {
          
@@ -871,7 +879,17 @@ function noticeOrder(s) {
       window.onload = start;
 </script>
     <style>
+
+html, body {
+    position: fixed;
+     overflow: hidden;
+     overscroll-behavior: none;
+     -webkit-overflow-scrolling: touch;
+     touch-action: none;
+   }
+
       /* Hamburger menu button*/
+
       #hamburger-menu {
         position: fixed;
         bottom: 20px;
