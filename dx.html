@@ -117,6 +117,9 @@ function doanim(rescale) {
     }
     return false; // suppress submit
 }
+function doanimtrue() {
+   doanim(true);
+}
 //   Radix sort on pairs of doubles using typed arrays.
 //   Accepts a work array that has to be as large as the
 //   input array; we ping-pong between the two.
@@ -796,6 +799,7 @@ function noticeOrder(s) {
         hamburgerMenu.addEventListener("click", function () {
          activate_hamburger_menu();
         });
+        window.addEventListener("resize", doanimtrue);
         doanim(true);
       }
 
