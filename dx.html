@@ -284,7 +284,9 @@ function doworkfull() {
                             tx = (tx & 31) + lobit;
                             if (tx < width) {
                                x = (tx - ax) / sc ;
-                               break ;
+                               if (Math.hypot(x, y) < ar || Math.hypot(x-sep, y) < br) {
+                                  break ;
+                               }
                             }
                          }
                       }
