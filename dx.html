@@ -822,31 +822,26 @@ function noticeOrder(s) {
 
       function keypress(e) {
          e = e || window.event;
-         if (e.keyCode == "[".codePointAt(0)) {
-            var zoom = getvalue("range5") ;
-            zoom = zoom / 1.5 ;
-            zoom = Math.floor(zoom * 1000) / 1000 ;
-            if (zoom < 1 || zoom > 20) {
-               overridezoom = zoom ;
+         if (e.keyCode == "]".codePointAt(0)) {
+            var zoom = document.getElementById("range5").value ;
+            zoom = zoom * 1.25 ;
+            if (zoom < 0.5 || zoom > 20) {
+               zoom = 20 ;
             } else {
-               overridezoom = 0 ;
                document.getElementById("range5").value = zoom ;
             }
             doanim() ;
-         } else if (e.keyCode == "]".codePointAt(0)) {
-            var zoom = getvalue("range5") ;
-            zoom = zoom * 1.5 ;
-            zoom = Math.floor(zoom * 1000) / 1000 ;
-            if (zoom < 1 || zoom > 20) {
-               overridezoom = zoom ;
+         } else if (e.keyCode == "[".codePointAt(0)) {
+            var zoom = document.getElementById("range5").value ;
+            zoom = zoom / 1.25 ;
+            if (zoom < 0.5 || zoom > 20) {
+               zoom = 0.5 ;
             } else {
-               overridezoom = 0 ;
                document.getElementById("range5").value = zoom ;
             }
             doanim() ;
          } else if (e.keyCode == "0".codePointAt(0)) {
             zoom = 1 ;
-            overridezoom = 0 ;
             document.getElementById("range5").value = zoom ;
             xoff = 0 ;
             yoff = 0 ;
@@ -866,29 +861,8 @@ function noticeOrder(s) {
          } else if (e.keyCode == ".".codePointAt(0)) {
             pttype = (pttype % 3) + 1 ;
             doanim() ;
-         } else if (e.keyCode == "c".codePointAt(0)) {
-            curthink = 1000 * 7200 ;
-            stoptime = performance.now() + curthink ; // stop after 60s
-            if (stopped) {
-               stopped = false ;
-               dowork() ;
-            }
          } else if (e.keyCode == "r".codePointAt(0)) {
             dorandom() ;
-         } else if (e.keyCode == "!".codePointAt(0)) {
-            for (var i=0; i<cr.length; i += 3) {
-               if ((an==cr[i] && bn==cr[i+1]) ||
-                  (an==cr[i+1] && bn==cr[i])) {
-                  arad = brad = cr[i+2] ;
-                  dist = 2 ;
-                  document.getElementById("arad").value = arad;
-                  document.getElementById("brad").value = brad;
-                  document.getElementById("dist").value = dist;
-                  console.log("Setting radius to " + arad);
-                  doanim() ;
-                  return ;
-               }
-            }
          }
       } ;
 
