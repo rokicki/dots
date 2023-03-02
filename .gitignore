@@ -1,1 +1,8 @@
 .DS_Store
+*.png
+*.log
+*.csv
+*.in
+*.gz
+*.dSYM
+*.pbm
