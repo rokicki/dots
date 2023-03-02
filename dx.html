@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <html><head><title>disks</title><script>
 "use strict";
 /*
@@ -803,7 +804,7 @@ function noticeOrder(s) {
             activate_button_container();
          }
          if (e.touches.length == 2){
-            initialzoom = zoom;
+            initialzoom = document.getElementById('range5').value;
             initialdist = get_touch_dist(e.touches[0], e.touches[1]);
             ispinching = true;
          }
@@ -829,7 +830,7 @@ function noticeOrder(s) {
           e.preventDefault();
           var newdist = get_touch_dist(e.touches[0], e.touches[1]);
           var scale = newdist/initialdist;
-          zoom = initialzoom*scale;
+          document.getElementById('range5').value = initialzoom*scale;
           doanim();
         }
          activate_button_container();
