@@ -80,15 +80,17 @@ function checkRendered(width, height) {
       }
    }
 }
-function doanim() {
+function doanim(rescale) {
     getUIParams();
-    var h = Math.max(ar, br) * 2;
-    var w = ar + br + sep;
-    sc = Math.min((height*zoom-2*marg)/h, (width*zoom-2*marg)/w);
-    ay = scale * yoff * zoom + height / 2;
-    ax = scale * xoff * zoom + width / 2 - 0.5 * (sep + br - ar) * sc;
-    ax = Math.floor(ax) + 0.5;
-    ay = Math.floor(ay) + 0.5;
+    if (rescale) {
+       var h = Math.max(ar, br) * 2;
+       var w = ar + br + sep;
+       sc = Math.min((height*zoom-2*marg)/h, (width*zoom-2*marg)/w);
+       ay = scale * yoff * zoom + height / 2;
+       ax = scale * xoff * zoom + width / 2 - 0.5 * (sep + br - ar) * sc;
+       ax = Math.floor(ax) + 0.5;
+       ay = Math.floor(ay) + 0.5;
+    }
     arar = ar * ar ;
     brbr = br * br ;
     sepd2 = sep * 0.5 ;
@@ -783,7 +785,7 @@ function noticeOrder(s) {
          document.getElementById("range4").value = n2;
 
 
-         doanim()
+         doanim(true);
       }
 
       function start() {
@@ -796,7 +798,7 @@ function noticeOrder(s) {
         hamburgerMenu.addEventListener("click", function () {
          activate_hamburger_menu();
         });
-        doanim();
+        doanim(true);
       }
 
       function check_touch_target(touch_in){
