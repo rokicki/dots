@@ -22,7 +22,6 @@ var scale = 1 ; // hires
  *   User interface parameters.
  */
 var curthink = 1000 * 60 ;
-var overridezoom = 0 ;
 var pttype = 1 ;
 var sliders = ["arad", "brad", "an", "bn", "dist", "zoom"];
 /*
@@ -80,17 +79,19 @@ function checkRendered(width, height) {
       }
    }
 }
+var xcent = 0, calch, calcw ;
 function doanim(rescale) {
     getUIParams();
     if (rescale) {
-       var h = Math.max(ar, br) * 2;
-       var w = ar + br + sep;
-       sc = Math.min((height*zoom-2*marg)/h, (width*zoom-2*marg)/w);
-       ay = scale * yoff * zoom + height / 2;
-       ax = scale * xoff * zoom + width / 2 - 0.5 * (sep + br - ar) * sc;
-       ax = Math.floor(ax) + 0.5;
-       ay = Math.floor(ay) + 0.5;
+       calch = Math.max(ar, br) * 2;
+       calcw = ar + br + sep;
+       xcent = 0.5 * (sep + br - ar) ;
     }
+    sc = Math.min((height*zoom-2*marg)/calch, (width*zoom-2*marg)/calcw);
+    ay = scale * yoff * zoom + height / 2;
+    ax = scale * xoff * zoom + width / 2 - xcent * sc;
+    ax = Math.floor(ax) + 0.5;
+    ay = Math.floor(ay) + 0.5;
     arar = ar * ar ;
     brbr = br * br ;
     sepd2 = sep * 0.5 ;
@@ -653,10 +654,7 @@ function dowork() {
 }
 function getvalue(s) {
     var r;
-    if (s === "zoom" && overridezoom != 0)
-       r = overridezoom ;
-    else
-       r = +document.getElementById(s).value;
+    r = +document.getElementById(s).value;
 //  document.getElementById("show"+s).innerText = r;
     return r;
 }
