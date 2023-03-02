@@ -646,8 +646,8 @@ function noticeOrder(s) {
           setTimeout(function () {
             box.style.opacity = "1";
             box.style.display = "none";
-          }, 700); 
-        }, 2000);
+          }, 500); 
+        }, 2700);
       }
 
       var hamburger_timer;
@@ -662,8 +662,8 @@ function noticeOrder(s) {
           setTimeout(function () {
             menu.style.opacity = "1";
             menu.style.display = "none";
-          }, 700); 
-        }, 2000);
+          }, 500); 
+        }, 2700);
       }
 
       function flash_n_value() {
@@ -796,6 +796,7 @@ function noticeOrder(s) {
                initialx = xoff;
                initialy = yoff;
             }
+            activate_button_container();
          }
          if (e.touches.length == 2){
             initialzoom = zoom;
@@ -827,6 +828,7 @@ function noticeOrder(s) {
           zoom = initialzoom*scale;
           doanim();
         }
+         activate_button_container();
       });
 
       /* pan control for desktop*/
@@ -857,7 +859,8 @@ function noticeOrder(s) {
           xoff = touchX/zoom + initialx;
           yoff = touchY/zoom + initialy;
           doanim();
-        }
+         }
+         activate_button_container();
       });
 
       window.onload = start;
