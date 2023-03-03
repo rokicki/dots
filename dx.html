@@ -106,8 +106,8 @@ function doanim(typ) {
        calch = Math.max(ar, br) * 2;
        calcw = ar + br + sep;
        xcent = 0.5 * (sep + br - ar) ;
-       sc = Math.min((height*zoom-2*marg)/calch, (width*zoom-2*marg)/calcw);
     }
+    sc = Math.min((height*zoom-2*marg)/calch, (width*zoom-2*marg)/calcw);
     firstpts = 0 ;
     ay = scale * yoff * zoom + height / 2;
     ax = scale * xoff * zoom + width / 2 - xcent * sc;
