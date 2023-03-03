@@ -938,6 +938,17 @@ function noticeOrder(s) {
           var newdist = get_touch_dist(e.touches[0], e.touches[1]);
           var scale = newdist/initialdist;
           zoom = initialzoom*scale;
+
+
+          if (zoom > 20) {
+               zoom = 20 ;
+            }
+            if (zoom < 0.5) {
+               zoom = 0.5 ;
+            }
+         
+
+
           doanim();
         }
          activate_button_container();
