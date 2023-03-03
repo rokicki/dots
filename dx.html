@@ -885,6 +885,9 @@ function noticeOrder(s) {
 
       function keypress(e) {
          e = e || window.event;
+         if (e.metaKey) {
+            return;
+         }
          if (e.keyCode == "]".codePointAt(0)) {
             zoom = zoom * 1.25 ;
             if (zoom < 0.5 || zoom > 20) {
