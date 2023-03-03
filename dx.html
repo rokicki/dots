@@ -99,16 +99,16 @@ function doanim(typ) {
     var oax = ax ;
     var oay = ay ;
     getUIParams();
-    if (typ == 2) {
+    if (sc == 0 || typ == 2) {
        zoom = 1;
        xoff = 0;
        yoff = 0;
        calch = Math.max(ar, br) * 2;
        calcw = ar + br + sep;
        xcent = 0.5 * (sep + br - ar) ;
+       sc = Math.min((height*zoom-2*marg)/calch, (width*zoom-2*marg)/calcw);
     }
     firstpts = 0 ;
-    sc = Math.min((height*zoom-2*marg)/calch, (width*zoom-2*marg)/calcw);
     ay = scale * yoff * zoom + height / 2;
     ax = scale * xoff * zoom + width / 2 - xcent * sc;
     ax = Math.floor(ax) + 0.5;
@@ -130,10 +130,8 @@ function doanim(typ) {
        ctx.globalCompositeOperation = "source-over";
        //ctx.setTransform(otrans);
        //ctx.clearRect(0, 0, canvas.width, canvas.height);
-       console.log("Shifted");
     } else {
        ctx.clearRect(0, 0, canvas.width, canvas.height);
-       console.log("Cleared");
     }
     checkRendered(width, height) ;
     drawcirc(ctx, ax, ay, ar * sc);
@@ -474,7 +472,6 @@ function doworkfull() {
                      p[wi++] = p[i + 1] ;
                   }
                }
-            //   console.log("At d " + d + " count " + (wi-wns)/2) ;
                wps = ws ;
                ws = wns ;
                wns = wi ;
@@ -892,7 +889,7 @@ function noticeOrder(s) {
 
          /* Bug with first touch on iPad --Switch to button?-- */
          hamburgerMenu.addEventListener("click", function () {activate_hamburger_menu(); });
-         window.addEventListener("resize", doanimrescale);
+         window.addEventListener("resize", function(){doanim(0);});
 
          addEvent(window, "keydown", keypress);
          addEvent(window, "keypress", keypress);
