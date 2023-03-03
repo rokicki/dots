@@ -896,41 +896,42 @@ function noticeOrder(s) {
          if (e.metaKey) {
             return;
          }
-         if (e.keyCode == "]".codePointAt(0)) {
+         if (e.keyCode === "]".codePointAt(0)) {
             zoom = zoom * 1.25 ;
             if (zoom < 0.5 || zoom > 20) {
                zoom = 20 ;
             }
             doanim() ;
-         } else if (e.keyCode == "[".codePointAt(0)) {
+         } else if (e.keyCode === "[".codePointAt(0)) {
             zoom = zoom / 1.25 ;
             if (zoom < 0.5 || zoom > 20) {
                zoom = 0.5 ;
             }
             doanim() ;
-         } else if (e.keyCode == "0".codePointAt(0)) {
+         } else if (e.keyCode === "0".codePointAt(0)) {
             zoom = 1 ;
             xoff = 0 ;
             yoff = 0 ;
             doanim() ;
-         } else if (e.keyCode == 39) {
+         } else if (e.keyCode === 39) {
             xoff += -10;
             doanim() ;
-         } else if (e.keyCode == 40) {
+         } else if (e.keyCode === 40) {
             yoff += -10;
             doanim() ;
-         } else if (e.keyCode == 37) {
+         } else if (e.keyCode === 37) {
             xoff += 10;
             doanim() ;
-         } else if (e.keyCode == 38) {
+         } else if (e.keyCode === 38) {
             yoff += 10;
             doanim() ;
-         } else if (e.keyCode == ".".codePointAt(0)) {
+         } else if (e.keyCode === ".".codePointAt(0)) {
             pttype = (pttype % 3) + 1 ;
             doanim() ;
-         } else if (e.keyCode == "r".codePointAt(0)) {
+         } else if (e.keyCode === "r".codePointAt(0)) {
             dorandom() ;
-         } else if (e.keyCode == "!".codePointAt(0)) {
+         } else if (e.keyCode === "!".codePointAt(0) ||
+                    e.keyCode === "1".codePointAt(0)) {
             criticalsnap() ;
          }
       } ;
