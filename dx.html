@@ -86,7 +86,7 @@ function checkRendered(width, height) {
       }
    }
 }
-var xcent = 0, calch, calcw ;
+var xcent = 0, calch, calcw, firstpts ;
 function doanim(rescale) {
     getUIParams();
     if (rescale) {
@@ -97,6 +97,7 @@ function doanim(rescale) {
        calcw = ar + br + sep;
        xcent = 0.5 * (sep + br - ar) ;
     }
+    firstpts = 0 ;
     sc = Math.min((height*zoom-2*marg)/calch, (width*zoom-2*marg)/calcw);
     ay = scale * yoff * zoom + height / 2;
     ax = scale * xoff * zoom + width / 2 - xcent * sc;
@@ -249,8 +250,14 @@ function doworkfull() {
                 if (pttype == 1) {
                    var x0 = (width * Math.random()) ;
                    var y0 = (height * Math.random()) ;
-                   x = (x0 - ax) / sc ;
-                   y = (y0 - ay) / sc ;
+                   if (firstpts > 1) {
+                      x = (x0 - ax) / sc ;
+                      y = (y0 - ay) / sc ;
+                   } else {
+                      x = 1e-6 + 2 * firstpts ;
+                      y = 0 ;
+                      firstpts++ ;
+                   }
                    if (Math.hypot(x, y) >= ar && Math.hypot(x-sep, y) >= br) {
                       continue ;
                    }
@@ -515,8 +522,14 @@ function doworkgen() {
                 if (pttype == 1) {
                    var x0 = (width * Math.random()) ;
                    var y0 = (height * Math.random()) ;
-                   x = (x0 - ax) / sc ;
-                   y = (y0 - ay) / sc ;
+                   if (firstpts > 1) {
+                      x = (x0 - ax) / sc ;
+                      y = (y0 - ay) / sc ;
+                   } else {
+                      x = 1e-6 + 2 * firstpts ;
+                      y = 0 ;
+                      firstpts++ ;
+                   }
                    if (Math.hypot(x, y) >= ar && Math.hypot(x-sep, y) >= br) {
                       continue ;
                    }
