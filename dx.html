@@ -827,6 +827,11 @@ function noticeOrder(s) {
         doanim();
       }
 
+      function getrr() {
+         // these values are from the range sliders
+         return 200 + Math.floor(650 * Math.random()) +
+                      Math.floor(650 * Math.random());
+      }
       function dorandom() {
          var n1 = 2 + Math.floor(18 * Math.random());
          var n2 = 2 + Math.floor(18 * Math.random());
@@ -839,15 +844,13 @@ function noticeOrder(s) {
          // let us go a little into the critical region sometimes
          lim = (lim - 1) * 1.1 + 1 ;
          while (1) {
-            // these values are from the range sliders
-            var r1 = 200 + Math.floor(1300 * Math.random());
-            var r2 = 200 + Math.floor(1300 * Math.random());
+            var r1 = getrr() ;
+            var r2 = getrr() ;
             ar = r1 / radiusscale ;
             br = r2 / radiusscale ;
-            if (ar + br > 2 && 2 * Math.max(ar, br) + Math.min(ar, br) < 3.0 * lim) {
+            if (ar + br > 2 && 4 * Math.max(ar, br) + Math.min(ar, br) < 5 * lim) {
                document.getElementById("range1").value = r1;
                document.getElementById("range3").value = r2;
- console.log("For",n1,n2,"choose",ar,br,"lim",lim);
                break ;
             }
          }
