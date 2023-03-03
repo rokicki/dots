@@ -827,6 +827,14 @@ function noticeOrder(s) {
         doanim();
       }
 
+      function criticalsnap() {
+         var lim = cr[Math.max(an, bn)][Math.min(an, bn)] ;
+         if (lim !== undefined) {
+            document.getElementById("range1").value = radiusscale * lim;
+            document.getElementById("range3").value = radiusscale * lim;
+            doanim(true);
+         }
+      }
       function getrr() {
          // these values are from the range sliders
          return 200 + Math.floor(650 * Math.random()) +
@@ -1286,7 +1294,8 @@ var cr = [[], [], [], [],
 
     <div id="menu">
 		<ul>
-		  <li onclick="activate_hamburger_menu(), activate_button_container(), recolor(true)">Change Color Style</li>
+		  <li onclick="activate_hamburger_menu(), activate_button_container(), criticalsnap()">Snap to critical radius</li>
+		  <li onclick="activate_hamburger_menu(), activate_button_container(), recolor(true)">Change color style</li>
 		  <li onclick="activate_hamburger_menu(), activate_button_container(), doanim()">Email image (tbd)</li>
 <!-- <li onclick="toggle_scale(), activate_hamburger_menu(), activate_button_container() ,doanim()">Toggle hires scale</li> -->
 		  <li onclick="toggle_pttype(), activate_hamburger_menu(), activate_button_container() ,doanim()">Toggle point style</li>
