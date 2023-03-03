@@ -44,6 +44,7 @@ var largeayes, largebyes, smallano, smallbno, wps, ws, wns, wne ;
 var mincirc = 2 ;
 // this should always be smaller than mincirc
 var circeps = 0.5 ;
+var colormul = [154, 230, 214] ; // these should all be less than 239
 /*
  *   Model parameters.
  */
@@ -59,6 +60,13 @@ function toggle_scale() {
 }
 function toggle_rotype() {
    dofull = !dofull
+}
+function recolor() {
+   for (var i=0; i<3; i++) {
+      colormul[i] = Math.floor(10 + 228 * Math.random());
+   }
+   pallete = [];
+   doanim();
 }
 function drawcirc(ctx, x, y, r) {
    ctx.beginPath();
@@ -452,9 +460,9 @@ function doworkfull() {
                 noticeOrder("" + deepest);
             }
             if (!pallete[ord]) {
-                var cr = ord * 154 % 251;
-                var cg = ord * 230 % 241;
-                var cb = ord * 214 % 239;
+                var cr = ord * colormul[0] % 251;
+                var cg = ord * colormul[1] % 241;
+                var cb = ord * colormul[2] % 239;
                 pallete[ord] = "rgb(" + cr + "," + cg + "," + cb + ")";
             }
             if (useinfcolor) {
@@ -1131,8 +1139,8 @@ function noticeOrder(s) {
 
     <div id="menu">
 		<ul>
-		  <li onclick="activate_hamburger_menu(), activate_button_container() ,doanim()">Color Options (tbd)</li>
-		  <li onclick="activate_hamburger_menu(), activate_button_container() ,doanim()">Email image (tbd)</li>
+		  <li onclick="activate_hamburger_menu(), activate_button_container(), recolor()">Change Colorings</li>
+		  <li onclick="activate_hamburger_menu(), activate_button_container(), doanim()">Email image (tbd)</li>
 		  <li onclick="toggle_scale(), activate_hamburger_menu(), activate_button_container() ,doanim()">Toggle hires scale</li>
 		  <li onclick="toggle_pttype(), activate_hamburger_menu(), activate_button_container() ,doanim()">Toggle point style</li>
 		  <li onclick="toggle_rotype(), activate_hamburger_menu(), activate_button_container() ,doanim()">Toggle rotation style</li>
@@ -1140,8 +1148,6 @@ function noticeOrder(s) {
 		</ul>
 	  </div>
 
-    
-  
     <datalist id="steplist">
       <option>2</option>
       <option>3</option>
