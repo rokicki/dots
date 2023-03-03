@@ -627,9 +627,9 @@ function doworkgen() {
                 noticeOrder("" + deepest);
             }
             if (!pallete[ord]) {
-                var cr = ord * 154 % 251;
-                var cg = ord * 230 % 241;
-                var cb = ord * 214 % 239;
+                var cr = ord * colormul[0] % 251;
+                var cg = ord * colormul[1] % 241;
+                var cb = ord * colormul[2] % 239;
                 pallete[ord] = "rgb(" + cr + "," + cg + "," + cb + ")";
             }
             ctx.fillStyle = pallete[ord];
