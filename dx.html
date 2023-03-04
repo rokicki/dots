@@ -928,6 +928,7 @@ function noticeOrder(s) {
          /* Bug with first touch on iPad --Switch to button?-- */
          hamburgerMenu.addEventListener("click", function () {activate_hamburger_menu(); });
          window.addEventListener("resize", function(){doanim(0);});
+         window.addEventListener("orientationchange", function(){doanim(0);});
 
          addEvent(window, "keydown", keypress);
          addEvent(window, "keypress", keypress);
