@@ -931,17 +931,21 @@ function noticeOrder(s) {
             return;
          }
          if (e.keyCode === "]".codePointAt(0)) {
-            zoom = zoom * 1.25 ;
-            if (zoom < 0.5 || zoom > 20) {
-               zoom = 20 ;
+            if (zoom < 20) {
+               zoom = zoom * 1.25 ;
+               if (zoom < 0.5 || zoom > 20) {
+                  zoom = 20 ;
+               }
+               doanim() ;
             }
-            doanim() ;
          } else if (e.keyCode === "[".codePointAt(0)) {
-            zoom = zoom / 1.25 ;
-            if (zoom < 0.5 || zoom > 20) {
-               zoom = 0.5 ;
+            if (zoom > 0.5) {
+               zoom = zoom / 1.25 ;
+               if (zoom < 0.5 || zoom > 20) {
+                  zoom = 0.5 ;
+               }
+               doanim() ;
             }
-            doanim() ;
          } else if (e.keyCode === "0".codePointAt(0)) {
             zoom = 1 ;
             xoff = 0 ;
