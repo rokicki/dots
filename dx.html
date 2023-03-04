@@ -681,13 +681,20 @@ function doworkgen() {
                    deepest = renderlim;
                    noticeOrder(">" + deepest);
                    renderlim = Math.floor(renderlim * 1.2);
+                   if (renderlim > jumbledev) {
+                      renderlim = jumbledev ;
+                   }
                } else {
                   if (! setmax) {
                      deepest = renderlim;
                      noticeOrder(">" + deepest);
                      setmax = true;
                   }
+                  useinfcolor = true;
+                  drawit = true;
                }
+            } else {
+               useinfcolor = false;
             }
             if (!incirc || !drawit) {
                 state = 0;
@@ -697,14 +704,18 @@ function doworkgen() {
             }
         }
         if (state == 2) {
-            if (ord > deepest) {
+            if (!useinfcolor && ord > deepest) {
                 deepest = ord;
                 noticeOrder("" + deepest);
             }
             if (!pallete[ord]) {
                define_color(); 
             }
-            ctx.fillStyle = pallete[ord];
+            if (useinfcolor) {
+               ctx.fillStyle = "rgb(128,128,128)";
+            } else {
+               ctx.fillStyle = pallete[ord];
+            }
             if (mindist < mincirc) {
                 for (; ii<plen; ii += 2) {
                     if ((ii & 8191) == 0 && performance.now() - start > timelim) {
