@@ -43,7 +43,7 @@ var stoptime;
 var setmax;
 var timelim = 13; // max work milliseconds per anim call
 var largeayes, largebyes, smallano, smallbno, wps, ws, wns, wne ;
-var mincirc = 2 ;
+var mincirc = 1000 ;
 // this should always be smaller than mincirc
 var circeps = 0.5 ;
 var colormul = [154, 230, 214] ; // these should all be less than 239
@@ -321,8 +321,8 @@ function doworkfull() {
                     return;
                 }
                 if (pttype == 1) {
-                   var x0 = (width * Math.random()) ;
-                   var y0 = (height * Math.random()) ;
+                   var x0 = Math.floor(width * Math.random()) ;
+                   var y0 = Math.floor(height * Math.random()) ;
                    if (firstpts > 1) {
                       x = (x0 - ax) / sc ;
                       y = (y0 - ay) / sc ;
@@ -589,8 +589,8 @@ function doworkgen() {
                     return;
                 }
                 if (pttype == 1) {
-                   var x0 = (width * Math.random()) ;
-                   var y0 = (height * Math.random()) ;
+                   var x0 = Math.floor(width * Math.random()) ;
+                   var y0 = Math.floor(height * Math.random()) ;
                    if (firstpts > 1) {
                       x = (x0 - ax) / sc ;
                       y = (y0 - ay) / sc ;
@@ -775,7 +775,7 @@ function getUIParams() {
     an = getvalue("range2");
     bn = getvalue("range4");
     sep = 2;
-    console.log("ar",ar,"br",br,"an",an,"bn",bn,"sep",sep,"zoom",zoom,"scale",scale);
+    console.log("ar",ar,"br",br,"an",an,"bn",bn,"sep",sep,"zoom",zoom,"scale",scale,"width",width,"height",height,"scale",scale);
 }
 function noticeOrder(s) {
     // document.getElementById("order").innerText = s;
