@@ -803,7 +803,7 @@ function noticeOrder(s) {
 
 
          var gg_sub = "<sub>" + an + ', ' + bn + "</sub>";
-         gg_sub = gg_sub.fontsize(3.5);
+         gg_sub = gg_sub.fontsize(3.5e);
          var text = 'GG' + gg_sub + '(' + formatter.format(Math.floor(ar*100)/100) + ', ' + formatter.format(Math.floor(br*100)/100) + ')';
          updateValue("labelcontainer1", text);
          box.style.display = "flex";
@@ -1439,9 +1439,7 @@ var cr = [[], [], [], [],
       <option>20</option>
     </datalist>
 
-    <div class="label_container" id="labelcontainer1">
-         Test
-    </div>
+    <div class="label_container" id="labelcontainer1"></div>
 
     <div class="button-container" id="button_container1">
       <button class="button" id="button1" onclick="onlySlider(1)" style="color: #000000; background-color: #e3e3e3;">R<sub>1</sub></button>
