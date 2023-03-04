@@ -871,6 +871,15 @@ function noticeOrder(s) {
         doanim();
       }
 
+      function downloadimage() {
+         var image = canvas.toDataURL("image/png")
+                      .replace("image/png", "image/octet-stream");
+         var hiddenlink = document.getElementById("downloadlink");
+         hiddenlink.href = image;
+         hiddenlink.download = "dx.png";
+         hiddenlink.click();
+      }
+
       function criticalsnap() {
          var lim = cr[Math.max(an, bn)][Math.min(an, bn)] ;
          if (lim !== undefined) {
@@ -1346,6 +1355,7 @@ var cr = [[], [], [], [],
 
     <div id="menu">
 		<ul>
+		  <li onclick="activate_hamburger_menu(), activate_button_container(), downloadimage()">Download image</li>
 		  <li onclick="activate_hamburger_menu(), activate_button_container(), criticalsnap()">Snap to critical radius</li>
 		  <li onclick="activate_hamburger_menu(), activate_button_container(), recolor(true)">Change color style</li>
 		  <li onclick="activate_hamburger_menu(), activate_button_container(), doanim()">Email image (tbd)</li>
@@ -1469,5 +1479,6 @@ var cr = [[], [], [], [],
       <button class="button" id="button6" onclick="dorandom()">&#127922<sub> </sub></button>
 
     </div>
+    <a href="" id="downloadlink" style="display: none;"></a>
   </body>
 </html>
