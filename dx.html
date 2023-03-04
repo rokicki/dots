@@ -80,6 +80,31 @@ function drawcirc(ctx, x, y, r) {
    ctx.stroke();
 }
 var rbm, intwidth, intwidth32 ;
+function shiftRendered(width, height, dx, dy) {
+   if (dx == 0 && dy == 0)
+      return ;
+   var needed = intwidth * height ;
+   if (dy < 0 || (dy == 0 && dx < 0)) { // go forward
+      for (var y=0; y<height+dy; y++) {
+         if ((dx & 31) == 0) {
+            
+         } else {
+         }
+      }
+      for (var i=(height+dy) * intwidth; i<needed; i++) {
+         rbm[i] = 0 ;
+      }
+   } else { // go backwards
+      for (var y=height-1; y>=dy; y--) {
+         if ((dx & 31) == 0) {
+         } else {
+         }
+      }
+      for (var i=0; i<dy*intwidth; i++) {
+         rbm[i] = 0 ;
+      }
+   }
+}
 function checkRendered(width, height) {
    intwidth = (width + 31) >> 5 ;
    intwidth32 = intwidth * 32 ;
@@ -124,16 +149,16 @@ function doanim(typ) {
     cbn = Math.cos(Math.PI * 2 / bn);
     if (typ === 1) {
        ctx.globalCompositeOperation = "copy";
-       var otrans = ctx.getTransform();
-       ctx.resetTransform();
        ctx.drawImage(ctx.canvas, ax-oax, ay-oay, width, height);
        ctx.globalCompositeOperation = "source-over";
+       //shiftRendered(width, height, ax-oax, ay-oay) ;
+       checkRendered(width, height) ;
        //ctx.setTransform(otrans);
        //ctx.clearRect(0, 0, canvas.width, canvas.height);
     } else {
        ctx.clearRect(0, 0, canvas.width, canvas.height);
+       checkRendered(width, height) ;
     }
-    checkRendered(width, height) ;
     drawcirc(ctx, ax, ay, ar * sc);
     drawcirc(ctx, bx, by, br * sc);
     deepest = 0;
@@ -590,14 +615,7 @@ function doworkgen() {
                    x = sep / 2 ;
                    y = 0 ;
                 }
-                var tx = (x * sc + ax) | 0;
-                var ty = (y * sc + ay) | 0;
-                if (tx >= 0 && tx < width && ty >= 0 && ty < width) {
-                   var off = ty * intwidth32 + tx ;
-                   if (0 == ((rbm[off>>5] >> (off & 31)) & 1)) {
-                      break ;
-                   }
-                }
+                break ;
             }
             ox = x;
             oy = y;
