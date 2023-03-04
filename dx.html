@@ -796,6 +796,28 @@ function noticeOrder(s) {
           }, 500); 
         }, 3500);
       }
+      var label_timer;
+      function activate_label_container() {
+         var box = document.getElementById("labelcontainer1");
+         var formatter = new Intl.NumberFormat('en-US', {minimumFractionDigits: 2})
+
+
+         var gg_sub = "<sub>" + an + ', ' + bn + "</sub>";
+         gg_sub = gg_sub.fontsize(3.5);
+         var text = 'GG' + gg_sub + '(' + formatter.format(Math.floor(ar*100)/100) + ', ' + formatter.format(Math.floor(br*100)/100) + ')';
+         updateValue("labelcontainer1", text);
+         box.style.display = "flex";
+         if (label_timer) {
+            clearTimeout(label_timer);
+         }
+         label_timer = setTimeout(function () {
+          box.style.opacity = "0";
+          setTimeout(function () {
+            box.style.opacity = "1";
+            box.style.display = "none";
+          }, 500); 
+        }, 3500);
+      }
 
       var hamburger_timer;
       function activate_hamburger_menu() {
@@ -868,7 +890,7 @@ function noticeOrder(s) {
 
       function updateValue(label, val) {
         document.getElementById(label).innerHTML = val;
-        doanim();
+      //   doanim();
       }
 
       function downloadimage() {
@@ -933,7 +955,8 @@ function noticeOrder(s) {
          addEvent(window, "keydown", keypress);
          addEvent(window, "keypress", keypress);
 
-        dorandom();
+         dorandom();
+         activate_label_container();
       }
 
       function addEvent(element, eventName, callback) {
@@ -1002,6 +1025,10 @@ function noticeOrder(s) {
          if (touch_in == document.getElementById('range4')){return false;}
          if (touch_in == document.getElementById('range6')){return false;}
          if (touch_in == document.getElementById('range5')){return false;}
+         if (touch_in == document.getElementById('color1')){return false;}
+         if (touch_in == document.getElementById('color2')){return false;}
+         if (touch_in == document.getElementById('color3')){return false;}
+
 
          if (touch_in == document.getElementById('hamburger-menu')){return false;}
 
@@ -1039,6 +1066,7 @@ function noticeOrder(s) {
                initialy = yoff;
             }
             activate_button_container();
+            activate_label_container();
          }
          if (e.touches.length == 2){
             initialzoom = zoom;
@@ -1082,6 +1110,7 @@ function noticeOrder(s) {
           doanim();
         }
          activate_button_container();
+         activate_label_container();
       });
 
       document.addEventListener('touchmove', function (event) {
@@ -1093,6 +1122,7 @@ function noticeOrder(s) {
          
          if (check_touch_target(e.target)){
             activate_button_container();
+            activate_label_container();
             e.preventDefault();
             isDragging = true;
             touchStartX = e.clientX;
@@ -1118,6 +1148,7 @@ function noticeOrder(s) {
           doanim(1);
          }
          activate_button_container();
+         activate_label_container();
       });
 
       window.onload = start;
@@ -1286,6 +1317,25 @@ var cr = [[], [], [], [],
         transition: opacity 0.8s;
         display: none;
       }
+
+      .label_container {
+        width: 200px;
+        height: 60px;
+        background-color: #000000;
+        color: #fff;
+        position: fixed;
+        bottom: 8px;
+        left: 8px;
+        border-radius: 20px;
+        opacity: 1;
+        transition: opacity 0.8s;
+        display:flex;
+        font-size: 20px;
+        justify-content: center;
+        align-items: center;
+      }
+
+
       .slide_box {
         width: 587px;
         height: 60px;
@@ -1356,13 +1406,13 @@ var cr = [[], [], [], [],
 
     <div id="menu">
 		<ul>
-		  <li onclick="activate_hamburger_menu(), activate_button_container(), downloadimage()">Download image</li>
-		  <li onclick="activate_hamburger_menu(), activate_button_container(), criticalsnap()">Snap to critical radius</li>
-		  <li onclick="activate_hamburger_menu(), activate_button_container(), recolor(true)">Change color style</li>
-		  <li onclick="activate_hamburger_menu(), activate_button_container(), doanim()">Email image (tbd)</li>
+		  <li onclick="activate_hamburger_menu(), activate_button_container(), activate_label_container(), downloadimage()">Download image</li>
+		  <li onclick="activate_hamburger_menu(), activate_button_container(), activate_label_container(), criticalsnap()">Snap to critical radius</li>
+		  <li onclick="activate_hamburger_menu(), activate_button_container(), activate_label_container(), recolor(true)">Change color style</li>
+		  <li onclick="activate_hamburger_menu(), activate_button_container(), activate_label_container(), doanim()">Email image (tbd)</li>
 <!-- <li onclick="toggle_scale(), activate_hamburger_menu(), activate_button_container() ,doanim()">Toggle hires scale</li> -->
-		  <li onclick="toggle_pttype(), activate_hamburger_menu(), activate_button_container() ,doanim()">Toggle point style</li>
-		  <li onclick="toggle_rotype(), activate_hamburger_menu(), activate_button_container() ,doanim()">Toggle rotation style</li>
+		  <li onclick="toggle_pttype(), activate_hamburger_menu(), activate_button_container(), activate_label_container(), doanim()">Toggle point style</li>
+		  <li onclick="toggle_rotype(), activate_hamburger_menu(), activate_button_container(), activate_label_container(), doanim()">Toggle rotation style</li>
 		  <li>. . .</li>
 		</ul>
 	  </div>
@@ -1389,6 +1439,10 @@ var cr = [[], [], [], [],
       <option>20</option>
     </datalist>
 
+    <div class="label_container" id="labelcontainer1">
+         Test
+    </div>
+
     <div class="button-container" id="button_container1">
       <button class="button" id="button1" onclick="onlySlider(1)" style="color: #000000; background-color: #e3e3e3;">R<sub>1</sub></button>
       <div class="slide_box" id="slide_box1"   style="display: block;">
@@ -1399,7 +1453,7 @@ var cr = [[], [], [], [],
           min="200"
           max="1500"
           value="400"
-          oninput="activate_button_container(), doanim()"
+          oninput="activate_button_container(),  activate_label_container(), doanim()"
         />
       </div>
 
@@ -1414,7 +1468,7 @@ var cr = [[], [], [], [],
           max="1500"
           value="400"
           on
-          oninput="activate_button_container(), document.getElementById('range1').value = this.value,document.getElementById('range3').value = this.value ,doanim()"
+          oninput="activate_button_container(),  activate_label_container(), document.getElementById('range1').value = this.value,document.getElementById('range3').value = this.value ,doanim()"
         />
       </div>
 
@@ -1427,7 +1481,7 @@ var cr = [[], [], [], [],
           min="200"
           max="1500"
           value="400"
-          oninput="activate_button_container(), doanim()"
+          oninput="activate_button_container(),  activate_label_container(), doanim()"
         />
       </div>
 
@@ -1441,7 +1495,7 @@ var cr = [[], [], [], [],
           step="1"
           id="range2"
           class="slider"
-          oninput="activate_button_container(), updateValue('dl1', this.value), flash_n_value(), doanim()"
+          oninput="activate_button_container(),  activate_label_container(), updateValue('dl1', this.value), flash_n_value(), doanim()"
           list="steplist"
         />
       </div>
@@ -1456,7 +1510,7 @@ var cr = [[], [], [], [],
           step="1"
           id="range5"
           class="slider"
-          oninput="activate_button_container(), updateValue('dl1', this.value), flash_n_value(), document.getElementById('range2').value = this.value,document.getElementById('range4').value = this.value, doanim()"
+          oninput="activate_button_container(),  activate_label_container(), updateValue('dl1', this.value), flash_n_value(), document.getElementById('range2').value = this.value,document.getElementById('range4').value = this.value, doanim()"
           list="steplist"
         />
       </div>
@@ -1472,7 +1526,7 @@ var cr = [[], [], [], [],
           step="1"
           id="range4"
           class="slider"
-          oninput="activate_button_container(), updateValue('dl1', this.value), flash_n_value(), doanim()"
+          oninput="activate_button_container(),  activate_label_container(), updateValue('dl1', this.value), flash_n_value(), doanim()"
           list="steplist"
         />
       </div>
