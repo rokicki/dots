@@ -804,22 +804,22 @@ function noticeOrder(s) {
         var bc1 = document.getElementById("button_container1");
         var lc1 = document.getElementById("labelcontainer1");
         var lc2 = document.getElementById("labelcontainer2");
-
         var keb = document.getElementById("kebab");
         bc1.style.display = "block";
         lc1.style.display = "flex";
         lc2.style.display = "flex";
         keb.style.display = "flex";
-
-        if (timer) {
+         
+         if (timer) {
           clearTimeout(timer);
-        }
-        
-        timer = setTimeout(function () {
+         }
+
+         timer = setTimeout(function () {
          bc1.style.opacity = "0";
          lc1.style.opacity = "0";
          lc2.style.opacity = "0";
          keb.style.opacity = "0";
+         
           setTimeout(function () {
             bc1.style.opacity = "1";
             bc1.style.display = "none";
@@ -829,13 +829,11 @@ function noticeOrder(s) {
             lc2.style.display = "none";
             keb.style.opacity = "1";
             keb.style.display = "none";
-          }, 500); 
+          }, 500);
         }, 3500);
       }
-
-
-
       
+
 
       var label_timer;
       function updateGroupLabel() {
@@ -1062,7 +1060,7 @@ function noticeOrder(s) {
       /* touch controls for mobile*/
       var isDragging = false;
       var ispinching = false;
-      var touchStartX, touchStartY, initialx, initialy, initialdist, initialzoom, clickx, clicky;
+      var touchStartX, touchStartY, initialx, initialy, initialdist, initialzoom;
 
       document.addEventListener('touchstart', function(e) {
          if (e.touches.length == 1){
@@ -1115,7 +1113,6 @@ function noticeOrder(s) {
 
       /* pan control for desktop*/
       document.addEventListener('mousedown', function(e) {
-         
          if (check_touch_target(e.target)){
             e.preventDefault();
             isDragging = true;
@@ -1144,7 +1141,6 @@ function noticeOrder(s) {
         }
         activate_ui();
       });
-
       window.onload = start;
 // critical radius data
 var cr = [[], [], [], [],
