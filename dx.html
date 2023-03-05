@@ -800,21 +800,31 @@ function noticeOrder(s) {
     // document.getElementById("order").innerText = s;
 }
       var timer;
-      var ntimer;
-      function activate_button_container() {
-        var box = document.getElementById("button_container1");
-        box.style.display = "block";
+      function activate_ui() {
+        var bc1 = document.getElementById("button_container1");
+        var lc1 = document.getElementById("labelcontainer1");
+        bc1.style.display = "block";
+        lc1.style.display = "flex";
         if (timer) {
           clearTimeout(timer);
         }
         timer = setTimeout(function () {
-          box.style.opacity = "0";
+         bc1.style.opacity = "0";
+         lc1.style.opacity = "0";
           setTimeout(function () {
-            box.style.opacity = "1";
-            box.style.display = "none";
+            bc1.style.opacity = "1";
+            bc1.style.display = "none";
+            lc1.style.opacity = "1";
+            lc1.style.display = "none";
+
           }, 500); 
         }, 3500);
       }
+
+
+
+      
+
       var label_timer;
       function updateGroupLabel() {
          var box = document.getElementById("labelcontainer1");
@@ -826,20 +836,6 @@ function noticeOrder(s) {
 
          var text = 'GG' + gg_sub + '(' + art + ', ' + brt + ')';
          updateValue("labelcontainer1", text);
-      }
-      function activate_label_container() {
-         var box = document.getElementById("labelcontainer1");
-         box.style.display = "flex";
-         if (label_timer) {
-            clearTimeout(label_timer);
-         }
-         label_timer = setTimeout(function () {
-          box.style.opacity = "0";
-          setTimeout(function () {
-            box.style.opacity = "1";
-            box.style.display = "none";
-          }, 500); 
-        }, 3500);
       }
 
       var hamburger_timer;
@@ -1075,8 +1071,7 @@ function noticeOrder(s) {
                initialx = xoff;
                initialy = yoff;
             }
-            activate_button_container();
-            activate_label_container();
+            activate_ui();
          }
          if (e.touches.length == 2){
             initialzoom = zoom;
@@ -1114,13 +1109,10 @@ function noticeOrder(s) {
             if (zoom < 0.5) {
                zoom = 0.5 ;
             }
-         
-
 
           doanim();
         }
-         activate_button_container();
-         activate_label_container();
+        activate_ui();
       });
 
       document.addEventListener('touchmove', function (event) {
@@ -1131,8 +1123,7 @@ function noticeOrder(s) {
       document.addEventListener('mousedown', function(e) {
          
          if (check_touch_target(e.target)){
-            activate_button_container();
-            activate_label_container();
+            activate_ui();
             e.preventDefault();
             isDragging = true;
             touchStartX = e.clientX;
@@ -1157,8 +1148,7 @@ function noticeOrder(s) {
           yoff = touchY/zoom + initialy;
           doanim(1);
          }
-         activate_button_container();
-         activate_label_container();
+         activate_ui();
       });
 
       window.onload = start;
@@ -1416,14 +1406,14 @@ var cr = [[], [], [], [],
 
     <div id="menu">
 		<ul>
-		  <li onclick="activate_hamburger_menu(), activate_button_container(), activate_label_container(), togglefullscreen()">Fullscreen</li>
-		  <li onclick="activate_hamburger_menu(), activate_button_container(), activate_label_container(), downloadimage()">Download image</li>
-		  <li onclick="activate_hamburger_menu(), activate_button_container(), activate_label_container(), criticalsnap()">Snap to critical radius</li>
-		  <li onclick="activate_hamburger_menu(), activate_button_container(), activate_label_container(), recolor(false)">Change color style</li>
-		  <li onclick="activate_hamburger_menu(), activate_button_container(), activate_label_container(), doanim()">Email image (tbd)</li>
+		  <li onclick="activate_hamburger_menu(), activate_ui(), togglefullscreen()">Fullscreen</li>
+		  <li onclick="activate_hamburger_menu(), activate_ui(), downloadimage()">Download image</li>
+		  <li onclick="activate_hamburger_menu(), activate_ui(), criticalsnap()">Snap to critical radius</li>
+		  <li onclick="activate_hamburger_menu(), activate_ui(), recolor(false)">Change color style</li>
+		  <li onclick="activate_hamburger_menu(), activate_ui(), doanim()">Email image (tbd)</li>
 <!-- <li onclick="toggle_scale(), activate_hamburger_menu(), activate_button_container() ,doanim()">Toggle hires scale</li> -->
-		  <li onclick="toggle_pttype(), activate_hamburger_menu(), activate_button_container(), activate_label_container(), doanim()">Toggle point style</li>
-		  <li onclick="toggle_rotype(), activate_hamburger_menu(), activate_button_container(), activate_label_container(), doanim()">Toggle rotation style</li>
+		  <li onclick="toggle_pttype(), activate_hamburger_menu(), activate_ui(), doanim()">Toggle point style</li>
+		  <li onclick="toggle_rotype(), activate_hamburger_menu(), activate_ui(), doanim()">Toggle rotation style</li>
 		  <li>. . .</li>
 		</ul>
 	  </div>
@@ -1462,7 +1452,7 @@ var cr = [[], [], [], [],
           min="200"
           max="1500"
           value="400"
-          oninput="activate_button_container(),  activate_label_container(), doanim()"
+          oninput="activate_ui(), doanim()"
         />
       </div>
 
@@ -1477,7 +1467,7 @@ var cr = [[], [], [], [],
           max="1500"
           value="400"
           on
-          oninput="activate_button_container(),  activate_label_container(), document.getElementById('range1').value = this.value,document.getElementById('range3').value = this.value ,doanim()"
+          oninput="activate_ui(), document.getElementById('range1').value = this.value,document.getElementById('range3').value = this.value ,doanim()"
         />
       </div>
 
@@ -1490,7 +1480,7 @@ var cr = [[], [], [], [],
           min="200"
           max="1500"
           value="400"
-          oninput="activate_button_container(),  activate_label_container(), doanim()"
+          oninput="activate_ui(), doanim()"
         />
       </div>
 
@@ -1504,7 +1494,7 @@ var cr = [[], [], [], [],
           step="1"
           id="range2"
           class="slider"
-          oninput="activate_button_container(),  activate_label_container(), doanim()"
+          oninput="activate_ui(), doanim()"
           list="steplist"
         />
       </div>
@@ -1519,7 +1509,7 @@ var cr = [[], [], [], [],
           step="1"
           id="range5"
           class="slider"
-          oninput="activate_button_container(),  activate_label_container(), document.getElementById('range2').value = this.value,document.getElementById('range4').value = this.value, doanim()"
+          oninput="activate_ui(), document.getElementById('range2').value = this.value,document.getElementById('range4').value = this.value, doanim()"
           list="steplist"
         />
       </div>
@@ -1535,7 +1525,7 @@ var cr = [[], [], [], [],
           step="1"
           id="range4"
           class="slider"
-          oninput="activate_button_container(),  activate_label_container(), doanim()"
+          oninput="activate_ui(), doanim()"
           list="steplist"
         />
       </div>
