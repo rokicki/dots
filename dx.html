@@ -117,6 +117,13 @@ function checkRendered(width, height) {
          rbm[i] = 0 ;
       }
    }
+   // set all the bits off the bitmap, if necessary.
+   if ((width & 31) != 0) {
+      var leftbits = ((1 << (width & 31)) - 1) & 0x7fffffff ;
+      for (var i=intwidth-1; i<needed; i += intwidth) {
+         rbm[i] = leftbits ;
+      }
+   }
 }
 var xcent = 0, calch, calcw, firstpts ;
 // typ is undefined or 0 (don't rescale, not a pan), 1 (pan), 2 (rescale)
