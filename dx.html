@@ -803,9 +803,12 @@ function noticeOrder(s) {
       function activate_ui() {
         var bc1 = document.getElementById("button_container1");
         var lc1 = document.getElementById("labelcontainer1");
+        var lc2 = document.getElementById("labelcontainer2");
+
         var keb = document.getElementById("kebab");
         bc1.style.display = "block";
         lc1.style.display = "flex";
+        lc2.style.display = "flex";
         keb.style.display = "flex";
 
         if (timer) {
@@ -815,12 +818,15 @@ function noticeOrder(s) {
         timer = setTimeout(function () {
          bc1.style.opacity = "0";
          lc1.style.opacity = "0";
+         lc2.style.opacity = "0";
          keb.style.opacity = "0";
           setTimeout(function () {
             bc1.style.opacity = "1";
             bc1.style.display = "none";
             lc1.style.opacity = "1";
             lc1.style.display = "none";
+            lc2.style.opacity = "1";
+            lc2.style.display = "none";
             keb.style.opacity = "1";
             keb.style.display = "none";
           }, 500); 
@@ -1228,6 +1234,16 @@ var cr = [[], [], [], [],
     1.0881760988,1.0848948368,1.0797029916,1.0762450378,1.0721955568,
     1.0690911266,1.0661148543,1.0635689719,1.0613212070],
  ];
+
+ function update_rot_label(){
+   if (dofull){
+      updateValue('labelcontainer2', 'Full cs group')
+   }
+   else{
+      updateValue('labelcontainer2', "gen = a b'")
+   }
+
+ }
 </script>
     <style>
 
@@ -1278,6 +1294,7 @@ var cr = [[], [], [], [],
         opacity: 1;
         transition: opacity 0.8s;
       }
+
       #menu ul {
         list-style: none;
         margin: 0;
@@ -1327,17 +1344,17 @@ var cr = [[], [], [], [],
       }
 
       .label_container {
-        width: 180px;
-        height: 50px;
+        width: 220px;
+        height: 66px;
         color: #fff;
         position: fixed;
         bottom: 8px;
         left: 8px;
-        border-radius: 25px;
+        border-radius: 35px;
         opacity: 1;
         transition: opacity 0.8s;
         display:none;
-        font-size: 20px;
+        font-size: 24px;
         justify-content: center;
         align-items: center;
         background-color: #000000;
@@ -1377,8 +1394,6 @@ var cr = [[], [], [], [],
         width: 50px;
         border-radius: 25px;
       }
-
-
       .disc_label {
         width: 70px;
         height: 70px;
@@ -1421,7 +1436,7 @@ var cr = [[], [], [], [],
 		  <li onclick="activate_hamburger_menu(), activate_ui(), doanim()">Email image (tbd)</li>
 <!-- <li onclick="toggle_scale(), activate_hamburger_menu(), activate_button_container() ,doanim()">Toggle hires scale</li> -->
 		  <li onclick="toggle_pttype(), activate_hamburger_menu(), activate_ui(), doanim()">Toggle point style</li>
-		  <li onclick="toggle_rotype(), activate_hamburger_menu(), activate_ui(), doanim()">Toggle rotation style</li>
+		  <li onclick="toggle_rotype(), update_rot_label(), activate_hamburger_menu(), activate_ui(), doanim()">Toggle rotation style</li>
 		  <li>. . .</li>
 		</ul>
 	  </div>
@@ -1449,6 +1464,8 @@ var cr = [[], [], [], [],
     </datalist>
 
     <div class="label_container" id="labelcontainer1"></div>
+    <div class="label_container" id="labelcontainer2" style="bottom: 87px;">full generator</div>
+
 
     <div class="button-container" id="button_container1">
       <button class="button" id="button1" onclick="onlySlider(1)" style="color: #000000; background-color: #e3e3e3;">R<sub>1</sub></button>
