@@ -28,7 +28,7 @@ var pttype = 1 ;
 /*
  *   Internal rendering parameters.
  */
-var hilop = 0;
+var x0=0, y0=0 ;
 var canvas, ctx;
 var deepest = 0;
 var renderlim = 300;
@@ -119,12 +119,13 @@ function checkRendered(width, height) {
    }
    // set all the bits off the bitmap, if necessary.
    if ((width & 31) != 0) {
-      var leftbits = ((1 << (width & 31)) - 1) & 0x7fffffff ;
+      var rightbits = (-1) << (width & 31) ;
       for (var i=intwidth-1; i<needed; i += intwidth) {
-         rbm[i] = leftbits ;
+         rbm[i] = rightbits ;
       }
    }
 }
+var gat = 0;
 var xcent = 0, calch, calcw, firstpts ;
 // typ is undefined or 0 (don't rescale, not a pan), 1 (pan), 2 (rescale)
 // 0 and 2 redraw from scratch (clear); 1 copies what was there.
@@ -171,7 +172,7 @@ function doanim(typ) {
     drawcirc(ctx, bx, by, br * sc);
     deepest = 0;
     renderlim = 300;
-    hilop = 0;
+    gat = 0;
     curthink = 1000 * 60 ;
     state = 0;
     setmax = false;
@@ -253,7 +254,7 @@ function dd(pp, i, j) {
    return dx * dx + dy * dy ;
 }
 function drawrbmcirc(x, y, r) {
-   var rr = Math.floor(Math.max(0, r)); // be conservative
+   var rr = Math.floor(Math.max(0, r-1)); // be conservative
    for (var yy=Math.max(0, y-rr); yy<Math.min(height, y+rr+1); yy++) {
       var xd = Math.floor(Math.sqrt(rr*rr-(yy-y)*(yy-y)));
       var xx = Math.max(0, x-xd);
@@ -318,10 +319,28 @@ function define_color(){
    }
    pallete[ord] = "rgb(" + cr + "," + cg + "," + cb + ")";
 }
+// find a pixel on the screen that's not rendered yet
+function findunsetbit() {
+   while (true) {
+      var off = gat;
+      gat = (gat + 10007) % (intwidth32 * height);
+      if (gat == 0) {
+         stopped = true;
+         console.log("Done");
+         return false;
+      }
+      if (0 == (rbm[off >> 5] & (1 << (off & 31)))) {
+         rbm[off >> 5] |= (1<<(off & 31));
+         y0 = Math.floor(off / intwidth32);
+         x0 = off % intwidth32;
+         return true;
+      }
+   }
+}
 function doworkfull() {
     var x, y;
     var start = performance.now();
-    if (start > stoptime) {
+    if (start > stoptime || stopped) {
         stopped = true;
     } else {
         requestAnimationFrame(dowork);
@@ -333,8 +352,9 @@ function doworkfull() {
                     return;
                 }
                 if (pttype == 1) {
-                   var x0 = Math.floor(width * Math.random()) ;
-                   var y0 = Math.floor(height * Math.random()) ;
+                   if (!findunsetbit()) {
+                      return ;
+                   }
                    if (firstpts > 1) {
                       x = (x0 - ax) / sc ;
                       y = (y0 - ay) / sc ;
@@ -344,11 +364,7 @@ function doworkfull() {
                       firstpts++ ;
                    }
                    var off = y0 * intwidth32 + x0;
-                   if ((rbm[off>>5] >> (off&31)) & 1) {
-                      continue ;
-                   }
                    if (Math.hypot(x, y) >= ar && Math.hypot(x-sep, y) >= br) {
-                      rbm[off>>5] |= 1<<(off&31);
                       continue ;
                    }
                 } else if (pttype == 2) {
@@ -535,8 +551,8 @@ function doworkfull() {
                     if ((ii & 8191) == 0 && performance.now() - start > timelim) {
                         return;
                     }
-                    y = (p[ii] * sc + ay) | 0 ;
-                    x = (p[ii+1] * sc + abx) | 0 ;
+                    y = (p[ii] * sc + ay + 0.5) | 0 ;
+                    x = (p[ii+1] * sc + abx + 0.5) | 0 ;
                     if (y >= 0 && y < height && x >= 0 && x < width) {
                        var off = y * intwidth32 + x ;
                        rbm[off>>5] |= 1<<(off&31);
@@ -548,8 +564,8 @@ function doworkfull() {
                     if ((ii & 8191) == 0 && performance.now() - start > timelim) {
                         return;
                     }
-                    y = (p[ii] * sc + ay) | 0 ;
-                    x = (p[ii+1] * sc + abx) | 0 ;
+                    y = (p[ii] * sc + ay + 0.5) | 0 ;
+                    x = (p[ii+1] * sc + abx + 0.5) | 0 ;
                     drawrbmcirc(x, y, mindist-circeps) ;
                 }
             }
@@ -560,7 +576,7 @@ function doworkfull() {
 function doworkgen() {
     var x, y;
     var start = performance.now();
-    if (start > stoptime) {
+    if (start > stoptime || stopped) {
         stopped = true;
     } else {
         requestAnimationFrame(dowork);
@@ -572,8 +588,9 @@ function doworkgen() {
                     return;
                 }
                 if (pttype == 1) {
-                   var x0 = Math.floor(width * Math.random()) ;
-                   var y0 = Math.floor(height * Math.random()) ;
+                   if (!findunsetbit()) {
+                      return ;
+                   }
                    if (firstpts > 1) {
                       x = (x0 - ax) / sc ;
                       y = (y0 - ay) / sc ;
@@ -583,11 +600,7 @@ function doworkgen() {
                       firstpts++ ;
                    }
                    var off = y0 * intwidth32 + x0;
-                   if ((rbm[off>>5] >> (off&31)) & 1) {
-                      continue ;
-                   } 
                    if (Math.hypot(x, y) >= ar && Math.hypot(x-sep, y) >= br) {
-                      rbm[off>>5] |= 1<<(off&31);
                       continue ;
                    }
                 } else if (pttype == 2) {
@@ -709,8 +722,8 @@ function doworkgen() {
                     if ((ii & 8191) == 0 && performance.now() - start > timelim) {
                         return;
                     }
-                    y = p[ii+1] | 0 ;
-                    x = p[ii] | 0 ;
+                    y = (p[ii+1] + 0.5) | 0 ;
+                    x = (p[ii] + 0.5) | 0 ;
                     if (y >= 0 && y < height && x >= 0 && x < width) {
                        var off = y * intwidth32 + x ;
                        rbm[off>>5] |= 1<<(off&31);
@@ -722,8 +735,8 @@ function doworkgen() {
                     if ((ii & 8191) == 0 && performance.now() - start > timelim) {
                         return;
                     }
-                    y = p[ii+1] | 0 ;
-                    x = p[ii] | 0 ;
+                    y = (p[ii+1] + 0.5) | 0 ;
+                    x = (p[ii] + 0.5) | 0 ;
                     drawrbmcirc(x, y, mindist-circeps);
                 }
             }
