@@ -98,30 +98,113 @@ function drawcirc(ctx, x, y, r) {
    ctx.stroke();
 }
 var rbm, intwidth, intwidth32 ;
-function shiftRendered(width, height, dx, dy) {
-   if (dx == 0 && dy == 0)
-      return ;
-   var needed = intwidth * height ;
-   if (dy < 0 || (dy == 0 && dx < 0)) { // go forward
-      for (var y=0; y<height+dy; y++) {
-         if ((dx & 31) == 0) {
-            
-         } else {
-         }
-      }
-      for (var i=(height+dy) * intwidth; i<needed; i++) {
-         rbm[i] = 0 ;
-      }
-   } else { // go backwards
-      for (var y=height-1; y>=dy; y--) {
-         if ((dx & 31) == 0) {
-         } else {
-         }
-      }
-      for (var i=0; i<dy*intwidth; i++) {
-         rbm[i] = 0 ;
+function saybitcount() {
+   var needed = intwidth * height;
+   var bc = 0 ;
+   for (var i=0; i<needed; i++) {
+      var w = rbm[i];
+      if (w == 0) {
+      } else if (w == 0xffffffff) {
+         bc += 32 ;
+      } else {
+         w = (w & 0x55555555) + ((w >> 1) & 0x55555555) ;
+         w = (w & 0x33333333) + ((w >> 2) & 0x33333333) ;
+         w = (w & 0x0f0f0f0f) + ((w >> 4) & 0x0f0f0f0f) ;
+         bc += (w + (w >> 8) + (w >> 16) + (w >> 24)) & 0xff ;
       }
    }
+   console.log(bc);
+}
+function shiftRendered(width, height, dx, dy) {
+   if (dx === 0 && dy === 0)
+      return ;
+   var needed = intwidth * height ;
+// saybitcount();
+   var totshift = dx + dy * intwidth32 ;
+   // shift whole map by this
+   if ((totshift & 31) == 0) { // word shift
+      totshift >>= 5 ;
+      if (totshift < 0) { // go forward
+         for (var i=0; i<needed+totshift; i++) {
+            rbm[i] = rbm[i-totshift] ;
+         }
+         for (var i=needed+totshift; i<needed; i++) {
+            rbm[i] = 0 ;
+         }
+      } else { // go backwards
+         for (var i=needed-1; i>=totshift; i--) {
+            rbm[i] = rbm[i-totshift] ;
+         }
+         for (var i=totshift-1; i>=0; i--) {
+            rbm[i] = 0 ;
+         }
+      }
+   } else {
+      var totw = totshift >> 5 ;
+      var sh = totshift & 31 ;
+      var shmask = ~(-1 << sh) ;
+      if (totshift < 0) {
+         for (var i=0; i<needed+totw; i++) {
+            rbm[i] = (rbm[i-totw] << sh) +
+                     ((rbm[i-totw-1] >> (32 - sh)) & shmask) ;
+         }
+         rbm[needed+totw] = (rbm[needed-1] >> (32 - sh)) & shmask ;
+         for (var i=needed+totw+1; i<needed; i++) {
+            rbm[i] = 0 ;
+         }
+      } else {
+         for (var i=needed-1; i>totw; i--) {
+            rbm[i] = (rbm[i-totw] << sh) +
+                     ((rbm[i-totw-1] >> (32 - sh)) & shmask) ;
+         }
+         rbm[totw] = rbm[0] << sh ;
+         for (var i=totw-1; i>=0; i--) {
+            rbm[i] = 0 ;
+         }
+      }
+   }
+   // if we moved right wrt x, clear relevant left columns
+   if (dx > 0) {
+      if (dx >= 32) {
+         for (var y=0; y<height; y++) {
+            for (var i=0; 32*(i+1)<=dx; i++) {
+               rbm[y*intwidth+i] = 0 ;
+            }
+         }
+      }
+      if (dx & 31) { // clear specific columns
+         var x = dx >> 5 ;
+         var mask = (-1 << (dx & 31)) ;
+         for (var y=0; y<height; y++) {
+            rbm[y*intwidth+x] &= mask ;
+         }
+      }
+   // if we moved left wrt x, clear relevant right columns
+   } else if (dx < 0) {
+      dx -= (intwidth32 - width) ;
+      if (dx <= -32) {
+         for (var y=0; y<height; y++) {
+            for (var i=intwidth-1; 32*(i+1)>=intwidth32+dx; i--) {
+               rbm[y*intwidth+i] = 0 ;
+            }
+         }
+      }
+      if (dx & 31) { // clear specific columns
+         var x = (intwidth32 + dx) >> 5 ;
+         var mask = ~(-1 << (dx & 31)) ;
+         for (var y=0; y<height; y++) {
+            rbm[y*intwidth+x] &= mask ;
+         }
+      }
+   }
+   // set all the bits off the bitmap, if necessary.
+   if ((width & 31) != 0) {
+      var rightbits = (-1) << (width & 31) ;
+      for (var i=intwidth-1; i<needed; i += intwidth) {
+         rbm[i] |= rightbits ;
+      }
+   }
+// saybitcount();
 }
 function checkRendered(width, height) {
    intwidth = (width + 31) >> 5 ;
@@ -177,8 +260,9 @@ function doanim(typ) {
        ctx.globalCompositeOperation = "copy";
        ctx.drawImage(ctx.canvas, ax-oax, ay-oay, width, height);
        ctx.globalCompositeOperation = "source-over";
-       //shiftRendered(width, height, ax-oax, ay-oay) ;
-       checkRendered(width, height) ;
+       shiftRendered(width, height, ax-oax, ay-oay) ;
+       //ctx.clearRect(0, 0, canvas.width, canvas.height); // debug
+       //checkRendered(width, height) ;
        //ctx.setTransform(otrans);
        //ctx.clearRect(0, 0, canvas.width, canvas.height);
     } else {
