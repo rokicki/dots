@@ -254,7 +254,7 @@ function dd(pp, i, j) {
    return dx * dx + dy * dy ;
 }
 function drawrbmcirc(x, y, r) {
-   var rr = Math.floor(Math.max(0, r-1)); // be conservative
+   var rr = Math.floor(Math.max(0, r-0.2)); // be conservative
    for (var yy=Math.max(0, y-rr); yy<Math.min(height, y+rr+1); yy++) {
       var xd = Math.floor(Math.sqrt(rr*rr-(yy-y)*(yy-y)));
       var xx = Math.max(0, x-xd);
