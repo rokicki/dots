@@ -803,19 +803,26 @@ function noticeOrder(s) {
       function activate_ui() {
         var bc1 = document.getElementById("button_container1");
         var lc1 = document.getElementById("labelcontainer1");
+        var keb = document.getElementById("kebab");
         bc1.style.display = "block";
         lc1.style.display = "flex";
+        keb.style.display = "flex";
+
         if (timer) {
           clearTimeout(timer);
         }
+        
         timer = setTimeout(function () {
          bc1.style.opacity = "0";
          lc1.style.opacity = "0";
+         keb.style.opacity = "0";
           setTimeout(function () {
             bc1.style.opacity = "1";
             bc1.style.display = "none";
             lc1.style.opacity = "1";
             lc1.style.display = "none";
+            keb.style.opacity = "1";
+            keb.style.display = "none";
           }, 500); 
         }, 3500);
       }
@@ -944,13 +951,6 @@ function noticeOrder(s) {
       function start() {
          canvas = document.getElementById("canvas");
          ctx = canvas.getContext("2d");
-         var hamburgerMenu = document.getElementById("kebab");
-         var menu = document.getElementById("menu");
-
-         /* Bug with first touch on iPad --Switch to button?-- */
-         hamburgerMenu.addEventListener("click", function () {activate_hamburger_menu(); });
-         window.addEventListener("resize", function(){doanim(0);});
-         window.addEventListener("orientationchange", function(){doanim(0);});
 
          addEvent(window, "keydown", keypress);
          addEvent(window, "keypress", keypress);
@@ -1120,16 +1120,22 @@ function noticeOrder(s) {
 
       /* pan control for desktop*/
       document.addEventListener('mousedown', function(e) {
-         
-         if (check_touch_target(e.target)){
-            activate_ui();
-            e.preventDefault();
-            isDragging = true;
-            touchStartX = e.clientX;
-            touchStartY = e.clientY;
-            initialx = xoff;
-            initialy = yoff;
+         keb = document.getElementById('kebab');
+         if (e.target == keb){
+            activate_hamburger_menu();
          }
+         else{
+            if (check_touch_target(e.target)){
+               activate_ui();
+               e.preventDefault();
+               isDragging = true;
+               touchStartX = e.clientX;
+               touchStartY = e.clientY;
+               initialx = xoff;
+               initialy = yoff;
+            }
+         }
+         
       });
 
       document.addEventListener('mouseup', function(e) {
@@ -1234,20 +1240,20 @@ var cr = [[], [], [], [],
          background-color: rgb(255,255,255);
       }
 
-      /* Hamburger menu button*/
-
       #kebab {
         position: fixed;
         bottom: 20px;
         right: 20px;
         width: 50px;
         height: 50px;
-        background-color: #333;
+        background-color: #000000;
+        border: 2px solid #4e4e4e;
         border-radius: 50%;
-        display: flex;
+        display: none;
         flex-direction: column;
         justify-content: center;
         align-items: center;
+
       }
       #kebab span {
         display: block;
@@ -1262,7 +1268,8 @@ var cr = [[], [], [], [],
         bottom: 80px;
         right: 20px;
         width: 190px;
-        background-color: #333;
+        background-color: #000000;
+        border: 2px solid #4e4e4e;
         color: #fff;
         border-radius: 5px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
@@ -1286,7 +1293,7 @@ var cr = [[], [], [], [],
         font: 1em sans-serif;
       }
       #menu li:hover {
-        background-color: #000000;
+        background-color: #636363;
         opacity: 1;
         transition: opacity 0.8s;
       }
@@ -1308,6 +1315,7 @@ var cr = [[], [], [], [],
         width: 587px;
         height: 80px;
         background-color: #000000;
+        border: 2px solid #4e4e4e;
         position: fixed;
         bottom: 8px;
         left: 50%;
@@ -1321,7 +1329,6 @@ var cr = [[], [], [], [],
       .label_container {
         width: 180px;
         height: 50px;
-        background-color: #000000;
         color: #fff;
         position: fixed;
         bottom: 8px;
@@ -1333,6 +1340,8 @@ var cr = [[], [], [], [],
         font-size: 20px;
         justify-content: center;
         align-items: center;
+        background-color: #000000;
+        border: 2px solid #4e4e4e;
       }
 
 
@@ -1397,11 +1406,11 @@ var cr = [[], [], [], [],
    
     <canvas id="canvas" width="80" height="80"></canvas>
 
-    <div id="kebab">
+    <button id="kebab" class="kebab" onclick="activate_hamburger_menu()">
       <span></span>
       <span></span>
       <span></span>
-    </div>
+    </button>
 
     <div id="menu">
 		<ul>
