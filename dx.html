@@ -30,6 +30,7 @@ var pttype = 1 ;
  */
 var x0=0, y0=0 ;
 var canvas, ctx;
+var fullscreen=false;
 var deepest = 0;
 var renderlim = 300;
 var useinfcolor = false;
@@ -63,6 +64,14 @@ function toggle_scale() {
 }
 function toggle_rotype() {
    dofull = !dofull
+}
+function togglefullscreen() {
+   if (fullscreen) {
+      document.exitFullscreen();
+   } else {
+      document.body.requestFullscreen();
+   }
+   fullscreen = !fullscreen;
 }
 function recolor(flip) {
    for (var i=0; i<3; i++) {
@@ -1233,6 +1242,7 @@ var cr = [[], [], [], [],
          overscroll-behavior: none;
          -webkit-overflow-scrolling: touch;
          touch-action: none;
+         background-color: rgb(255,255,255);
       }
 
       /* Hamburger menu button*/
@@ -1407,6 +1417,7 @@ var cr = [[], [], [], [],
 
     <div id="menu">
 		<ul>
+		  <li onclick="activate_hamburger_menu(), activate_button_container(), activate_label_container(), togglefullscreen()">Fullscreen</li>
 		  <li onclick="activate_hamburger_menu(), activate_button_container(), activate_label_container(), downloadimage()">Download image</li>
 		  <li onclick="activate_hamburger_menu(), activate_button_container(), activate_label_container(), criticalsnap()">Snap to critical radius</li>
 		  <li onclick="activate_hamburger_menu(), activate_button_container(), activate_label_container(), recolor(false)">Change color style</li>
