@@ -19,7 +19,7 @@ var yoff = 0 ;
 var obeyscale = 1 ; // obey hires
 var scale = 1 ;
 var color_type = true;
-var radiusscale = 450 ; // how much do we scale radius parameters by
+var radiusscale = 1 ; // how much do we scale radius parameters by
 /*
  *   User interface parameters.
  */
@@ -926,8 +926,8 @@ function noticeOrder(s) {
       }
       function getrr() {
          // these values are from the range sliders
-         return 200 + Math.floor(650 * Math.random()) +
-                      Math.floor(650 * Math.random());
+         return 0.5 + (1.5 * Math.random()) +
+                      (1.5 * Math.random());
       }
       function dorandom() {
          var n1 = 2 + Math.floor(18 * Math.random());
@@ -1457,9 +1457,10 @@ var cr = [[], [], [], [],
           type="range"
           class="slider"
           id="range1"
-          min="200"
-          max="1500"
-          value="400"
+          min="0.5"
+          max="3.5"
+          value="1"
+          step = "0.001"
           oninput="activate_ui(), doanim()"
         />
       </div>
@@ -1471,10 +1472,10 @@ var cr = [[], [], [], [],
           type="range"
           class="slider"
           id="range6"
-          min="200"
-          max="1500"
-          value="400"
-          on
+          min="0.5"
+          max="3.5"
+          value="1"
+          step = "0.001"
           oninput="activate_ui(), document.getElementById('range1').value = this.value,document.getElementById('range3').value = this.value ,doanim()"
         />
       </div>
@@ -1485,9 +1486,10 @@ var cr = [[], [], [], [],
           type="range"
           class="slider"
           id="range3"
-          min="200"
-          max="1500"
-          value="400"
+          min="0.5"
+          max="3.5"
+          value="1"
+          step = "0.001"
           oninput="activate_ui(), doanim()"
         />
       </div>
