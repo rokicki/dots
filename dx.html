@@ -67,9 +67,17 @@ function toggle_rotype() {
 }
 function togglefullscreen() {
    if (fullscreen) {
-      document.exitFullscreen();
+      if (document.webkitExitFullScreen) {
+         document.webkitExitFullscreen();
+      } else {
+         document.exitFullscreen();
+      }
    } else {
-      document.body.requestFullscreen();
+      if (document.body.webkitRequestFullScreen) {
+         document.body.webkitRequestFullscreen();
+      } else {
+         document.body.requestFullscreen();
+      }
    }
    fullscreen = !fullscreen;
 }
