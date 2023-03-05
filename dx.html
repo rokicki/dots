@@ -250,7 +250,7 @@ function drawrbmcirc(x, y, r) {
       var xx = Math.max(0, x-xd);
       var hix = Math.min(width, x+xd+1);
       while (xx < hix) {
-         var off = y * intwidth32 + x ;
+         var off = yy * intwidth32 + xx ;
          if (hix - xx >= 32 && (xx & 31) === 0) {
             rbm[off>>5] = 0xffffffff ;
             xx += 32;
@@ -265,8 +265,11 @@ function drawrbmcirc(x, y, r) {
 //    rbm[off>>5] |= 1<<(off&31);
 // }
    ctx.beginPath();
-   ctx.arc(x+0.5, y+0.5, mindist-circeps, 0, 2*Math.PI, false);
+   ctx.arc(x+0.5, y+0.5, r, 0, 2*Math.PI, false);
    ctx.fill();
+// ctx.beginPath();
+// ctx.arc(x+0.5, y+0.5, r, 0, 2*Math.PI, false);
+// ctx.stroke();
 }
 //
 //  Frontier-based BFS.
