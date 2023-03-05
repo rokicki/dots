@@ -1011,6 +1011,11 @@ function noticeOrder(s) {
          } else if (e.keyCode === ".".codePointAt(0)) {
             pttype = (pttype % 3) + 1 ;
             doanim() ;
+         } else if (e.keyCode === "c".codePointAt(0)) {
+            curthink = 15 * 60 * 1000;
+            stoptime = performance.now() + curthink;
+            stopped = false;
+            dowork();
          } else if (e.keyCode === "r".codePointAt(0)) {
             dorandom() ;
          } else if (e.keyCode === "!".codePointAt(0) ||
