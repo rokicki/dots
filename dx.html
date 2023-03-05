@@ -94,7 +94,7 @@ function recolor(flip) {
 }
 function drawcirc(ctx, x, y, r) {
    ctx.beginPath();
-   ctx.arc(x, y, r, 0, 2*Math.PI, false);
+   ctx.arc(Math.floor(x), Math.floor(y), r, 0, 2*Math.PI, false);
    ctx.stroke();
 }
 var rbm, intwidth, intwidth32 ;
