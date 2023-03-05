@@ -1030,25 +1030,25 @@ function noticeOrder(s) {
       } ;
 
       function check_touch_target(target_in){
-         // if (target_in == document.getElementById('range1')){return false;}
-         // if (target_in == document.getElementById('range2')){return false;}
-         // if (target_in == document.getElementById('range3')){return false;}
-         // if (target_in == document.getElementById('range4')){return false;}
-         // if (target_in == document.getElementById('range5')){return false;}
-         // if (target_in == document.getElementById('range6')){return false;}
+         if (target_in == document.getElementById('range1')){return false;}
+         if (target_in == document.getElementById('range2')){return false;}
+         if (target_in == document.getElementById('range3')){return false;}
+         if (target_in == document.getElementById('range4')){return false;}
+         if (target_in == document.getElementById('range5')){return false;}
+         if (target_in == document.getElementById('range6')){return false;}
 
 
-         // if (target_in == document.getElementById('kebab')){return false;}
+         if (target_in == document.getElementById('kebab')){return false;}
 
-         // if (target_in == document.getElementById('button1')){return false;}
-         // if (target_in == document.getElementById('button2')){return false;}
-         // if (target_in == document.getElementById('button3')){return false;}
-         // if (target_in == document.getElementById('button4')){return false;}
-         // if (target_in == document.getElementById('button5')){return false;}
-         // if (target_in == document.getElementById('button6')){return false;}
-         // if (target_in == document.getElementById('button7')){return false;}
+         if (target_in == document.getElementById('button1')){return false;}
+         if (target_in == document.getElementById('button2')){return false;}
+         if (target_in == document.getElementById('button3')){return false;}
+         if (target_in == document.getElementById('button4')){return false;}
+         if (target_in == document.getElementById('button5')){return false;}
+         if (target_in == document.getElementById('button6')){return false;}
+         if (target_in == document.getElementById('button7')){return false;}
 
-         // if (target_in == document.getElementById('button_container1')){return false;}
+         if (target_in == document.getElementById('button_container1')){return false;}
 
          return true;
       }
@@ -1065,9 +1065,9 @@ function noticeOrder(s) {
       var touchStartX, touchStartY, initialx, initialy, initialdist, initialzoom, clickx, clicky;
 
       document.addEventListener('touchstart', function(e) {
-         e.preventDefault();
          if (e.touches.length == 1){
             if (check_touch_target(e.target)){
+               e.preventDefault();
                isDragging = true;
                touchStartX = e.touches[0].clientX;
                touchStartY = e.touches[0].clientY;
@@ -1115,8 +1115,9 @@ function noticeOrder(s) {
 
       /* pan control for desktop*/
       document.addEventListener('mousedown', function(e) {
-         e.preventDefault();
+         
          if (check_touch_target(e.target)){
+            e.preventDefault();
             isDragging = true;
             touchStartX = e.clientX;
             touchStartY = e.clientY;
