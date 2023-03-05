@@ -786,6 +786,7 @@ function getUIParams() {
     bn = getvalue("range4");
     sep = 2;
     console.log("ar",ar,"br",br,"an",an,"bn",bn,"sep",sep,"zoom",zoom,"scale",scale,"width",width,"height",height,"scale",scale);
+    updateGroupLabel();
 }
 function noticeOrder(s) {
     // document.getElementById("order").innerText = s;
@@ -807,15 +808,15 @@ function noticeOrder(s) {
         }, 3500);
       }
       var label_timer;
-      function activate_label_container() {
+      function updateGroupLabel() {
          var box = document.getElementById("labelcontainer1");
-         var formatter = new Intl.NumberFormat('en-US', {minimumFractionDigits: 2})
-
-
          var gg_sub = "<sub>" + an + ', ' + bn + "</sub>";
          gg_sub = gg_sub.fontsize(3.5);
-         var text = 'GG' + gg_sub + '(' + formatter.format(Math.floor(ar*100)/100) + ', ' + formatter.format(Math.floor(br*100)/100) + ')';
+         var text = 'GG' + gg_sub + '(' + Math.floor(ar*1000)/1000 + ', ' + Math.floor(br*1000)/1000 + ')';
          updateValue("labelcontainer1", text);
+      }
+      function activate_label_container() {
+         var box = document.getElementById("labelcontainer1");
          box.style.display = "flex";
          if (label_timer) {
             clearTimeout(label_timer);
