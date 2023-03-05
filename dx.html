@@ -1046,6 +1046,16 @@ function noticeOrder(s) {
          if (target_in == document.getElementById('button6')){return false;}
          if (target_in == document.getElementById('button7')){return false;}
 
+         if (target_in == document.getElementById('menu')){return false;}
+
+         if (target_in == document.getElementById('mi1')){return false;}
+         if (target_in == document.getElementById('mi2')){return false;}
+         if (target_in == document.getElementById('mi3')){return false;}
+         if (target_in == document.getElementById('mi4')){return false;}
+         if (target_in == document.getElementById('mi5')){return false;}
+         if (target_in == document.getElementById('mi6')){return false;}
+
+
          if (target_in == document.getElementById('button_container1')){return false;}
 
          return true;
@@ -1408,15 +1418,14 @@ var cr = [[], [], [], [],
 
     <div id="menu">
 		<ul>
-		  <li onclick="activate_hamburger_menu(), activate_ui(), togglefullscreen()">Fullscreen</li>
-		  <li onclick="activate_hamburger_menu(), activate_ui(), downloadimage()">Download image</li>
-		  <li onclick="activate_hamburger_menu(), activate_ui(), criticalsnap()">Snap to critical radius</li>
-		  <li onclick="activate_hamburger_menu(), activate_ui(), recolor(false)">Change color style</li>
-		  <li onclick="activate_hamburger_menu(), activate_ui(), doanim()">Email image (tbd)</li>
-<!-- <li onclick="toggle_scale(), activate_hamburger_menu(), activate_button_container() ,doanim()">Toggle hires scale</li> -->
-		  <li onclick="toggle_pttype(), activate_hamburger_menu(), activate_ui(), doanim()">Toggle point style</li>
-		  <li onclick="toggle_rotype(), update_rot_label(), activate_hamburger_menu(), activate_ui(), doanim()">Toggle rotation style</li>
-		  <li>. . .</li>
+		  <li id="mi1" onclick="activate_hamburger_menu(), activate_ui(), togglefullscreen()">Fullscreen</li>
+		  <li id="mi2" onclick="activate_hamburger_menu(), activate_ui(), downloadimage()">Download image</li>
+		  <li id="mi3" onclick="activate_hamburger_menu(), activate_ui(), criticalsnap()">Snap to critical radius</li>
+		  <li id="mi4" onclick="activate_hamburger_menu(), activate_ui(), recolor(false)">Change color style</li>
+		  <!-- <li id="mi7" onclick="activate_hamburger_menu(), activate_ui(), doanim()">Email image (tbd)</li> -->
+        <!-- <li id="mi8" onclick="toggle_scale(), activate_hamburger_menu(), activate_button_container() ,doanim()">Toggle hires scale</li> -->
+		  <li id="mi5" onclick="toggle_pttype(), activate_hamburger_menu(), activate_ui(), doanim()">Toggle point style</li>
+		  <li id="mi6" onclick="toggle_rotype(), update_rot_label(), activate_hamburger_menu(), activate_ui(), doanim()">Toggle rotation style</li>
 		</ul>
 	  </div>
 
