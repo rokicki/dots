@@ -244,9 +244,9 @@ function dd(pp, i, j) {
    return dx * dx + dy * dy ;
 }
 function drawrbmcirc(x, y, r) {
-   var rr = Math.floor(r); // be conservative
+   var rr = Math.floor(Math.max(0, r)); // be conservative
    for (var yy=Math.max(0, y-rr); yy<Math.min(height, y+rr+1); yy++) {
-      var xd = Math.floor(Math.sqrt(r*r-(yy-y)*(yy-y)));
+      var xd = Math.floor(Math.sqrt(rr*rr-(yy-y)*(yy-y)));
       var xx = Math.max(0, x-xd);
       var hix = Math.min(width, x+xd+1);
       while (xx < hix) {
@@ -360,25 +360,6 @@ function doworkfull() {
                       var w = rbm[off>>5] ;
                       if (0 == ((w >> (off & 31)) & 1)) {
                          break ;
-                      } else {  // let's try to find a point in this word
-                         if (w != 0xffffffff) {
-                            var lobit = 0;
-                            while ((w & 0x3f) == 0x3f) {
-                               lobit += 6 ;
-                               w >>= 6 ;
-                            }
-                            while (w & 1) {
-                               lobit++ ;
-                               w >>= 1 ;
-                            }
-                            tx = (tx & 31) + lobit;
-                            if (tx < width) {
-                               x = (tx - ax) / sc ;
-                               if (Math.hypot(x, y) < ar || Math.hypot(x-sep, y) < br) {
-                                  break ;
-                               }
-                            }
-                         }
                       }
                    }
                 }
