@@ -820,7 +820,11 @@ function noticeOrder(s) {
          var box = document.getElementById("labelcontainer1");
          var gg_sub = "<sub>" + an + ', ' + bn + "</sub>";
          gg_sub = gg_sub.fontsize(3.5);
-         var text = 'GG' + gg_sub + '(' + Math.floor(ar*1000)/1000 + ', ' + Math.floor(br*1000)/1000 + ')';
+         var fmtr = new Intl.NumberFormat('en-US', {minimumFractionDigits: 3})
+         var art = fmtr.format(Math.floor(ar*1000)/1000);
+         var brt = fmtr.format(Math.floor(br*1000)/1000);
+
+         var text = 'GG' + gg_sub + '(' + art + ', ' + brt + ')';
          updateValue("labelcontainer1", text);
       }
       function activate_label_container() {
