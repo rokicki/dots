@@ -944,7 +944,7 @@ function noticeOrder(s) {
       function start() {
          canvas = document.getElementById("canvas");
          ctx = canvas.getContext("2d");
-         var hamburgerMenu = document.getElementById("hamburger-menu");
+         var hamburgerMenu = document.getElementById("kebab");
          var menu = document.getElementById("menu");
 
          /* Bug with first touch on iPad --Switch to button?-- */
@@ -1035,7 +1035,7 @@ function noticeOrder(s) {
          if (touch_in == document.getElementById('color3')){return false;}
 
 
-         if (touch_in == document.getElementById('hamburger-menu')){return false;}
+         if (touch_in == document.getElementById('kebab')){return false;}
 
          if (touch_in == document.getElementById('button1')){return false;}
          if (touch_in == document.getElementById('button2')){return false;}
@@ -1236,7 +1236,7 @@ var cr = [[], [], [], [],
 
       /* Hamburger menu button*/
 
-      #hamburger-menu {
+      #kebab {
         position: fixed;
         bottom: 20px;
         right: 20px;
@@ -1249,7 +1249,7 @@ var cr = [[], [], [], [],
         justify-content: center;
         align-items: center;
       }
-      #hamburger-menu span {
+      #kebab span {
         display: block;
         width: 6px;
         height: 6px;
@@ -1397,7 +1397,7 @@ var cr = [[], [], [], [],
    
     <canvas id="canvas" width="80" height="80"></canvas>
 
-    <div id="hamburger-menu">
+    <div id="kebab">
       <span></span>
       <span></span>
       <span></span>
