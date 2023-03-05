@@ -846,24 +846,6 @@ function noticeOrder(s) {
         }, 3500);
       }
 
-      function flash_n_value() {
-        var box = document.getElementById("dl1");
-        box.style.display = "table-cell";
-
-        if (timer) {
-          clearTimeout(ntimer);
-        }
-
-        ntimer = setTimeout(function () {
-          box.style.opacity = "0";
-
-          setTimeout(function () {
-            box.style.opacity = "1";
-            box.style.display = "none";
-          }, 500); // wait for the fade animation to finish
-        }, 500);
-      }
-
       function show_slider(id) {
          var slider = document.getElementById(id);
          slider.style.display = "block";
@@ -1403,11 +1385,10 @@ var cr = [[], [], [], [],
   </head>
 
   <body>
-   <input type="color" id="color1" name="color1" value="#ff0000" oninput="recolor(false)">
+   <!-- <input type="color" id="color1" name="color1" value="#ff0000" oninput="recolor(false)">
    <input type="color" id="color2" name="color2" value="#00ff00" oninput="recolor(false)">
-   <input type="color" id="color3" name="color3" value="#0000ff" oninput="recolor(false)">
+   <input type="color" id="color3" name="color3" value="#0000ff" oninput="recolor(false)"> -->
    
-   <div class="disc_label" id="dl1">5</div>
     <canvas id="canvas" width="80" height="80"></canvas>
 
     <div id="hamburger-menu">
@@ -1506,7 +1487,7 @@ var cr = [[], [], [], [],
           step="1"
           id="range2"
           class="slider"
-          oninput="activate_button_container(),  activate_label_container(), updateValue('dl1', this.value), flash_n_value(), doanim()"
+          oninput="activate_button_container(),  activate_label_container(), doanim()"
           list="steplist"
         />
       </div>
@@ -1521,7 +1502,7 @@ var cr = [[], [], [], [],
           step="1"
           id="range5"
           class="slider"
-          oninput="activate_button_container(),  activate_label_container(), updateValue('dl1', this.value), flash_n_value(), document.getElementById('range2').value = this.value,document.getElementById('range4').value = this.value, doanim()"
+          oninput="activate_button_container(),  activate_label_container(), document.getElementById('range2').value = this.value,document.getElementById('range4').value = this.value, doanim()"
           list="steplist"
         />
       </div>
@@ -1537,7 +1518,7 @@ var cr = [[], [], [], [],
           step="1"
           id="range4"
           class="slider"
-          oninput="activate_button_container(),  activate_label_container(), updateValue('dl1', this.value), flash_n_value(), doanim()"
+          oninput="activate_button_container(),  activate_label_container(), doanim()"
           list="steplist"
         />
       </div>
