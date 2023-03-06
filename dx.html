@@ -1464,11 +1464,36 @@ var cr = [[], [], [], [],
       input[type="range"]::-webkit-slider-thumb {
         -webkit-appearance: none;
         appearance: none;
-        background-color: #aeaeae;
+        background-color: #000000;
         height: 3vw;
         width: 3vw;
-        border-radius: 25px;
+        border-radius: 1.6vw;
+        border: 2px solid rgb(255, 255, 255);
+        margin-top: 0px;
       }
+
+      input[type="range"]::-moz-range-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        background-color: #000000;
+        height: 3vw;
+        width: 3vw;
+        border-radius: 1.6vw;
+        border: 2px solid rgb(255, 255, 255);
+      }
+
+      input[type="range"]::-ms-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        background-color: #000000;
+        height: 3vw;
+        width: 3vw;
+        border-radius: 1.6vw;
+        border: 2px solid rgb(255, 255, 255);
+      }
+
+
+
       #canvas { position:fixed; left:0;top:0; width:100%; height:100%; z-index: -1; }
     </style>
   </head>
