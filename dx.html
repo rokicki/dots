@@ -919,7 +919,7 @@ function noticeOrder(s) {
          var art = fmtr.format(Math.floor(ar*1000)/1000);
          var brt = fmtr.format(Math.floor(br*1000)/1000);
 
-         var text = 'GG' + gg_sub + '(' + art + ', ' + brt + ')';
+         var text = '<i>GG</i>' + gg_sub + '(' + art + ', ' + brt + ')';
          updateValue("labelcontainer1", text);
       }
 
@@ -1315,7 +1315,7 @@ var cr = [[], [], [], [],
 
  function update_rot_label(){
    if (dofull){
-      updateValue('labelcontainer2', 'Full C.S. Group')
+      updateValue('labelcontainer2', 'Full Compound Symmetry Group')
    }
    else{
       updateValue('labelcontainer2', "gen = a b'")
@@ -1590,7 +1590,7 @@ var cr = [[], [], [], [],
     </datalist>
 
     <div class="label_container" id="labelcontainer1"></div>
-    <div class="label_container" id="labelcontainer2" style="bottom: 6vw;">Full C.S. Group</div>
+    <div class="label_container" id="labelcontainer2" style="bottom: 6vw; font-size: 1.2vw;">Full Compound Symmetry Group</div>
 
 
     <div class="button-container" id="button_container1">
