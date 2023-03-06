@@ -240,7 +240,9 @@ function doanim(typ) {
     var oay = ay ;
     getUIParams();
     if (sc == 0 || typ == 2) {
-       zoom = 1;
+       if (typ == 2) {
+          zoom = 1;
+       }
        xoff = 0;
        yoff = 0;
        calch = Math.max(ar, br) * 2;
@@ -1125,7 +1127,7 @@ case 'zoom':
          if (e.keyCode === "]".codePointAt(0)) {
             if (zoom < 20) {
                zoom = zoom * 1.25 ;
-               if (zoom < 0.5 || zoom > 20) {
+               if (zoom > 20) {
                   zoom = 20 ;
                }
                doanim() ;
@@ -1133,7 +1135,7 @@ case 'zoom':
          } else if (e.keyCode === "[".codePointAt(0)) {
             if (zoom > 0.5) {
                zoom = zoom / 1.25 ;
-               if (zoom < 0.5 || zoom > 20) {
+               if (zoom < 0.5) {
                   zoom = 0.5 ;
                }
                doanim() ;
