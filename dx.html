@@ -1109,7 +1109,22 @@ function noticeOrder(s) {
                     e.keyCode === "1".codePointAt(0)) {
             criticalsnap() ;
          }
-      } ;
+      };
+
+      /* Multiple styles needed to support all browsers*/
+      window.onorientationchange = () => {doanim(0);};
+      window.onresize = () => {doanim(0);}
+
+      window.addEventListener("resize", function(){doanim(0);});
+      window.addEventListener("orientationchange", function(){doanim(0);});
+
+      function get_touch_dist(touch1, touch2){
+         var dx = touch1.clientX - touch2.clientX;
+         var dy = touch1.clientY - touch2.clientY;
+         return Math.sqrt(dx*dx + dy*dy);
+      }
+
+      /* touch controls for mobile*/
 
       function check_touch_target(target_in){
          if (target_in == document.getElementById('range1')){return false;}
@@ -1118,7 +1133,6 @@ function noticeOrder(s) {
          if (target_in == document.getElementById('range4')){return false;}
          if (target_in == document.getElementById('range5')){return false;}
          if (target_in == document.getElementById('range6')){return false;}
-
 
          if (target_in == document.getElementById('kebab')){return false;}
 
@@ -1144,14 +1158,7 @@ function noticeOrder(s) {
 
          return true;
       }
-
-      function get_touch_dist(touch1, touch2){
-         var dx = touch1.clientX - touch2.clientX;
-         var dy = touch1.clientY - touch2.clientY;
-         return Math.sqrt(dx*dx + dy*dy);
-      }
-
-      /* touch controls for mobile*/
+      
       var isDragging = false;
       var ispinching = false;
       var touchStartX, touchStartY, initialx, initialy, initialdist, initialzoom;
