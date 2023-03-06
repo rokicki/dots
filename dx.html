@@ -1024,6 +1024,7 @@ function noticeOrder(s) {
             }
          }
          doanim(2);
+         set_r_slider();
       }
 
       function start() {
@@ -1327,6 +1328,14 @@ var cr = [[], [], [], [],
    document.getElementById('userguide').style.opacity = Math.abs(1-document.getElementById('userguide').style.opacity);
  }
 
+ function set_r_slider(){
+   var tr1 = parseFloat(document.getElementById('range1').value);
+   var tr2 = parseFloat(document.getElementById('range3').value);
+   var tr = (tr1+tr2)/2;
+   console.log(tr1, tr2, tr);
+   document.getElementById('range6').value = tr;
+ }
+
 </script>
     <style>
 
@@ -1602,7 +1611,7 @@ var cr = [[], [], [], [],
           max="3.5"
           value="1"
           step = "0.001"
-          oninput="activate_ui(), doanim()"
+          oninput="activate_ui(), doanim(), set_r_slider()"
         />
       </div>
 
@@ -1632,7 +1641,7 @@ var cr = [[], [], [], [],
           max="3.5"
           value="1"
           step = "0.001"
-          oninput="activate_ui(), doanim()"
+          oninput="activate_ui(), doanim(), set_r_slider()"
         />
       </div>
 
