@@ -380,6 +380,13 @@ function drawrbmcirc(x, y, r) {
 // ctx.arc(x+0.5, y+0.5, r, 0, 2*Math.PI, false);
 // ctx.stroke();
 }
+function keeprendering() {
+   stoptime = performance.now() + curthink;
+   if (stopped) {
+      stopped = false;
+      requestAnimationFrame(dowork);
+   }
+}
 //
 //  Frontier-based BFS.
 //
@@ -1164,6 +1171,7 @@ function noticeOrder(s) {
       var touchStartX, touchStartY, initialx, initialy, initialdist, initialzoom;
 
       document.addEventListener('touchstart', function(e) {
+         keeprendering();
          isInteracting =true;
          if (e.touches.length == 1){
             if (check_touch_target(e.target)){
@@ -1230,6 +1238,7 @@ function noticeOrder(s) {
       });
 
       document.addEventListener('mouseup', function(e) {
+        keeprendering();
         isDragging = false;
         ispinching = false;
         isInteracting = false;
