@@ -1331,10 +1331,10 @@ var cr = [[], [], [], [],
 
       #kebab {
         position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 50px;
-        height: 50px;
+        bottom: 1.2vw;
+        right: 1.2vw;
+        width: 5vw;
+        height: 5vw;
         background-color: #000000;
         border: 2px solid #4e4e4e;
         border-radius: 50%;
@@ -1354,9 +1354,9 @@ var cr = [[], [], [], [],
       }
       #menu {
         position: fixed;
-        bottom: 80px;
-        right: 20px;
-        width: 190px;
+        bottom: 6.5vw;
+        right: 0.8vw;
+        width: 15vw;
         background-color: #000000;
         border: 2px solid #4e4e4e;
         color: #fff;
@@ -1372,15 +1372,11 @@ var cr = [[], [], [], [],
         list-style: none;
         margin: 0;
         padding: 0;
-        opacity: 1;
         transition: opacity 0.8s;
       }
       #menu li {
         padding: 10px;
-        cursor: pointer;
-        opacity: 1;
-        transition: opacity 0.8s;
-        font: 1em sans-serif;
+        font: 1.1vw sans-serif;
       }
       #menu li:hover {
         background-color: #636363;
@@ -1390,44 +1386,46 @@ var cr = [[], [], [], [],
 
       /* Disc controls */
       .button {
-        width: 60px;
-        height: 60px;
+        width: 4.5vw;
+        height: 4.5vw;
         background-color: #333;
         border: none;
         display: inline-block;
-        margin: 10px 10px;
-        border-radius: 10px;
-        font-size: 20px;
+        margin: 0.5vw 0.5vw;
+        border-radius: 0.5vw;
+        font-size: 1.5vw;
         color: white;
+        align-items: center;
       }
 
       .button-container {
-        width: 587px;
-        height: 80px;
+
+        box-sizing: content-box;
         background-color: #000000;
         border: 2px solid #4e4e4e;
         position: fixed;
-        bottom: 8px;
+        bottom: 0.5vw;
         left: 50%;
         transform: translateX(-50%);
-        border-radius: 20px;
+        border-radius: 1vw;
         opacity: 1;
         transition: opacity 0.8s;
         display: none;
+        align-items: center;
       }
 
       .label_container {
-        width: 220px;
-        height: 66px;
+        width: 18vw;
+        height: 4vw;
         color: #fff;
         position: fixed;
-        bottom: 8px;
-        left: 8px;
-        border-radius: 35px;
+        bottom: 0.5vw;
+        left: 0.5vw;
+        border-radius: 2.1vw;
         opacity: 1;
         transition: opacity 0.8s;
         display:none;
-        font-size: 24px;
+        font-size: 1.5vw;
         justify-content: center;
         align-items: center;
         background-color: #000000;
@@ -1436,22 +1434,21 @@ var cr = [[], [], [], [],
 
 
       .slide_box {
-        width: 587px;
-        height: 60px;
+        width: 40vw;
+        height: 3.5vw;
         background-color: #000000;
         border: 2px solid #4e4e4e;
         position: absolute;
-        top: -70px;
+        top: -4.2vw;
         left: 50%;
         transform: translateX(-50%);
-        border-radius: 31px;
-        opacity: 1;
+        border-radius: 1.9vw;
         transition: opacity 0.8s;
         display: none;
       }
       .slider {
         position: relative;
-        top: 33%;
+        top: 28%;
         left: 50%;
         width: 97%;
         border-radius: 5;
@@ -1459,29 +1456,14 @@ var cr = [[], [], [], [],
         outline: none;
         transform: translateX(-50%);
       }
+
       input[type="range"]::-webkit-slider-thumb {
         -webkit-appearance: none;
         appearance: none;
         background-color: #aeaeae;
-        height: 50px;
-        width: 50px;
+        height: 3vw;
+        width: 3vw;
         border-radius: 25px;
-      }
-      .disc_label {
-        width: 70px;
-        height: 70px;
-        border-radius: 35px;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        color: rgb(255, 255, 255);
-        background-color: #000000;
-        display: table-cell;
-        font-size: 60px;
-        opacity: 1;
-        transition: opacity 0.2s;
-        display: none;
-        text-align: center;
       }
       #canvas { position:fixed; left:0;top:0; width:100%; height:100%; z-index: -1; }
     </style>
@@ -1536,7 +1518,7 @@ var cr = [[], [], [], [],
     </datalist>
 
     <div class="label_container" id="labelcontainer1"></div>
-    <div class="label_container" id="labelcontainer2" style="bottom: 87px;">Full C.S. Group</div>
+    <div class="label_container" id="labelcontainer2" style="bottom: 6vw;">Full C.S. Group</div>
 
 
     <div class="button-container" id="button_container1">
