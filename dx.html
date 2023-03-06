@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>disks</title>
+<title>twodisks</title>
 <script>
 "use strict";
 /*
@@ -18,6 +18,7 @@ var yoff = 0 ;
 var obeyscale = 1 ; // obey hires
 var scale = 1 ;
 var color_type = true;
+var defaultthink = 60 * 1000;
 var radiusscale = 1 ; // how much do we scale radius parameters by
 /*
  *   User interface parameters.
@@ -279,7 +280,7 @@ function doanim(typ) {
     deepest = 0;
     renderlim = 300;
     gat = 0;
-    curthink = 1000 * 60 ;
+    curthink = defaultthink ;
     state = 0;
     setmax = false;
     stoptime = performance.now() + curthink ; // stop after 60s
@@ -384,6 +385,13 @@ function drawrbmcirc(x, y, r) {
 // ctx.beginPath();
 // ctx.arc(x+0.5, y+0.5, r, 0, 2*Math.PI, false);
 // ctx.stroke();
+}
+function keeprendering() {
+   stoptime = performance.now() + curthink;
+   if (stopped) {
+      stopped = false;
+      requestAnimationFrame(dowork);
+   }
 }
 //
 //  Frontier-based BFS.
@@ -1097,7 +1105,13 @@ function noticeOrder(s) {
             pttype = (pttype % 3) + 1 ;
             doanim() ;
          } else if (e.keyCode === "c".codePointAt(0)) {
-            curthink = 15 * 60 * 1000;
+            curthink = 15 * defaultthink ;
+            stoptime = performance.now() + curthink;
+            stopped = false;
+            dowork();
+         } else if (e.keyCode === "C".codePointAt(0)) {
+            curthink = 7200 * 60 * 1000;
+            defaultthink = curthink ;
             stoptime = performance.now() + curthink;
             stopped = false;
             dowork();
@@ -1163,6 +1177,7 @@ function noticeOrder(s) {
       var touchStartX, touchStartY, initialx, initialy, initialdist, initialzoom;
 
       document.addEventListener('touchstart', function(e) {
+         keeprendering();
          isInteracting =true;
          if (e.touches.length == 1){
             if (check_touch_target(e.target)){
@@ -1229,6 +1244,7 @@ function noticeOrder(s) {
       });
 
       document.addEventListener('mouseup', function(e) {
+        keeprendering();
         isDragging = false;
         ispinching = false;
         isInteracting = false;
