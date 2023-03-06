@@ -12,7 +12,7 @@ var width = 800;
 var height = 600;
 var marg = 10;
 var zoom = 1;
-var sc ;
+var sc = 0 ;
 var xoff = 0 ;
 var yoff = 0 ;
 var obeyscale = 1 ; // obey hires
@@ -888,7 +888,7 @@ function getUIParams() {
     an = getvalue("range2");
     bn = getvalue("range4");
     sep = 2;
-    console.log("ar",ar,"br",br,"an",an,"bn",bn,"sep",sep,"zoom",zoom,"scale",scale,"width",width,"height",height,"scale",scale);
+    console.log("ar",ar,"br",br,"an",an,"bn",bn,"sep",sep,"zoom",zoom,"scale",scale,"width",width,"height",height);
     updateGroupLabel();
 }
 function noticeOrder(s) {
@@ -1015,11 +1015,14 @@ function noticeOrder(s) {
          return 0.5 + (1.5 * Math.random()) +
                       (1.5 * Math.random());
       }
+      function setUI(name, value) {
+         document.getElementById(name).value = value;
+      }
       function dorandom() {
          var n1 = 2 + Math.floor(18 * Math.random());
          var n2 = 2 + Math.floor(18 * Math.random());
-         document.getElementById("range2").value = n1;
-         document.getElementById("range4").value = n2;
+         setUI('range2', n1);
+         setUI('range4', n2);
          var lim = cr[Math.max(n1, n2)][Math.min(n1, n2)] ;
          if (lim === undefined) {
             lim = 1000000 ;
@@ -1032,8 +1035,9 @@ function noticeOrder(s) {
             ar = r1 / radiusscale ;
             br = r2 / radiusscale ;
             if (ar + br > 2 && 4 * Math.max(ar, br) + Math.min(ar, br) < 5 * lim) {
-               document.getElementById("range1").value = r1;
-               document.getElementById("range3").value = r2;
+               setUI('range1', r1);
+               setUI('range3', r2);
+               setUI('range5', 0.5*(r1+r2));
                break ;
             }
          }
@@ -1047,8 +1051,58 @@ function noticeOrder(s) {
 
          addEvent(window, "keydown", keypress);
          addEvent(window, "keypress", keypress);
-
-         dorandom();
+         var sawqueryparam = false ;
+         var queryparams = new URLSearchParams(window.location.search);
+         for (const [key, value] of queryparams) {
+            if (!sawqueryparam) {
+               setUI('range1', 1*radiusscale);
+               setUI('range3', 1*radiusscale);
+               setUI('range5', 1*radiusscale);
+               setUI('range2', 2);
+               setUI('range4', 2);
+               setUI('range6', 2);
+            }
+            sawqueryparam = true;
+            switch (key) {
+case 'r':
+               setUI('range1', value*radiusscale);
+               setUI('range3', value*radiusscale);
+               setUI('range5', value*radiusscale);
+               break;
+case 'r1':
+               setUI('range1', value*radiusscale);
+               break;
+case 'r2':
+               setUI('range3', value*radiusscale);
+               break;
+case 'n':
+               setUI('range2', value);
+               setUI('range4', value);
+               setUI('range6', value);
+               break;
+case 'n1':
+               setUI('range2', value);
+               break;
+case 'n2':
+               setUI('range4', value);
+               break;
+case 'gen':
+               dofull = false;
+               update_rot_label();
+               break;
+case 'point':
+               pttype = 2;
+               break;
+case 'zoom':
+               zoom = value;
+               break;
+            }
+         }
+         if (!sawqueryparam) {
+            dorandom();
+         } else {
+            doanim();
+         }
          onlySlider(1);
          // activate_ui();
       }
