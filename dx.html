@@ -18,7 +18,7 @@ var yoff = 0 ;
 var obeyscale = 1 ; // obey hires
 var scale = 1 ;
 var color_type = true;
-var defaultthink = 15 * 60 * 1000;
+var defaultthink = 60 * 1000;
 var radiusscale = 1 ; // how much do we scale radius parameters by
 /*
  *   User interface parameters.
@@ -274,7 +274,7 @@ function doanim(typ) {
     deepest = 0;
     renderlim = 300;
     gat = 0;
-    curthink = 1000 * 60 ;
+    curthink = defaultthink ;
     state = 0;
     setmax = false;
     stoptime = performance.now() + curthink ; // stop after 60s
@@ -1092,7 +1092,7 @@ function noticeOrder(s) {
             pttype = (pttype % 3) + 1 ;
             doanim() ;
          } else if (e.keyCode === "c".codePointAt(0)) {
-            curthink = defaultthink ;
+            curthink = 15 * defaultthink ;
             stoptime = performance.now() + curthink;
             stopped = false;
             dowork();
