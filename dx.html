@@ -18,6 +18,7 @@ var yoff = 0 ;
 var obeyscale = 1 ; // obey hires
 var scale = 1 ;
 var color_type = true;
+var defaultthink = 15 * 60 * 1000;
 var radiusscale = 1 ; // how much do we scale radius parameters by
 /*
  *   User interface parameters.
@@ -1091,7 +1092,13 @@ function noticeOrder(s) {
             pttype = (pttype % 3) + 1 ;
             doanim() ;
          } else if (e.keyCode === "c".codePointAt(0)) {
-            curthink = 15 * 60 * 1000;
+            curthink = defaultthink ;
+            stoptime = performance.now() + curthink;
+            stopped = false;
+            dowork();
+         } else if (e.keyCode === "C".codePointAt(0)) {
+            curthink = 7200 * 60 * 1000;
+            defaultthink = curthink ;
             stoptime = performance.now() + curthink;
             stopped = false;
             dowork();
