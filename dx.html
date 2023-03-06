@@ -1405,15 +1405,14 @@ var cr = [[], [], [], [],
         background-color: #333;
         border: none;
         display: inline-block;
-        margin: 0.5vw 0.5vw;
+        margin:0.5vw;
         border-radius: 0.5vw;
-        font-size: 1.5vw;
+        font: 1.8vw georgia;
         color: white;
         align-items: center;
       }
 
       .button-container {
-
         box-sizing: content-box;
         background-color: #000000;
         border: 2px solid #4e4e4e;
@@ -1424,8 +1423,9 @@ var cr = [[], [], [], [],
         border-radius: 1vw;
         opacity: 1;
         transition: opacity 0.3s;
-        display: block;
+        display: flex;
         align-items: center;
+        vertical-align: middle;
       }
 
       .label_container {
@@ -1439,7 +1439,7 @@ var cr = [[], [], [], [],
         opacity: 1;
         transition: opacity 0.3s;
         display:flex;
-        font-size: 1.5vw;
+        font: 1.5vw georgia;
         justify-content: center;
         align-items: center;
         background-color: #000000;
@@ -1588,7 +1588,7 @@ var cr = [[], [], [], [],
     </datalist>
 
     <div class="label_container" id="labelcontainer1"></div>
-    <div class="label_container" id="labelcontainer2" style="bottom: 6vw; font-size: 1.2vw;">Full Compound Symmetry Group</div>
+    <div class="label_container" id="labelcontainer2" style="bottom: 6vw; font-size: 1.1vw;">Full Compound Symmetry Group</div>
 
 
     <div class="button-container" id="button_container1">
@@ -1680,7 +1680,7 @@ var cr = [[], [], [], [],
           list="steplist"
         />
       </div>
-      <button class="button" id="button7" onclick="dorandom()">&#127922<sub> </sub></button>
+      <button class="button" id="button7" onclick="dorandom()">&#127922</button>
 
     </div>
     <a href="" id="downloadlink" style="display: none;"></a>
