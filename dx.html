@@ -882,36 +882,30 @@ function noticeOrder(s) {
 }
       var timer;
       function activate_ui() {
-        var bc1 = document.getElementById("button_container1");
-        var lc1 = document.getElementById("labelcontainer1");
-        var lc2 = document.getElementById("labelcontainer2");
-        var keb = document.getElementById("kebab");
-        bc1.style.display = "block";
-        lc1.style.display = "flex";
-        lc2.style.display = "flex";
-        keb.style.display = "flex";
-         
-         if (timer) {
-          clearTimeout(timer);
-         }
+         var bc1 = document.getElementById("button_container1");
+         var lc1 = document.getElementById("labelcontainer1");
+         var lc2 = document.getElementById("labelcontainer2");
+         var keb = document.getElementById("kebab");
+         var menu = document.getElementById("menu");
 
-         timer = setTimeout(function () {
-         bc1.style.opacity = "0";
-         lc1.style.opacity = "0";
-         lc2.style.opacity = "0";
-         keb.style.opacity = "0";
-         
-          setTimeout(function () {
-            bc1.style.opacity = "1";
-            bc1.style.display = "none";
-            lc1.style.opacity = "1";
-            lc1.style.display = "none";
-            lc2.style.opacity = "1";
-            lc2.style.display = "none";
-            keb.style.opacity = "1";
-            keb.style.display = "none";
-          }, 500);
-        }, 3500);
+         bc1.style.opacity = "1";
+         lc1.style.opacity = "1";
+         lc2.style.opacity = "1";
+         keb.style.opacity = "1";
+
+         if (timer) {
+         clearTimeout(timer);
+         }
+         if (isInteracting == false){
+
+            timer = setTimeout(function () {
+               bc1.style.opacity = "0";
+               lc1.style.opacity = "0";
+               lc2.style.opacity = "0";
+               keb.style.opacity = "0";
+               menu.style.opacity = "0";
+            }, 3500);
+         }
       }
       
 
@@ -932,17 +926,17 @@ function noticeOrder(s) {
       var hamburger_timer;
       function activate_hamburger_menu() {
         var menu = document.getElementById("menu");
-        menu.style.display = "block";
-        if (hamburger_timer) {
-          clearTimeout(hamburger_timer);
-        }
-        hamburger_timer = setTimeout(function () {
-          menu.style.opacity = "0";
-          setTimeout(function () {
-            menu.style.opacity = "1";
-            menu.style.display = "none";
-          }, 500); 
-        }, 3500);
+        menu.style.opacity = "1";
+
+         if (timer) {
+         clearTimeout(timer);
+         }
+         if (isInteracting == false){
+
+            timer = setTimeout(function () {
+               menu.style.opacity = "0";
+            }, 3500);
+         }
       }
 
       function show_slider(id) {
@@ -975,7 +969,6 @@ function noticeOrder(s) {
           } else {
             close_slider("slide_box" + i);
             update_button_color("button" + i, false);
-
           }
         }
       }
@@ -1041,7 +1034,8 @@ function noticeOrder(s) {
          addEvent(window, "keypress", keypress);
 
          dorandom();
-         activate_label_container();
+         onlySlider(1);
+         // activate_ui();
       }
 
       function addEvent(element, eventName, callback) {
@@ -1158,9 +1152,11 @@ function noticeOrder(s) {
       
       var isDragging = false;
       var ispinching = false;
+      var isInteracting = false;
       var touchStartX, touchStartY, initialx, initialy, initialdist, initialzoom;
 
       document.addEventListener('touchstart', function(e) {
+         isInteracting =true;
          if (e.touches.length == 1){
             if (check_touch_target(e.target)){
                e.preventDefault();
@@ -1182,6 +1178,8 @@ function noticeOrder(s) {
       document.addEventListener('touchend', function(e) {
         isDragging = false;
         ispinching = false;
+        isInteracting = false;
+        activate_ui();
       });
 
       document.addEventListener('touchmove', function(e) {
@@ -1211,6 +1209,7 @@ function noticeOrder(s) {
 
       /* pan control for desktop*/
       document.addEventListener('mousedown', function(e) {
+         isInteracting = true;
          if (check_touch_target(e.target)){
             e.preventDefault();
             isDragging = true;
@@ -1225,6 +1224,8 @@ function noticeOrder(s) {
       document.addEventListener('mouseup', function(e) {
         isDragging = false;
         ispinching = false;
+        isInteracting = false;
+        activate_ui();
       });
 
       document.addEventListener('mousemove', function(e) {
@@ -1333,6 +1334,7 @@ var cr = [[], [], [], [],
          background-color: rgb(255,255,255);
       }
 
+
       #kebab {
         position: fixed;
         bottom: 1.2vw;
@@ -1342,10 +1344,12 @@ var cr = [[], [], [], [],
         background-color: #000000;
         border: 2px solid #4e4e4e;
         border-radius: 50%;
-        display: none;
+        display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
+        transition: opacity 0.3s;
+        opacity: 1;
 
       }
       #kebab span {
@@ -1356,27 +1360,28 @@ var cr = [[], [], [], [],
         margin: 4px;
         border-radius: 3px;
       }
+
       #menu {
         position: fixed;
         bottom: 6.5vw;
         right: 0.8vw;
-        width: 15vw;
+        width: 13vw;
         background-color: #000000;
         border: 2px solid #4e4e4e;
         color: #fff;
         border-radius: 5px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-        display: none;
+        display: block;
         z-index: 999;
-        opacity: 1;
-        transition: opacity 0.8s;
+        opacity: 0;
+        transition: opacity 0.3s;
       }
 
       #menu ul {
         list-style: none;
         margin: 0;
         padding: 0;
-        transition: opacity 0.8s;
+        /* transition: opacity 0.3s; */
       }
       #menu li {
         padding: 10px;
@@ -1385,7 +1390,7 @@ var cr = [[], [], [], [],
       #menu li:hover {
         background-color: #636363;
         opacity: 1;
-        transition: opacity 0.8s;
+        /* transition: opacity 0.3s; */
       }
 
       /* Disc controls */
@@ -1413,8 +1418,8 @@ var cr = [[], [], [], [],
         transform: translateX(-50%);
         border-radius: 1vw;
         opacity: 1;
-        transition: opacity 0.8s;
-        display: none;
+        transition: opacity 0.3s;
+        display: block;
         align-items: center;
       }
 
@@ -1427,15 +1432,14 @@ var cr = [[], [], [], [],
         left: 0.5vw;
         border-radius: 2.1vw;
         opacity: 1;
-        transition: opacity 0.8s;
-        display:none;
+        transition: opacity 0.3s;
+        display:flex;
         font-size: 1.5vw;
         justify-content: center;
         align-items: center;
         background-color: #000000;
         border: 2px solid #4e4e4e;
       }
-
 
       .slide_box {
         width: 40vw;
@@ -1447,8 +1451,8 @@ var cr = [[], [], [], [],
         left: 50%;
         transform: translateX(-50%);
         border-radius: 1.9vw;
-        transition: opacity 0.8s;
-        display: none;
+        display: 'none';
+        transition: opacity 0.3s;
       }
       .slider {
         position: relative;
@@ -1462,7 +1466,6 @@ var cr = [[], [], [], [],
       }
 
       input[type="range"]::-webkit-slider-thumb {
-        /* -webkit-appearance: none; */
         appearance: none;
         background-color: #000000;
         height: 3vw;
@@ -1471,8 +1474,6 @@ var cr = [[], [], [], [],
         border: 2px solid rgb(255, 255, 255);
         margin-top: 0px;
       }
-
-
 
       #canvas { position:fixed; left:0;top:0; width:100%; height:100%; z-index: -1; }
     </style>
@@ -1485,7 +1486,7 @@ var cr = [[], [], [], [],
    
     <canvas id="canvas" width="80" height="80"></canvas>
 
-    <button id="kebab" class="kebab" onclick="activate_hamburger_menu()">
+    <button id="kebab" class="kebab" onclick="activate_hamburger_menu(), activate_ui()">
       <span></span>
       <span></span>
       <span></span>
@@ -1532,7 +1533,7 @@ var cr = [[], [], [], [],
 
     <div class="button-container" id="button_container1">
       <button class="button" id="button1" onclick="onlySlider(1)" style="color: #000000; background-color: #e3e3e3;">R<sub>1</sub></button>
-      <div class="slide_box" id="slide_box1"   style="display: block;">
+      <div class="slide_box" id="slide_box1"  style="display: 'block';">
         <input
           type="range"
           class="slider"
@@ -1556,7 +1557,7 @@ var cr = [[], [], [], [],
           max="3.5"
           value="1"
           step = "0.001"
-          oninput="activate_ui(), document.getElementById('range1').value = this.value,document.getElementById('range3').value = this.value ,doanim()"
+          oninput="document.getElementById('range1').value = this.value, document.getElementById('range3').value = this.value, activate_ui(), doanim()"
         />
       </div>
 
@@ -1599,7 +1600,7 @@ var cr = [[], [], [], [],
           step="1"
           id="range5"
           class="slider"
-          oninput="activate_ui(), document.getElementById('range2').value = this.value,document.getElementById('range4').value = this.value, doanim()"
+          oninput="document.getElementById('range2').value = this.value,document.getElementById('range4').value = this.value, activate_ui(), doanim()"
           list="steplist"
         />
       </div>
