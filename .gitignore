@@ -6,3 +6,4 @@
 *.gz
 *.dSYM
 *.pbm
+.DS_Store
