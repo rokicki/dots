@@ -1457,7 +1457,13 @@ var cr = [[], [], [], [],
  }
 
  function toggle_user_guide(){
-   document.getElementById('userguide').style.opacity = Math.abs(1-document.getElementById('userguide').style.opacity);
+   var ug = document.getElementById('userguide');
+
+   if (ug.style.display == 'none'){
+      ug.style.display = 'block';
+   } else{
+      ug.style.display = 'none';
+   }
  }
 
  function set_r_slider(){
@@ -1632,9 +1638,9 @@ var cr = [[], [], [], [],
         color: #ffffff;
         border-radius: 5px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-        display: block;
+        display: 'none';
         z-index: 999;
-        opacity: 0;
+        /* opacity: 0; */
         transition: opacity 0.3s;
       }
 
