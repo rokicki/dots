@@ -242,16 +242,18 @@ function doanim(typ) {
     var oay = ay ;
     getUIParams();
     if (sc == 0 || typ == 2 || typ == 3) {
-       xoff = 0;
-       yoff = 0;
        calch = Math.max(ar, br) * 2;
        calcw = ar + br + sep;
        if (typ == 2) { // set zoom to something that works here
           zoom = 
               Math.min(((height-2*marg))/calch, ((width-2 * marg))/calcw)/
               Math.min(((height-2*marg))/4.3, ((width-2 * marg))/6.3);
+          xoff = 0;
+          yoff = 0;
        } else if (typ != 3) {
           zoom = 1;
+          xoff = 0;
+          yoff = 0;
        }
        xcent = 0.5 * (sep + br - ar) ;
     }
@@ -901,6 +903,12 @@ function setquerystring() {
     if (zoom != 1) {
        qs.push("zoom=" + zoom);
     }
+    if (xoff != 0) {
+       qs.push("x=" + xoff / radiusscale);
+    }
+    if (yoff != 0) {
+       qs.push("y=" + -yoff / radiusscale);
+    }
     const url = new URL(window.location.href);
     url.search = qs.join("&");
     window.history.replaceState("", "", url);
@@ -1180,6 +1188,14 @@ case 'point':
                break;
 case 'zoom':
                zoom = value;
+               gotzoom = 1;
+               break;
+case 'x':
+               xoff = value * radiusscale;
+               gotzoom = 1;
+               break;
+case 'y':
+               yoff = -value * radiusscale;
                gotzoom = 1;
                break;
             }
