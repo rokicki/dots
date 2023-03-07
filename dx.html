@@ -235,21 +235,27 @@ var gat = 0;
 var xcent = 0, calch, calcw, firstpts ;
 // typ is undefined or 0 (don't rescale, not a pan), 1 (pan), 2 (rescale)
 // 0 and 2 redraw from scratch (clear); 1 copies what was there.
+// type=3 means, respect the zoom we got
 function doanim(typ) {
     var oax = ax ;
     var oay = ay ;
     getUIParams();
-    if (sc == 0 || typ == 2) {
-       if (typ == 2) {
-          zoom = 1;
-       }
+    if (sc == 0 || typ == 2 || typ == 3) {
        xoff = 0;
        yoff = 0;
        calch = Math.max(ar, br) * 2;
        calcw = ar + br + sep;
+       if (typ == 2) { // set zoom to something that works here
+          zoom = 
+              Math.min(((height-2*marg))/calch, ((width-2 * marg))/calcw)/
+              Math.min(((height-2*marg))/4.3, ((width-2 * marg))/6.3);
+       } else if (typ != 3) {
+          zoom = 1;
+       }
        xcent = 0.5 * (sep + br - ar) ;
     }
-    sc = Math.min((height*zoom-2*marg)/calch, (width*zoom-2*marg)/calcw);
+    setquerystring();
+    sc = Math.min(((height-2*marg)*zoom)/4.3, ((width-2 * marg)*zoom)/6.3);
     firstpts = 0 ;
     ay = scale * yoff * zoom + height / 2;
     ax = scale * xoff * zoom + width / 2 - xcent * sc;
@@ -871,6 +877,33 @@ function getvalue(s) {
 //  document.getElementById("show"+s).innerText = r;
     return r;
 }
+function setquerystring() {
+    var qs = [];
+    if (ar == br) {
+       qs.push("r=" + ar/radiusscale);
+    } else {
+       qs.push("r1=" + ar/radiusscale);
+       qs.push("r2=" + br/radiusscale);
+    }
+    if (an==bn) {
+       qs.push("n=" + an);
+    } else {
+       qs.push("n1=" + an);
+       qs.push("n2=" + bn);
+    }
+    if (!dofull) {
+       qs.push("gen=ab");
+    }
+    if (pttype == 2) {
+       qs.push("point=boundary");
+    }
+    if (zoom != 1) {
+       qs.push("zoom=" + zoom);
+    }
+    const url = new URL(window.location.href);
+    url.search = qs.join("&");
+    window.history.replaceState("", "", url);
+}
 function getUIParams() {
     width = canvas.clientWidth;
     height = canvas.clientHeight;
@@ -889,32 +922,6 @@ function getUIParams() {
     br = getvalue("range3") / radiusscale;
     an = getvalue("range2");
     bn = getvalue("range4");
-    // build a query string
-    var qs = [];
-    if (ar == br) {
-       qs.push("r=" + ar/radiusscale);
-    } else {
-       qs.push("r1=" + ar/radiusscale);
-       qs.push("r2=" + br/radiusscale);
-    }
-    if (an==bn) {
-       qs.push("n=" + an);
-    } else {
-       qs.push("n1=" + an);
-       qs.push("n2=" + an);
-    }
-    if (!dofull) {
-       qs.push("gen=ab");
-    }
-    if (pttype == 2) {
-       qs.push("point=boundary");
-    }
-    if (zoom != 1) {
-       qs.push("zoom=" + zoom);
-    }
-    const url = new URL(window.location.href);
-    url.search = qs.join("&");
-    window.history.replaceState("", "", url);
     sep = 2;
     console.log("ar",ar,"br",br,"an",an,"bn",bn,"sep",sep,"zoom",zoom,"scale",scale,"width",width,"height",height);
     updateGroupLabel();
@@ -1093,6 +1100,7 @@ function noticeOrder(s) {
          addEvent(window, "keypress", keypress);
          var sawqueryparam = false ;
          var queryparams = new URLSearchParams(window.location.search);
+         var gotzoom = false;
          for (const [key, value] of queryparams) {
             if (!sawqueryparam) {
                setUI('range1', 1*radiusscale);
@@ -1135,13 +1143,18 @@ case 'point':
                break;
 case 'zoom':
                zoom = value;
+               gotzoom = 1;
                break;
             }
          }
          if (!sawqueryparam) {
             dorandom();
          } else {
-            doanim();
+            if (gotzoom) {
+               doanim(3);
+            } else {
+               doanim(2);
+            }
          }
          onlySlider(1);
          // activate_ui();
