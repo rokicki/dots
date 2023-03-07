@@ -255,7 +255,7 @@ function doanim(typ) {
        }
        xcent = 0.5 * (sep + br - ar) ;
     }
-//  setquerystring();
+    slowsetquerystring();
     sc = Math.min(((height-2*marg)*zoom)/4.3, ((width-2 * marg)*zoom)/6.3);
     firstpts = 0 ;
     ay = scale * yoff * zoom + height / 2;
@@ -905,6 +905,13 @@ function setquerystring() {
     url.search = qs.join("&");
     window.history.replaceState("", "", url);
 }
+// this function definition looks weird, but it's the way it is
+// so we create a closure that stores the "timer".
+var slowsetquerystring = (() => {
+   let timer;
+   clearTimeout(timer);
+   timer = setTimeout(setquerystring, 500);
+}) ;
 function getUIParams() {
     width = canvas.clientWidth;
     height = canvas.clientHeight;
