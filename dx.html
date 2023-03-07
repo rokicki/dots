@@ -15,6 +15,7 @@ var zoom = 1;
 var sc = 0 ;
 var xoff = 0 ;
 var yoff = 0 ;
+var newxoff = 0, newyoff = 0;
 var obeyscale = 1 ; // obey hires
 var scale = 1 ;
 var color_type = true;
@@ -257,8 +258,14 @@ function doanim(typ) {
        }
        xcent = 0.5 * (sep + br - ar) ;
     }
-    slowsetquerystring();
     sc = Math.min(((height-2*marg)*zoom)/4.3, ((width-2 * marg)*zoom)/6.3);
+    if (newxoff != 0 || newyoff != 0) {
+       xoff = newxoff * sc;
+       yoff = newyoff * sc;
+       newxoff = 0;
+       newyoff = 0;
+    }
+    slowsetquerystring();
     firstpts = 0 ;
     ay = scale * yoff * zoom + height / 2;
     ax = scale * xoff * zoom + width / 2 - xcent * sc;
@@ -904,10 +911,10 @@ function setquerystring() {
        qs.push("zoom=" + zoom);
     }
     if (xoff != 0) {
-       qs.push("x=" + xoff / radiusscale);
+       qs.push("x=" + xoff / sc);
     }
     if (yoff != 0) {
-       qs.push("y=" + -yoff / radiusscale);
+       qs.push("y=" + -yoff / sc);
     }
     const url = new URL(window.location.href);
     url.search = qs.join("&");
@@ -1146,6 +1153,8 @@ function noticeOrder(s) {
          var sawqueryparam = false ;
          var queryparams = new URLSearchParams(window.location.search);
          var gotzoom = false;
+         newxoff = 0;
+         newyoff = 0;
          for (const [key, value] of queryparams) {
             if (!sawqueryparam) {
                setUI('range1', 1*radiusscale);
@@ -1191,11 +1200,11 @@ case 'zoom':
                gotzoom = 1;
                break;
 case 'x':
-               xoff = value * radiusscale;
+               newxoff = value;
                gotzoom = 1;
                break;
 case 'y':
-               yoff = -value * radiusscale;
+               newyoff = -value;
                gotzoom = 1;
                break;
             }
