@@ -889,6 +889,32 @@ function getUIParams() {
     br = getvalue("range3") / radiusscale;
     an = getvalue("range2");
     bn = getvalue("range4");
+    // build a query string
+    var qs = [];
+    if (ar == br) {
+       qs.push("r=" + ar/radiusscale);
+    } else {
+       qs.push("r1=" + ar/radiusscale);
+       qs.push("r2=" + br/radiusscale);
+    }
+    if (an==bn) {
+       qs.push("n=" + an);
+    } else {
+       qs.push("n1=" + an);
+       qs.push("n2=" + an);
+    }
+    if (!dofull) {
+       qs.push("gen=ab");
+    }
+    if (pttype == 2) {
+       qs.push("point=boundary");
+    }
+    if (zoom != 1) {
+       qs.push("zoom=" + zoom);
+    }
+    const url = new URL(window.location.href);
+    url.search = qs.join("&");
+    window.history.replaceState("", "", url);
     sep = 2;
     console.log("ar",ar,"br",br,"an",an,"bn",bn,"sep",sep,"zoom",zoom,"scale",scale,"width",width,"height",height);
     updateGroupLabel();
@@ -1424,7 +1450,6 @@ var cr = [[], [], [], [],
    var tr1 = parseFloat(document.getElementById('range1').value);
    var tr2 = parseFloat(document.getElementById('range3').value);
    var tr = (tr1+tr2)/2;
-   console.log(tr1, tr2, tr);
    document.getElementById('range6').value = tr;
  }
 
