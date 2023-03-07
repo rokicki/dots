@@ -1348,8 +1348,8 @@ case 'zoom':
           var touchX = e.touches[0].clientX - touchStartX;
           var touchY = e.touches[0].clientY - touchStartY;
 
-          xoff = (touchX/zoom + initialx + 0.5);
-          yoff = (touchY/zoom + initialy + 0.5);
+          xoff = (touchX/zoom + initialx);
+          yoff = (touchY/zoom + initialy);
           doanim(ispinching ? 0 : 1);
         }
 
@@ -1395,8 +1395,8 @@ case 'zoom':
           var touchX = e.clientX - touchStartX;
           var touchY = e.clientY - touchStartY;
 
-          xoff = (touchX/zoom + initialx + 0.5);
-          yoff = (touchY/zoom + initialy + 0.5);
+          xoff = (touchX/zoom + initialx);
+          yoff = (touchY/zoom + initialy);
           doanim(1);
         }
         activate_ui();
