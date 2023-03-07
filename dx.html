@@ -979,14 +979,25 @@ function noticeOrder(s) {
 
       var label_timer;
       function updateGroupLabel() {
+         var fmtr = new Intl.NumberFormat('en-US', {minimumFractionDigits: 3});
          var box = document.getElementById("labelcontainer1");
-         var gg_sub = "<sub>" + an + ', ' + bn + "</sub>";
-         gg_sub = gg_sub.fontsize(3.5);
-         var fmtr = new Intl.NumberFormat('en-US', {minimumFractionDigits: 3})
          var art = fmtr.format(Math.floor(ar*1000)/1000);
          var brt = fmtr.format(Math.floor(br*1000)/1000);
+         var gg_sub = " ";
+         var rad = " ";
 
-         var text = '<i>GG</i>' + gg_sub + '(' + art + ', ' + brt + ')';
+         if (an == bn){
+            gg_sub = "<sub>" + an + "</sub>";}
+         else {
+            gg_sub = "<sub>" + an + ', ' + bn + "</sub>";}
+         gg_sub = gg_sub.fontsize(3.5);
+
+         if (ar == br){
+            rad = '(' + art + ')';}
+         else {
+            rad = '(' + art + ', ' + brt + ')';}
+
+         var text = '<i>GG</i>' + gg_sub + rad;
          updateValue("labelcontainer1", text);
       }
 
