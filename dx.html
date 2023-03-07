@@ -1014,8 +1014,12 @@ function noticeOrder(s) {
       }
       function getrr() {
          // these values are from the range sliders
-         return 0.5 + (1.5 * Math.random()) +
-                      (1.5 * Math.random());
+         if (dofull){
+            return 1 + (1.25 * Math.random()) + (1.25 * Math.random());
+         }
+         else {
+            return 0.75 + (2.75 * Math.random());
+         }
       }
       function setUI(name, value) {
          document.getElementById(name).value = value;
@@ -1036,11 +1040,19 @@ function noticeOrder(s) {
             var r2 = getrr() ;
             ar = r1 / radiusscale ;
             br = r2 / radiusscale ;
-            if (ar + br > 2 && 4 * Math.max(ar, br) + Math.min(ar, br) < 5 * lim) {
+            if (dofull) {
+               if (ar + br > 2 && 4 * Math.max(ar, br) + Math.min(ar, br) < 5 * lim) {
+                  setUI('range1', r1);
+                  setUI('range3', r2);
+                  setUI('range5', 0.5*(r1+r2));
+                  break ;
+               }
+            } else {
                setUI('range1', r1);
                setUI('range3', r2);
                setUI('range5', 0.5*(r1+r2));
                break ;
+
             }
          }
          doanim(2);
