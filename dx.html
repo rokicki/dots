@@ -260,8 +260,8 @@ function doanim(typ) {
     }
     sc = Math.min(((height-2*marg)*zoom)/4.3, ((width-2 * marg)*zoom)/6.3);
     if (newxoff != 0 || newyoff != 0) {
-       xoff = newxoff * sc;
-       yoff = newyoff * sc;
+       xoff = - newxoff * sc / (scale * zoom);
+       yoff = newyoff * sc / (scale * zoom) ;
        newxoff = 0;
        newyoff = 0;
     }
@@ -911,10 +911,10 @@ function setquerystring() {
        qs.push("zoom=" + zoom);
     }
     if (xoff != 0) {
-       qs.push("x=" + xoff / sc);
+       qs.push("x=" + (-xoff*scale*zoom/sc));
     }
     if (yoff != 0) {
-       qs.push("y=" + -yoff / sc);
+       qs.push("y=" + yoff*scale*zoom/sc);
     }
     const url = new URL(window.location.href);
     url.search = qs.join("&");
@@ -1094,7 +1094,7 @@ function noticeOrder(s) {
             document.getElementById("range1").value = radiusscale * lim;
             document.getElementById("range6").value = radiusscale * lim;
             document.getElementById("range3").value = radiusscale * lim;
-            doanim();
+            doanim(2);
          }
       }
       function getrr() {
@@ -1204,7 +1204,7 @@ case 'x':
                gotzoom = 1;
                break;
 case 'y':
-               newyoff = -value;
+               newyoff = value;
                gotzoom = 1;
                break;
             }
