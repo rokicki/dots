@@ -1189,11 +1189,15 @@ case 'n2':
                setUI('range4', value);
                break;
 case 'gen':
-               dofull = false;
-               update_rot_label();
+               if (dofull) {
+                  dofull = false;
+                  update_rot_label();
+               }
                break;
 case 'point':
-               pttype = 2;
+               if (pttype != 2) {
+                  toggle_pttype();
+               }
                break;
 case 'zoom':
                zoom = value;
