@@ -943,6 +943,12 @@ function noticeOrder(s) {
          lc2.style.opacity = "1";
          keb.style.opacity = "1";
 
+         bc1.style.display = "flex";
+         lc1.style.display = "flex";
+         lc2.style.display = "flex";
+         keb.style.display = "flex";
+         // menu.style.display = "flex";
+
          if (timer) {
          clearTimeout(timer);
          }
@@ -954,7 +960,18 @@ function noticeOrder(s) {
                lc2.style.opacity = "0";
                keb.style.opacity = "0";
                menu.style.opacity = "0";
+
+               timer = setTimeout(function () {
+               bc1.style.display = "none";
+               lc1.style.display = "none";
+               lc2.style.display = "none";
+               keb.style.display = "none";
+               menu.style.display = "none";
+            }, 300);
+
             }, 3500);
+
+            
          }
       }
       
@@ -977,6 +994,7 @@ function noticeOrder(s) {
       function activate_hamburger_menu() {
         var menu = document.getElementById("menu");
         menu.style.opacity = "1";
+        menu.style.display = "block";
 
          if (timer) {
          clearTimeout(timer);
@@ -1498,7 +1516,7 @@ var cr = [[], [], [], [],
         background-color: #000000;
         border: 2px solid #4e4e4e;
         border-radius: 17%;
-        display: flex;
+        display: none;
         flex-direction: column;
         justify-content: center;
         align-items: center;
@@ -1525,7 +1543,7 @@ var cr = [[], [], [], [],
         color: #fff;
         border-radius: 5px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-        display: block;
+        display: none;
         z-index: 999;
         opacity: 0;
         transition: opacity 0.3s;
