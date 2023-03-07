@@ -1158,6 +1158,7 @@ case 'zoom':
             }
          }
          onlySlider(1);
+         toggle_user_guide();
          // activate_ui();
       }
 
@@ -1461,8 +1462,10 @@ var cr = [[], [], [], [],
 
    if (ug.style.display == 'none'){
       ug.style.display = 'block';
-   } else{
+      updateValue('mi7', "Hide user guide");
+   } else {
       ug.style.display = 'none';
+      updateValue('mi7', "Show user guide");
    }
  }
 
@@ -1638,10 +1641,7 @@ var cr = [[], [], [], [],
         color: #ffffff;
         border-radius: 5px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-        display: 'none';
-        z-index: 999;
-        /* opacity: 0; */
-        transition: opacity 0.3s;
+        display: none;
       }
 
       #userguide ul {
@@ -1651,7 +1651,6 @@ var cr = [[], [], [], [],
       }
 
       #userguide li {
-        /* padding: 10px; */
         padding-left: 10px;
         padding-right: 10px;
         padding-top: 5px;
@@ -1683,7 +1682,7 @@ var cr = [[], [], [], [],
 		  <li id="mi4" onclick="activate_hamburger_menu(), activate_ui(), recolor(false)">New color palette</li>
         <li id="mi5" onclick="toggle_pttype(), activate_hamburger_menu(), activate_ui(), doanim()">Image boundary</li>
 		  <li id="mi6" onclick="toggle_rotype(), update_rot_label(), activate_hamburger_menu(), activate_ui(), doanim()">Simulate single generator</li>
-        <li id="mi7" onclick="toggle_user_guide()">Show/Hide user guide</li>
+        <li id="mi7" onclick="toggle_user_guide()">Show user guide</li>
 		</ul>
 	  </div>
 
@@ -1704,8 +1703,6 @@ var cr = [[], [], [], [],
          <li><i>n</i>: change symmetry of both discs</li>
          <li><i>r</i><sub>1, 2</sub>: change disc1, 2 size</li>
          <li><i>r</i> : change size of both discs</li>
-         <!-- <li>Keyboard controls</li>
-         <li>Keyboard controls</li> -->
 
 
       </ul>
