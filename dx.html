@@ -671,6 +671,7 @@ function doworkfull() {
                define_color();  
             }
             if (useinfcolor) {
+               mindist = 1e-9;
                ctx.fillStyle = "rgb(128,128,128)";
             } else {
                ctx.fillStyle = pallete[ord];
@@ -843,6 +844,7 @@ function doworkgen() {
                define_color(); 
             }
             if (useinfcolor) {
+               mindist = 1e-9;
                ctx.fillStyle = "rgb(128,128,128)";
             } else {
                ctx.fillStyle = pallete[ord];
