@@ -1277,7 +1277,7 @@ case 'y':
             yoff += 10;
             doanim(1) ;
          } else if (e.keyCode === ".".codePointAt(0)) {
-            pttype = (pttype % 3) + 1 ;
+            pttype = (pttype % 2) + 1 ;
             doanim() ;
          } else if (e.keyCode === "c".codePointAt(0)) {
             curthink = 15 * defaultthink ;
