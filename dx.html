@@ -29,7 +29,7 @@ var pttype = 1 ;
 /*
  *   Internal rendering parameters.
  */
-var x0=0, y0=0 ;
+var x=0, y=0, x0=0, y0=0 ;
 var canvas, ctx;
 var fullscreen=false;
 var deepest = 0;
@@ -468,7 +468,6 @@ function findunsetbit() {
    }
 }
 function doworkfull() {
-    var x, y;
     var start = performance.now();
     if (start > stoptime || stopped) {
         stopped = true;
@@ -705,7 +704,6 @@ function doworkfull() {
     }
 }
 function doworkgen() {
-    var x, y;
     var start = performance.now();
     if (start > stoptime || stopped) {
         stopped = true;
