@@ -2,6 +2,7 @@
  *   Test cyclotomics.
  */
 #include <iostream>
+#include <iomanip>
 #include <map>
 #include "cyc.h"
 #include "cplexmv.h"
@@ -15,13 +16,19 @@ struct dat {
    doub minr ;
 } ;
 map<cyclo, dat> world ;
-int main() {
+int main(int argc, char *argv[]) {
+   cout << setprecision(20) ;
    cyclo a ;
+   cyclo low ;
    point ap ;
-   for (int i=0; i<100; i++) {
-      cout << a << endl ;
-      cout << ap << endl ;
-      cout << expand<7, doub>(a) << endl ;
+   world[a] = {ap, -1, 1.0} ;
+   for (int i=0; i<1000000000; i++) {
+      if (a < low) {
+         low = a ;
+         cout << "New low at " << i << " " << low << endl ;
+         cout << ap << endl ;
+         cout << expand<7, doub>(a) << endl ;
+      }
       int m = (int)(4*drand48()) ;
       a = a.move(m) ;
       ap = ap.move(m) ;

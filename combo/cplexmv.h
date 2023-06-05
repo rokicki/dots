@@ -37,6 +37,10 @@ template<int N, typename F> struct cplexmv {
         int ang = (mv & 1) ? 1 : N-1 ;
         return ((*this)+off)*a[ang]-off ;
     }
+    F r2formove(int mv) const {
+        F off = 1-(2&mv);
+        return (x+off)*(x+off)+y*y;
+    }
     cplexmv &operator+=(const cplexmv &b) {
         y += b.y ;
         x += b.x ;

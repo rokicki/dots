@@ -37,7 +37,7 @@ template<int N> std::ostream& operator<<(std::ostream& os, const cyc<N>& v) {
    return os ;
 }
 template<int N> bool operator<(const cyc<N> &a, const cyc<N> &b) {
-   return a.a < a.b ;
+   return a.a < b.a ;
 }
 template<int N> struct ocyc: cyc<N> {
    ocyc() {
@@ -54,6 +54,11 @@ template<int N> struct ocyc: cyc<N> {
 template<int N> std::ostream& operator<<(std::ostream& os, const ocyc<N>& v) { 
    os << (cyc<N>)(v) << "@" << v.dir ;
    return os ;
+}
+template<int N> bool operator<(const ocyc<N> &a, const ocyc<N> &b) {
+   if (a.a != b.a)
+      return a.a < b.a ;
+   return a.dir < b.dir ;
 }
 #define CYC_H
 #endif
