@@ -2,16 +2,28 @@
 #include <ostream>
 #include "cyc.h"
 double gcos(double v) {
-    return cos(v);
-}
-double gsin(double v) {
-    return sin(v);
+    return cos(v) ;
 }
 long double gcos(long double v) {
-    return cosl(v);
+    return cosl(v) ;
+}
+double gsin(double v) {
+    return sin(v) ;
 }
 long double gsin(long double v) {
-    return sinl(v);
+    return sinl(v) ;
+}
+double gatan2(double y, double x) {
+    return atan2(y, x) ;
+}
+long double gatan2(long double y, long double x) {
+    return atan2l(y, x) ;
+}
+double gsqrt(double v) {
+    return sqrt(v) ;
+}
+long double gsqrt(long double v) {
+    return sqrtl(v) ;
 }
 template<typename F> F gpi() {
 }
@@ -74,6 +86,9 @@ template<int N, typename F> struct cplexmv {
     }
     cplexmv operator*(int m) const {
         return {x*m, y*m} ;
+    }
+    F degrees() const {
+        return 180 / gpi<F>() * gatan2(y, x) ;
     }
     F y, x;
 };
