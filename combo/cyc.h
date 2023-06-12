@@ -27,6 +27,12 @@ template<int N> struct cyc {
          r.a[i] = v[i] - o ;
       return r ;
    }
+   cyc operator+(const cyc &b) const {
+      cyc r ;
+      for (int i=0; i<N-1; i++)
+         r.a[i] = a[i] + b.a[i] ;
+      return r ;
+   }
    std::array<int, N-1> a ;
 } ;
 template<int N> std::ostream& operator<<(std::ostream& os, const cyc<N>& v) { 
@@ -53,6 +59,13 @@ template<int N> struct ocyc: cyc<N> {
       ocyc r ;
       r.a = ((cyc<N>*)this)->move(m).a ;
       r.dir = (dir + 1 - (2 * (m & 1)) + N) % N ;
+      return r ;
+   }
+   ocyc operator+(const ocyc &b) const {
+      ocyc r ;
+      for (int i=0; i<N-1; i++)
+         r.a[i] = this->a[i] + b.a[i] ;
+      r.dir = dir ;
       return r ;
    }
    int dir ;
