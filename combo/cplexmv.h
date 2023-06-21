@@ -99,7 +99,7 @@ template<int N, typename F> std::ostream& operator<<(std::ostream& os, const cpl
 template<int N, typename F> cplexmv<N, F> expand(const cyc<N> &c) {
     cplexmv<N, F> v ;
     auto a = v.roots() ;
-    for (int i=0; i<N-1; i++)
+    for (int i=0; i<cyc<N>::PHI; i++)
        v += a[i] * c.a[i];
     return v;
 }
