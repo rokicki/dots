@@ -30,6 +30,12 @@ template<int N_, int U_> struct fixpt {
       for (int i=0; i<N-1; i++)
          b[i] = 0 ;
    }
+   fixpt(double v) {
+      setfromdouble(v) ;
+   }
+   fixpt(int v) {
+      setfromdouble((double)v) ;
+   }
    fixpt(const char *s, int dummy) {
       setfromstring(s) ;
    }
@@ -207,20 +213,22 @@ template<int N_, int U_> struct fixpt {
          a = 10 * a + *s++ - '0' ;
       if (*s == '.')
          s++ ;
-      a <<= (64-U) ;
+      ll fulla = a << (64 - U);
+      a = 0 ;
       ll GUARD = 1 ;
-      while (5*GUARD < (1LL << U))
+      while (11*GUARD < (1LL << U))
          GUARD *= 5 ;
       *this *= GUARD ;
-      fixpt<N, U> v10, t ;
+      fixpt<N, U> v10 ;
       v10 = GUARD ;
       for (; '0' <= *s && *s <= '9'; s++) {
          v10 /= 10 ;
-         t = v10 ;
-         t *= *s-'0' ;
-         *this += t ;
+         for (int i='0'; i<*s; i++) {
+            *this += v10 ;
+         }
       }
       *this /= GUARD ;
+      a += fulla ;
       if (neg)
          negate() ;
       return s ;
@@ -277,6 +285,9 @@ template<int N_, int U_> struct fixpt {
       if (a != e)
          return a < e ;
       return false ;
+   }
+   bool operator>(const fixpt<N, U> &e) const {
+      return e < *this ;
    }
 } ;
 template<typename fp> constexpr int getGoodShift() { return (fp::U / 2 - 1) & ~1 ; }
@@ -396,4 +407,12 @@ case 3:
    if (negs)
       si = - si ;
    return {ci, si} ;
+}
+namespace rsort {
+   template<int N, int U> struct sortdata<fixpt<N, U>> {
+      static constexpr int keylength = sizeof(fixpt<N, U>) ;
+      static constexpr int signbyte = 7 ;
+      static int byteorder(int i) { return ((8*N-1)-i)^7 ; }
+      static constexpr bool revneg = false ;
+   } ;
 }
