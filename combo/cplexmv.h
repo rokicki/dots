@@ -1,5 +1,6 @@
 #include <math.h>
 #include <ostream>
+#include <cstdlib>
 #include "cyc.h"
 double gcos(double v) {
     return cos(v) ;
@@ -24,6 +25,12 @@ double gsqrt(double v) {
 }
 long double gsqrt(long double v) {
     return sqrtl(v) ;
+}
+void fromstring(const char *s, double &v) {
+   v = strtod(s, 0) ;
+}
+void fromstring(const char *s, long double &v) {
+   v = strtold(s, 0) ;
 }
 template<typename F> F gpi() {
 }

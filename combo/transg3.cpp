@@ -25,7 +25,8 @@ const char *mvstr[] = {"a", "a'", "b", "b'"} ;
 ll target = 65536 ;
 int main(int argc, char *argv[]) {
    cout << setprecision(20) ;
-   doub r = atof(argv[1]) ;
+   doub r ;
+   fromstring(argv[1], r) ;
    doub rr = r * r ;
    cyclo a, z ;
    point ap ;
