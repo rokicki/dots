@@ -18,7 +18,6 @@ using namespace std ;
 struct dat {
    point p ;
    int mv ;
-   doub minr ;
 } ;
 map<cyclo, dat> world ;
 const char *mvstr[] = {"a", "a'", "b", "b'"} ;
@@ -31,7 +30,7 @@ int main(int argc, char *argv[]) {
    cyclo a, z ;
    point ap ;
    ll hiw = -1 ;
-   world[a] = {ap, -1, 1.0} ;
+   world[a] = {ap, -1} ;
    vector<cyclo> lev, plev ;
    lev.push_back(a) ;
    ll tot = 0 ;
@@ -50,10 +49,8 @@ int main(int argc, char *argv[]) {
       vector<cyclo> nlev ;
       for (auto &a: lev) {
          auto ap = expand<N, doub>(a) ;
-         auto it = world.find(a) ;
-         doub ra = it->second.minr ;
          if (abs(ap.x) < 1e-4 && abs(ap.y) < 1e-4)
-           cout << " " << ap.x << " " << ap.y << endl ;
+            cout << " " << ap.x << " " << ap.y << endl ;
          for (int m2=0; m2<4; m2+=2) {
             doub m2a = ap.r2formove(m2) ;
             if (m2a < rr)
@@ -72,11 +69,8 @@ int main(int argc, char *argv[]) {
                   if (bp.r2formove(m2^2) < rr) {
                      auto ptr = world.find(b) ;
                      if (ptr == world.end()) {
-                        world[b] = {bp, m, max(ra, m2a)} ;
+                        world[b] = {bp, m} ;
                         nlev.push_back(b) ;
-                     } else if (max(ra, m2a) < ptr->second.minr) {
-                        ptr->second.minr = max(ra, m2a) ;
-                        ptr->second.mv = m ;
                      }
                   }
                }
