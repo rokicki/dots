@@ -416,6 +416,12 @@ case 3:
       si = - si ;
    return {ci, si} ;
 }
+template<int N, int U> double getdouble(const fixpt<N, U> &v) {
+   return v.getdouble() ;
+}
+template<int N, int U> const char *setfromstring(const char *s, fixpt<N,U> &d) {
+   return d.setfromstring(s) ;
+}
 namespace rsort {
    template<int N, int U> struct sortdata<fixpt<N, U>> {
       static constexpr int keylength = sizeof(fixpt<N, U>) ;
