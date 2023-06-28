@@ -59,6 +59,10 @@ template<int N_, int U_> struct fixpt {
       a += v << (64-U) ;
       return *this ;
    }
+   fixpt<N, U> &operator+=(int v) {
+      a += ((ll)v) << (64-U) ;
+      return *this ;
+   }
    fixpt<N, U> &operator-=(const fixpt<N, U> &e) {
       ulll nd = 1;
       for (int i=N-2; i>=0; i--) {
@@ -71,6 +75,10 @@ template<int N_, int U_> struct fixpt {
    }
    fixpt<N, U> &operator-=(ll v) {
       a -= v << (64-U) ;
+      return *this ;
+   }
+   fixpt<N, U> &operator-=(int v) {
+      a -= ((ll)v) << (64-U) ;
       return *this ;
    }
    void negate() {
@@ -237,8 +245,8 @@ template<int N_, int U_> struct fixpt {
       double v = b[N-2] ;
       for (int i=N-3; i>=0; i--)
          v = b[i] + 0x1p-64 * v ;
-      const double scale1 = shift_to_double(64-U) ;
-      const double scale2 = shift_to_double(128-U) ;
+      const double scale1 = shift_to_double(U-64) ;
+      const double scale2 = shift_to_double(U-128) ;
       return a * scale1 + v * scale2 ;
    }
    bool operator==(const fixpt<N, U> &e) const {
