@@ -45,6 +45,16 @@ template<int N_, int U_> struct fixpt {
          b[i] = 0 ;
       return *this ;
    }
+   fixpt<N, U> &operator=(int v) {
+      a = ((ll)v) << (64-U) ;
+      for (int i=0; i<N-1; i++)
+         b[i] = 0 ;
+      return *this ;
+   }
+   fixpt<N, U> &operator=(double v) {
+      setfromdouble(v) ;
+      return *this ;
+   }
    fixpt<N, U> &operator+=(const fixpt<N, U> &e) {
       ulll nd = 0;
       for (int i=N-2; i>=0; i--) {
