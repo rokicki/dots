@@ -1,67 +1,67 @@
 from math import *
 from PIL import Image, ImageDraw
 
-def in_disc(point_in: complex, shift_in: int, rad_in: float):
-    point_in += shift_in
-    if sqrt(point_in.real ** 2 + point_in.imag ** 2) <= rad_in:
-        return True
-    return False
+def in_disc(point: complex, shift: int, rad: float):
+    is_in = sqrt((point.real + shift) ** 2 + point.imag ** 2) <= rad
+    return is_in
 
 
-def turn(point_in: complex):
-    global N1, N2, R1, R2, dot_list, draw
-    temp = point_in + 1
+def turn(point: complex):
+    global N1, N2, R1, R2, dot_list, draw, left_complex, right_complex
+    point_being_rotated = point + 1
     for _ in range(N1 - 1):
-        temp *= complex(cos(2 * pi / N1), sin(2 * pi / N1))
-        temp -= 1
-        draw_point(temp)
-        if in_disc(temp, 1, R1) and in_disc(temp, -1, R2):
-            hash_check(temp)
-        temp += 1
+        point_being_rotated *= left_complex
+        point_being_rotated -= 1
+        draw_point(point_being_rotated)
+        if in_disc(point_being_rotated, 1, R1) and in_disc(point_being_rotated, -1, R2):
+            check_if_visited(point_being_rotated)
+        point_being_rotated += 1
 
-    temp = point_in - 1
+    point_being_rotated = point - 1
     for _ in range(N2 - 1):
-        temp *= complex(cos(2 * pi / N2), sin(2 * pi / N2))
-        temp -= -1
-        draw_point(temp)
-        if in_disc(temp, 1, R1) and in_disc(temp, -1, R2):
-            hash_check(temp)
-        temp += -1
+        point_being_rotated *= right_complex
+        point_being_rotated -= -1
+        draw_point(point_being_rotated)
+        if in_disc(point_being_rotated, 1, R1) and in_disc(point_being_rotated, -1, R2):
+            check_if_visited(point_being_rotated)
+        point_being_rotated += -1
 
 
-def draw_point(point_in: complex):
+def draw_point(point: complex):
     global x_shift, y_shift, ppud, draw
-    x = floor(point_in.real * ppud) + x_shift
-    y = floor(point_in.imag * ppud) + y_shift
+    x = floor(point.real * ppud) + x_shift
+    y = floor(point.imag * ppud) + y_shift
     draw.point((x, y), fill=(255, 255, 255))
 
 
-def hash_check(point_in: complex):
-    global intersection_dictionary, dot_list
-    x_string = str(int(point_in.real * 10 ** 8))
-    y_string = str(int(point_in.imag * 10 ** 8))
-    hashed = hash(x_string + " " + y_string)
-    if hashed not in intersection_dictionary.keys():
-        intersection_dictionary[hashed] = 0
-        dot_list.append(point_in)
+def check_if_visited(point: complex):
+    global to_be_rotated, dot_list
+    x_string = str(int(point.real * 10 ** 8))
+    y_string = str(int(point.imag * 10 ** 8))
+    xy_string = x_string + " " + y_string
+    if xy_string not in to_be_rotated.keys():
+        to_be_rotated[xy_string] = 0
+        dot_list.append(point)
 
-# Simulation parameters. Play around with these
-R1, R2 = 1.623, 1.623  # define the radii of the left and right disc
-N1, N2 = 7, 7  # define the rotational symmetry of the left and right disc
-ppud = 700  # shorthand for 'pixels per unit distance'
+
+# Simulation parameters. Play around with these!
+phi = (1+sqrt(5))/2
+R1, R2 = sqrt(3+phi), sqrt(3+phi)  # define the radii of the left and right disc
+N1, N2 = 5, 5  # define the rotational symmetry of the left and right disc
+ppud = 501  # shorthand for 'pixels per unit distance'
 starting_point = complex(0, 0)  # define the point you want to have the symmetries act on
 
-
-# create an image based on the simulation parameters and draw the circle boundaries
+# create an image based on the simulation parameters and draw the circle boundaries. Don't change these.
 x_size = floor((R1 + R2 + 2.5) * ppud) + 4
 y_size = floor((2 * max(R1, R2) + 0.5) * ppud) + 4
 x_shift = int(x_size / 2)
 y_shift = int(y_size / 2)
-
 im = Image.new(mode="RGB", size=(int(x_size), int(y_size)), color=(0, 0, 0))
 draw = ImageDraw.Draw(im)
 dot_list = [starting_point]  # this object is a 'queue' for points in the intersection that need to be rotated
-intersection_dictionary = {}  # this object is the ordered list which stores the hashes of the points in the intersection
+to_be_rotated = {}  # this object is the ordered list which stores the hashes of the points in the intersection
+left_complex = complex(cos(2 * pi / N1), sin(2 * pi / N1))
+right_complex = complex(cos(2 * pi / N2), sin(2 * pi / N2))
 draw_point(starting_point)
 left_center = complex(-1, 0)
 draw.ellipse((int(ppud * (left_center.real - R1)) + x_shift, int(ppud * (left_center.imag - R1)) + y_shift,
@@ -74,7 +74,7 @@ draw.ellipse((int(ppud * (right_center.real - R2)) + x_shift, int(ppud * (right_
 
 # Main loop driving the simulation
 count = 0
-while len(dot_list) > 0 and count < 50000:
+while len(dot_list) > 0 and count < 500000:
     point_being_checked = dot_list.pop(0)
     turn(point_being_checked)
     count += 1
