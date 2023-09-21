@@ -45,22 +45,23 @@ def hash_check(point_in: complex):
         intersection_dictionary[hashed] = 0
         dot_list.append(point_in)
 
-
+# Simulation parameters. Play around with these
 R1, R2 = 1.623, 1.623  # define the radii of the left and right disc
 N1, N2 = 7, 7  # define the rotational symmetry of the left and right disc
 ppud = 700  # shorthand for 'pixels per unit distance'
 starting_point = complex(0, 0)  # define the point you want to have the symmetries act on
-dot_list = [starting_point]  # this object is a 'queue' for points in the intersection that need to be rotated
-intersection_dictionary = {}  # this object is the ordered list which stores the hashes of the points in the intersection
+
 
 # create an image based on the simulation parameters and draw the circle boundaries
 x_size = floor((R1 + R2 + 2.5) * ppud) + 4
 y_size = floor((2 * max(R1, R2) + 0.5) * ppud) + 4
 x_shift = int(x_size / 2)
 y_shift = int(y_size / 2)
+
 im = Image.new(mode="RGB", size=(int(x_size), int(y_size)), color=(0, 0, 0))
 draw = ImageDraw.Draw(im)
-
+dot_list = [starting_point]  # this object is a 'queue' for points in the intersection that need to be rotated
+intersection_dictionary = {}  # this object is the ordered list which stores the hashes of the points in the intersection
 draw_point(starting_point)
 left_center = complex(-1, 0)
 draw.ellipse((int(ppud * (left_center.real - R1)) + x_shift, int(ppud * (left_center.imag - R1)) + y_shift,
@@ -71,12 +72,12 @@ draw.ellipse((int(ppud * (right_center.real - R2)) + x_shift, int(ppud * (right_
               int(ppud * (right_center.real + R2)) + x_shift, int(ppud * (right_center.imag + R2)) + y_shift),
              outline=(255, 50, 0))
 
-# the main loop driving the simulation
+# Main loop driving the simulation
 count = 0
 while len(dot_list) > 0 and count < 50000:
     point_being_checked = dot_list.pop(0)
     turn(point_being_checked)
     count += 1
 
-# show the image
+# display the image
 im.show()
